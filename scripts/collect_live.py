@@ -206,16 +206,36 @@ def main() -> int:
 
     collector = Collector(args.server, args.raw_dir)
     collected_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    repositories = list_rows(collector.api("artifactory-repositories", "/artifactory/api/repositories"))
-    storage = collector.api("artifactory-storage", "/artifactory/api/storageinfo")
-    watches = list_rows(collector.api("xray-watches", "/xray/api/v2/watches"), "watches")
-    policies = list_rows(collector.api("xray-policies", "/xray/api/v2/policies"), "result", "policies")
-    indexed = list_rows(collector.api("xray-indexed-repositories", "/xray/api/v1/binMgr/default/repos"), "indexed_repos", "repos")
-    curation_rows, curation_meta = fetch_curation(
-        collector, args.date_from, args.date_to,
-        datetime.fromisoformat(collected_at.replace("Z", "+00:00")),
-    )
-    violations, violation_meta = fetch_violations(collector, args.date_from, args.date_to)
+
+    def collect_inventory() -> dict:
+        return {
+            "repositories": list_rows(collector.api("artifactory-repositories", "/artifactory/api/repositories")),
+            "storage": collector.api("artifactory-storage", "/artifactory/api/storageinfo"),
+            "watches": list_rows(collector.api("xray-watches", "/xray/api/v2/watches"), "watches"),
+            "policies": list_rows(collector.api("xray-policies", "/xray/api/v2/policies"), "result", "policies"),
+            "indexed": list_rows(collector.api("xray-indexed-repositories", "/xray/api/v1/binMgr/default/repos"), "indexed_repos", "repos"),
+        }
+
+    # Inventory, Curation and Xray findings are independent read-only tracks.
+    # Running only these three tracks concurrently mirrors the proven CISO
+    # collector pattern while keeping per-endpoint pagination limits unchanged.
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        inventory_future = pool.submit(collect_inventory)
+        curation_future = pool.submit(
+            fetch_curation, collector, args.date_from, args.date_to,
+            datetime.fromisoformat(collected_at.replace("Z", "+00:00")),
+        )
+        violation_future = pool.submit(fetch_violations, collector, args.date_from, args.date_to)
+        inventory = inventory_future.result()
+        curation_rows, curation_meta = curation_future.result()
+        violations, violation_meta = violation_future.result()
+
+    repositories = inventory["repositories"]
+    storage = inventory["storage"]
+    watches = inventory["watches"]
+    policies = inventory["policies"]
+    indexed = inventory["indexed"]
+    sources = sorted(collector.sources, key=lambda row: row["id"])
 
     action_counts = Counter(str(row.get("action") or "unknown").lower() for row in curation_rows)
     unique_users = {str(row.get("username") or row.get("user_mail") or "").strip() for row in curation_rows}
@@ -234,7 +254,7 @@ def main() -> int:
         "provenance": {
             "source": "live", "server_id": args.server, "collector": "jfrog-platform-report",
             "collection_started_at": collected_at, "prior_report_input_used": False,
-            "raw_manifest": collector.sources,
+            "raw_manifest": sources,
         },
         "reporting": {"cadence": args.cadence, "timezone": args.timezone,
                       "period": {"start": args.date_from, "end": args.date_to}},
@@ -277,7 +297,7 @@ def main() -> int:
     (args.raw_dir / "manifest.json").write_text(json.dumps({
         "schema_version": "1.0", "server_id": args.server,
         "period": result["reporting"]["period"], "prior_report_input_used": False,
-        "sources": collector.sources,
+        "sources": sources,
     }, indent=2) + "\n", encoding="utf-8")
     print(args.output)
     return 0

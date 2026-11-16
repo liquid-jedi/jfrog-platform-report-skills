@@ -31,7 +31,7 @@ Install APM using an official method from <https://microsoft.github.io/apm/>. Th
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.3.2 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
   --target claude,cursor,codex,gemini
 ```
 

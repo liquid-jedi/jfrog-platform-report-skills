@@ -13,6 +13,7 @@ import json
 import shutil
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, time, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -102,13 +103,28 @@ def ai_seed(path: Path, supplied: Path | None) -> None:
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
-def run(command: list[str], required: bool, diagnostics: list[dict]) -> bool:
+def execute(command: list[str], required: bool) -> tuple[bool, dict]:
     result = subprocess.run(command, text=True, capture_output=True)
-    diagnostics.append({"command": Path(command[1]).name, "required": required, "returncode": result.returncode,
-                        "stdout": result.stdout.strip(), "stderr": result.stderr.strip()})
+    diagnostic = {"command": Path(command[1]).name, "required": required, "returncode": result.returncode,
+                  "stdout": result.stdout.strip(), "stderr": result.stderr.strip()}
     if result.returncode and required:
         raise RuntimeError(f"{Path(command[1]).name} failed: {(result.stderr or result.stdout).strip()}")
-    return result.returncode == 0
+    return result.returncode == 0, diagnostic
+
+
+def run(command: list[str], required: bool, diagnostics: list[dict]) -> bool:
+    ok, diagnostic = execute(command, required)
+    diagnostics.append(diagnostic)
+    return ok
+
+
+def run_parallel(tasks: list[tuple[list[str], bool]], diagnostics: list[dict]) -> list[bool]:
+    """Run independent collectors concurrently and preserve diagnostic order."""
+    with ThreadPoolExecutor(max_workers=len(tasks)) as pool:
+        futures = [pool.submit(execute, command, required) for command, required in tasks]
+        results = [future.result() for future in futures]
+    diagnostics.extend(diagnostic for _, diagnostic in results)
+    return [ok for ok, _ in results]
 
 
 def main() -> int:
@@ -136,20 +152,20 @@ def main() -> int:
     diagnostics_path = run_dir / "collection-diagnostics.json"
     try:
         run(commands[0], True, diagnostics); run(commands[1], True, diagnostics)
-        traffic_ok = run(commands[2], False, diagnostics)
+        traffic_ok, skill_ok, access_ok = run_parallel(
+            [(commands[2], False), (commands[5], False), (commands[6], False)], diagnostics
+        )
         if traffic_ok:
             run(commands[3], True, diagnostics)
         else:
             shutil.copyfile(run_dir / "data.base.json", run_dir / "data.traffic.json")
         run(commands[4], True, diagnostics)
-        skill_ok = run(commands[5], False, diagnostics)
         ai_path = run_dir / "ai-security.json"
         if not ai_path.exists(): shutil.copyfile(run_dir / "ai-security-seed.json", ai_path)
         if not skill_ok:
             value = json.loads(ai_path.read_text(encoding="utf-8")); value["status"] = "partial"
             value.setdefault("limitations", []).append("Skills security collection failed; see collection diagnostics.")
             ai_path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-        access_ok = run(commands[6], False, diagnostics)
         merge = commands[7]
         if not access_ok:
             merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]

@@ -36,8 +36,8 @@ class ModularityAndPortabilityTests(unittest.TestCase):
 
     def test_template_is_versioned(self):
         template = (ROOT / "assets" / "dashboard.html").read_text(encoding="utf-8")
-        self.assertIn('data-jfrog-template-version="1.2.1"', template)
-        self.assertIn('name="jfrog-report-template-version" content="1.2.1"', template)
+        self.assertIn('data-jfrog-template-version="1.3.0"', template)
+        self.assertIn('name="jfrog-report-template-version" content="1.3.0"', template)
         self.assertIn('__JFROG_OPEN_SANS_FONT__', template)
         self.assertIn('--page:#050b18', template)
         self.assertIn('--panel:#000;--panel2:#000', template)

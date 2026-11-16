@@ -5,7 +5,7 @@
 _A weekly operating record for JFrog Platform value, risk and action._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.3.2-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.3.2)
+[![Release](https://img.shields.io/badge/RELEASE-v1.4.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.4.0)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -69,7 +69,7 @@ apm init -y
 Install the pinned release:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.3.2 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -190,6 +190,8 @@ assumptions and missing FX evidence are rejected rather than estimated by the ag
 ```text
 <report-root>/<instance>/weekly/<week-ending>/
 ├── report.html
+├── executive-report.pdf
+├── full-report.pdf
 ├── data.json
 ├── latest.json
 └── runs/<UTC-run-id>/
@@ -221,6 +223,15 @@ python3 scripts/render_report.py \
   --template assets/dashboard.html \
   --output /path/to/report.html \
   --modules executive,trend,artifactory,ai-security,recommendations,evidence
+```
+
+Export polished A4 reports from the validated HTML:
+
+```bash
+python3 scripts/export_report_pdfs.py \
+  --html /path/to/report.html \
+  --output-dir /path/to/report-folder \
+  --mode both
 ```
 
 <details>

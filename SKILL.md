@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.3.2"
+  version: "1.4.0"
 ---
 
 # JFrog Platform Report Skill
@@ -74,6 +74,12 @@ from Xray composition analysis; related evidence may be linked but not summed.
 Use `scripts/generate_report.py --help` for the legacy offline vertical slice.
 Use `scripts/collect_live.py` for the base live collector. It intentionally has no
 resume/import option and requires a new raw-evidence directory for each run.
+Its inventory, Curation and Xray period tracks run concurrently with bounded workers;
+do not split them into separate agent tool calls or increase their worker counts without
+rate-limit testing. The weekly runner also executes the independent traffic, AI skill
+security and access-governance collectors concurrently, then merges their results in a
+fixed order. Parallel completion order must never change raw filenames, manifests,
+diagnostics or normalized output.
 `scripts/collect_access_governance.py` for a redacted token/OIDC posture snapshot, and
 `scripts/collect_artifactory_traffic.py` on every live run to preserve cumulative
 application counters and calculate deltas from the preceding successful snapshot, and
@@ -90,6 +96,9 @@ envelopes without treating them as historical activity. Cross-watch violations a
 components, and impacted artifacts; period-created findings are never labeled open backlog.
 Use `scripts/render_report.py --modules all` for the complete report or pass a
 comma-separated subset such as `--modules curation,xray,evidence`.
+Use `scripts/export_report_pdfs.py` after rendering to produce the dedicated light-paper
+Executive and Full PDF presentations. PDF export changes presentation only and consumes
+the same validated report HTML and embedded JSON.
 Read [architecture](references/architecture.md) before extending collectors,
 [data sources](references/data-source-matrix.md) before live collection, and
 [metric contract](references/metric-contract.md) before adding calculations.

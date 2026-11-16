@@ -3,7 +3,9 @@ import json
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 
@@ -15,6 +17,20 @@ SPEC.loader.exec_module(WEEKLY)
 
 
 class LiveWeeklyRunnerTests(unittest.TestCase):
+    def test_parallel_collectors_preserve_declared_diagnostic_order(self):
+        commands = [[sys.executable, name] for name in ("slow.py", "fast.py", "medium.py")]
+
+        def fake_execute(command, required):
+            delays = {"slow.py": 0.03, "fast.py": 0.0, "medium.py": 0.01}
+            time.sleep(delays[Path(command[1]).name])
+            return True, {"command": Path(command[1]).name, "required": required, "returncode": 0}
+
+        diagnostics = []
+        with patch.object(WEEKLY, "execute", side_effect=fake_execute):
+            results = WEEKLY.run_parallel([(command, False) for command in commands], diagnostics)
+        self.assertEqual(results, [True, True, True])
+        self.assertEqual([row["command"] for row in diagnostics], ["slow.py", "fast.py", "medium.py"])
+
     def test_date_only_period_is_normalized_from_selected_timezone(self):
         start, end = WEEKLY.normalize_period("2026-11-09", "2026-11-15", "Asia/Kolkata")
         self.assertEqual(start, "2026-11-08T18:30:00Z")

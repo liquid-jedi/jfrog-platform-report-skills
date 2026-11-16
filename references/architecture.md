@@ -20,6 +20,20 @@ this broader JFrog Platform report.
 4. Calculation: deterministic metrics, scenarios, allocation, and double-count checks.
 5. Presentation: validated JSON injected into a fixed HTML template.
 
+## Bounded collection concurrency
+
+The base collector uses three independent read-only tracks: platform inventory,
+Curation activity and Xray period findings. Each paginated track retains its own
+bounded worker limit and pages are merged by stable offset or page number. The weekly
+runner separately groups traffic counters, AI skill security and access governance as
+three optional independent collectors. It records diagnostics in declared command
+order, not completion order.
+
+This is the same safe acceleration pattern proven by the CISO reference skill. It
+reduces wall-clock time without caching live evidence, skipping endpoints, weakening
+pagination validation or changing normalized results. Increasing concurrency beyond
+these bounds requires explicit load and rate-limit regression testing.
+
 Product modules are `curation`, `xray`, `artifactory`, `ai-security`, and `jas`.
 Their metric ownership, cross-module links, and presentation rules are defined in
 [product-modules.md](product-modules.md). Module filtering happens after normalization
