@@ -80,7 +80,7 @@ mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
 
-apm install liquid-jedi/jfrog-platform-report-skills#v1.0.1 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.0.2 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -132,8 +132,9 @@ The skill then:
 2. Resolves the last completed ISO week using the machine's local IANA timezone.
 3. Shows one compact confirmation with the instance, period, Full report profile and
    default output location. Reply `Proceed` to accept everything.
-4. Offers `Executive` or `Custom` only when requested; the full section list is shown
-   only for a Custom report.
+4. Uses native selectable controls when the agent host supports them. `Custom` opens a
+   multi-select/checkbox list; hosts without interactive controls use a numbered text
+   fallback.
 5. Collects fresh read-only evidence, validates it, renders the fixed template and
    checks the previous month for missed weekly coverage.
 

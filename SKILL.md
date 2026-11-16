@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # JFrog Platform Report Skill
@@ -150,9 +150,15 @@ or partial and must never be replaced by AI repository counts.
    Proceed? Reply Y, or say what to change (server, report, timezone or location).
    ```
 
-   If the user chooses Custom, run `scripts/list_report_sections.py` and then show the
-   numbered section labels. If the initial prompt already names a profile or sections,
-   validate it with `--select` and do not ask again.
+   When the host exposes a native choice UI, use a single-select control for `Full
+   (recommended)`, `Executive`, and `Custom`; do not make the user type the profile.
+   If the user chooses Custom, run `scripts/list_report_sections.py` and use the host's
+   native multi-select/checkbox control for the individual sections. Preselect every
+   section, make section labels human-readable, and require at least one selection.
+   Use a numbered plain-text list only when the host has no native interactive-choice
+   capability. Never claim checkboxes are available unless the current host actually
+   provides them. If the initial prompt already names a profile or sections, validate
+   it with `--select` and do not ask again.
    Section selection controls rendering only: collect and validate the full available
    evidence model, and pass the selected IDs to `run_live_weekly.py --modules`.
 
