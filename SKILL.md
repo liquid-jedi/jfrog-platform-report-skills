@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.0.4"
+  version: "1.0.5"
 ---
 
 # JFrog Platform Report Skill

@@ -155,8 +155,17 @@ def main() -> int:
         "Every primary metric in this report was built from this run's checksum-manifested raw API evidence; no prior report supplied a value.",
         f"Artifactory, Xray configuration and AI repository inventory are current-state observations as of {evidence['artifactory']['as_of']}; they are not historical month-end snapshots.",
         curation_scope.get("reason") or "Curation period coverage is complete.",
-        "Financial value is unavailable because customer currency, cost and realization assumptions were not provided.",
-        "Downloads, uploads and cache efficiency require matching boundary counters or bounded logs; current counters cannot be retroactively converted into historical monthly totals.",
+    ]
+    availability_notes = [
+        {"area": "Economic context", "status": "Input required",
+         "current_state": "No financial result is calculated without customer-supplied currency, costs and realization assumptions.",
+         "next_step": "Provide approved assumptions to enable deterministic conservative, expected and optimistic scenarios."},
+        {"area": "Inventory trends", "status": "Baseline established",
+         "current_state": "Artifactory, Xray configuration and AI inventory are point-in-time observations.",
+         "next_step": "Subsequent archived weekly snapshots enable change and trend comparisons."},
+        {"area": "Artifact traffic", "status": "Boundary snapshots required",
+         "current_state": "Download, upload and cache counters need two matching snapshots; historical activity is not inferred from one cumulative counter.",
+         "next_step": "The live runner now captures a counter snapshot each run; the next comparable snapshot enables a defensible delta."},
     ]
     risks = [{"title": "Critical Xray intake", "detail": f"{severity.get('critical', 0):,} critical findings were created in the selected period."}]
     if curation_status != "available":
@@ -223,6 +232,7 @@ def main() -> int:
                 "note": "Current policy configuration only; period JAS findings are not inferred from policy definitions."},
         "economic_model": {"status": "unavailable", "scenarios": {}, "assumptions": [], "unavailable_models": []},
         "limitations": limitations,
+        "availability_notes": availability_notes,
         "provenance": evidence["provenance"],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

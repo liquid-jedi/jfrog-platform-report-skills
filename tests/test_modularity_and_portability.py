@@ -36,8 +36,11 @@ class ModularityAndPortabilityTests(unittest.TestCase):
 
     def test_template_is_versioned(self):
         template = (ROOT / "assets" / "dashboard.html").read_text(encoding="utf-8")
-        self.assertIn('data-jfrog-template-version="1.0.0"', template)
-        self.assertIn('name="jfrog-report-template-version" content="1.0.0"', template)
+        self.assertIn('data-jfrog-template-version="1.1.0"', template)
+        self.assertIn('name="jfrog-report-template-version" content="1.1.0"', template)
+        self.assertIn("position:sticky;top:0;z-index:30", template)
+        self.assertIn("@page{size:A4", template)
+        self.assertIn("thead{display:table-header-group}", template)
 
     def test_apm_manifest_is_target_agnostic(self):
         manifest = (ROOT / "apm.yml").read_text(encoding="utf-8")

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -70,6 +71,7 @@ def main():
     parser.add_argument("--server-id", required=True)
     parser.add_argument("--snapshot-root", required=True, type=Path)
     parser.add_argument("--collected-at")
+    parser.add_argument("--output", type=Path, help="Optional run-local copy of the snapshot")
     args = parser.parse_args()
     collected = datetime.fromisoformat(args.collected_at.replace("Z", "+00:00")) if args.collected_at else datetime.now(timezone.utc)
     result = subprocess.run(["jf", "rt", "curl", "-s", "--server-id", args.server_id,
@@ -91,6 +93,9 @@ def main():
         "period_delta": delta(counters, prior),
     }
     output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    if args.output and args.output.resolve() != output.resolve():
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(output, args.output)
     print(output)
     return 0
 

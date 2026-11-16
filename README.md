@@ -80,7 +80,7 @@ mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
 
-apm install liquid-jedi/jfrog-platform-report-skills#v1.0.4 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.0.5 \
   --target claude,cursor,codex,gemini
 ```
 

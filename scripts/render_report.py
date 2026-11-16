@@ -477,12 +477,17 @@ def static_report(data, enabled=None):
         out.append(section("Recommended actions", "Prioritized operating decisions with an accountable owner and time horizon.", priority_panel(actions[:7]), anchor="recommendations"))
 
     limitations = ''.join(f'<div>• {esc(x)}</div>' for x in data["limitations"])
+    availability = data_table(
+        "Reporting capability roadmap", ["Area", "Current status", "Why", "What enables it"],
+        [(x.get("area"), x.get("status"), x.get("current_state"), x.get("next_step"))
+         for x in data.get("availability_notes", [])],
+    ) if data.get("availability_notes") else ""
     xray_ledger = ("Observed / derived", f'{meta.get("period_label")} watch violations; deduplicated issue/resource occurrences') if xray_has_findings else ("Unavailable", "No zero substituted")
     ledger_rows=[("Curation activity","Observed / derived",f'Bounded {meta.get("period_label")} audit activity'),("Xray period findings",xray_ledger[0],xray_ledger[1]),("JAS applicability","Derived","Applicability details in period findings; not added to Xray occurrence totals")]
     if data.get("platform",{}).get("metrics"): ledger_rows.insert(0,("Artifactory estate","Observed / derived","Preserved period-end repository snapshot"))
     ledger = data_table("Evidence classification", ["Area","Classification","Interpretation"], ledger_rows)
     if "evidence" in enabled:
-        out.append(section("Methodology & evidence notes", "Compact provenance notes for readers who need to validate interpretation.", ledger + f'<div class="callout neutral" style="margin-top:14px">{limitations}</div>', anchor="evidence"))
+        out.append(section("Methodology & evidence notes", "Compact provenance notes for readers who need to validate interpretation.", ledger + availability + f'<div class="callout neutral" style="margin-top:14px">{limitations}</div>', anchor="evidence"))
     return ''.join(out)
 
 

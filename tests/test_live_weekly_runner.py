@@ -44,6 +44,8 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
             names = [Path(row[1]).name for row in commands]
             collector = commands[0]
             self.assertEqual(collector[collector.index("--timezone") + 1], "UTC")
+            self.assertIn("collect_artifactory_traffic.py", names)
+            self.assertIn("apply_traffic_evidence.py", names)
             self.assertIn("collect_skill_security.py", names)
             merge = commands[names.index("merge_current_evidence.py")]
             self.assertIn("--ai-catalog-evidence", merge)

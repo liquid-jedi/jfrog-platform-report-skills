@@ -47,17 +47,24 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
     raw = run_dir / "raw"
     seed = run_dir / "ai-security-seed.json"
     ai = run_dir / "ai-security.json"
+    traffic = run_dir / "artifactory-traffic.json"
+    traffic_report = run_dir / "data.traffic.json"
+    snapshot_root = args.report_root / args.server / "snapshots" / "artifactory-traffic"
     commands = [
         [py, str(HERE / "collect_live.py"), "--server", args.server, "--date-from", args.date_from,
          "--date-to", args.date_to, "--timezone", args.timezone, "--cadence", "weekly", "--output", str(run_dir / "evidence.json"),
          "--raw-dir", str(raw)],
         [py, str(HERE / "build_report_from_live_evidence.py"), "--evidence", str(run_dir / "evidence.json"),
          "--raw-dir", str(raw), "--output", str(run_dir / "data.base.json")],
+        [py, str(HERE / "collect_artifactory_traffic.py"), "--server-id", args.server,
+         "--snapshot-root", str(snapshot_root), "--output", str(traffic)],
+        [py, str(HERE / "apply_traffic_evidence.py"), "--report", str(run_dir / "data.base.json"),
+         "--traffic", str(traffic), "--output", str(traffic_report)],
         [py, str(HERE / "collect_skill_security.py"), "--server-id", args.server, "--evidence", str(seed),
          "--output", str(ai), "--all-skills"],
         [py, str(HERE / "collect_access_governance.py"), "--server-id", args.server,
          "--output", str(run_dir / "access-governance.json")],
-        [py, str(HERE / "merge_current_evidence.py"), "--report", str(run_dir / "data.base.json"),
+        [py, str(HERE / "merge_current_evidence.py"), "--report", str(traffic_report),
          "--ai-catalog-evidence", str(ai), "--access-governance-evidence", str(run_dir / "access-governance.json"),
          "--output", str(run_dir / "data.current.json")],
         [py, str(HERE / "apply_weekly_trends.py"), "--report", str(run_dir / "data.current.json"),
@@ -123,18 +130,23 @@ def main() -> int:
     diagnostics_path = run_dir / "collection-diagnostics.json"
     try:
         run(commands[0], True, diagnostics); run(commands[1], True, diagnostics)
-        skill_ok = run(commands[2], False, diagnostics)
+        traffic_ok = run(commands[2], False, diagnostics)
+        if traffic_ok:
+            run(commands[3], True, diagnostics)
+        else:
+            shutil.copyfile(run_dir / "data.base.json", run_dir / "data.traffic.json")
+        skill_ok = run(commands[4], False, diagnostics)
         ai_path = run_dir / "ai-security.json"
         if not ai_path.exists(): shutil.copyfile(run_dir / "ai-security-seed.json", ai_path)
         if not skill_ok:
             value = json.loads(ai_path.read_text(encoding="utf-8")); value["status"] = "partial"
             value.setdefault("limitations", []).append("Skills security collection failed; see collection diagnostics.")
             ai_path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-        access_ok = run(commands[3], False, diagnostics)
-        merge = commands[4]
+        access_ok = run(commands[5], False, diagnostics)
+        merge = commands[6]
         if not access_ok:
             merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]
-        run(merge, True, diagnostics); run(commands[5], True, diagnostics); run(commands[6], True, diagnostics)
+        run(merge, True, diagnostics); run(commands[7], True, diagnostics); run(commands[8], True, diagnostics)
     finally:
         diagnostics_path.write_text(json.dumps(diagnostics, indent=2) + "\n", encoding="utf-8")
     report = json.loads((run_dir / "data.json").read_text(encoding="utf-8"))
