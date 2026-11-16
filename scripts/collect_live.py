@@ -36,10 +36,19 @@ class Collector:
                 input_path = Path(handle.name)
             command += ["-H", "Content-Type: application/json", "--input", str(input_path)]
         try:
-            result = subprocess.run(command, capture_output=True, text=True, timeout=timeout + 15)
+            result = None
+            for attempt in range(2):
+                result = subprocess.run(command, capture_output=True, text=True, timeout=timeout + 15)
+                diagnostic = (result.stderr or result.stdout).strip().lower()
+                transient_reset = any(token in diagnostic for token in (
+                    "connection reset", "connection was reset", "unexpected eof", "stream error",
+                ))
+                if result.returncode == 0 or not transient_reset or attempt == 1:
+                    break
         finally:
             if input_path:
                 input_path.unlink(missing_ok=True)
+        assert result is not None
         if result.returncode:
             diagnostic = (result.stderr or result.stdout).strip()
             raise RuntimeError(f"{self.server} failed for {path}: {diagnostic or 'unknown error'}")
@@ -158,9 +167,10 @@ def fetch_curation(collector: Collector, date_from: str, date_to: str,
 def fetch_violations(collector: Collector, date_from: str, date_to: str,
                      page_size: int = 500) -> tuple[list[dict], dict]:
     def fetch(page_number: int) -> tuple[int, dict]:
+        offset = (page_number - 1) * page_size
         payload = collector.api(f"xray-violations-{page_number:06d}", "/xray/api/v1/violations", method="POST", body={
             "filters": {"created_from": date_from, "created_until": date_to},
-            "pagination": {"limit": page_size, "offset": page_number,
+            "pagination": {"limit": page_size, "offset": offset,
                            "order_by": "severity", "direction": "desc"},
         })
         if not isinstance(payload, dict):

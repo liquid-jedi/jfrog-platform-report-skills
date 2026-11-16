@@ -1,4 +1,7 @@
 import importlib.util
+import json
+import subprocess
+import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,7 +22,40 @@ class FakeCollector:
         return {"meta": {"total_count": 0}, "data": []}
 
 
+class ViolationCollector:
+    def __init__(self):
+        self.offsets = []
+
+    def api(self, source_id, path, **kwargs):
+        offset = kwargs["body"]["pagination"]["offset"]
+        self.offsets.append(offset)
+        total = 1200
+        count = min(500, total - offset)
+        return {"total_violations": total, "violations": [
+            {"id": value} for value in range(offset, offset + count)
+        ]}
+
+
 class CollectLiveTests(unittest.TestCase):
+    def test_connection_reset_is_retried_once(self):
+        reset = subprocess.CompletedProcess([], 1, "", "connection reset by peer")
+        success = subprocess.CompletedProcess([], 0, json.dumps({"ok": True}), "")
+        with tempfile.TemporaryDirectory() as temp, patch.object(
+            LIVE.subprocess, "run", side_effect=[reset, success]
+        ) as mocked:
+            payload = LIVE.Collector("example", Path(temp)).api("source", "/artifactory/api/test")
+        self.assertEqual(payload, {"ok": True})
+        self.assertEqual(mocked.call_count, 2)
+
+    def test_xray_pagination_uses_record_offsets(self):
+        collector = ViolationCollector()
+        rows, meta = LIVE.fetch_violations(
+            collector, "2026-11-08T18:30:00Z", "2026-11-15T18:29:59Z"
+        )
+        self.assertEqual(sorted(collector.offsets), [0, 500, 1000])
+        self.assertEqual(len(rows), 1200)
+        self.assertTrue(meta["complete"])
+
     def test_curation_preserves_rfc3339_timestamp_separators(self):
         collector = FakeCollector()
         rows, meta = LIVE.fetch_curation(

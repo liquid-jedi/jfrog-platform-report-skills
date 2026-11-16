@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import subprocess
 import sys
@@ -8,9 +9,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "scripts" / "run_live_weekly.py"
+SPEC = importlib.util.spec_from_file_location("run_live_weekly", RUNNER)
+WEEKLY = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(WEEKLY)
 
 
 class LiveWeeklyRunnerTests(unittest.TestCase):
+    def test_date_only_period_is_normalized_from_selected_timezone(self):
+        start, end = WEEKLY.normalize_period("2026-11-09", "2026-11-15", "Asia/Kolkata")
+        self.assertEqual(start, "2026-11-08T18:30:00Z")
+        self.assertEqual(end, "2026-11-15T18:29:59Z")
+
+    def test_naive_datetimes_are_interpreted_in_selected_timezone(self):
+        start, end = WEEKLY.normalize_period(
+            "2026-11-09T00:00:00", "2026-11-15T23:59:59", "Asia/Kolkata"
+        )
+        self.assertEqual(start, "2026-11-08T18:30:00Z")
+        self.assertEqual(end, "2026-11-15T18:29:59Z")
+
     def test_skill_supports_short_natural_invocation(self):
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         interface = (ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")

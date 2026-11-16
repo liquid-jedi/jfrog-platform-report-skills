@@ -13,11 +13,33 @@ import json
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 
 HERE = Path(__file__).resolve().parent
+
+
+def normalize_period_bound(value: str, timezone_name: str, *, end: bool) -> str:
+    """Return an RFC3339 UTC bound, accepting a local date as a convenience."""
+    zone = ZoneInfo(timezone_name)
+    if len(value) == 10:
+        day = datetime.strptime(value, "%Y-%m-%d").date()
+        local = datetime.combine(day, time(23, 59, 59) if end else time.min, zone)
+    else:
+        local = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if local.tzinfo is None:
+            local = local.replace(tzinfo=zone)
+    return local.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def normalize_period(date_from: str, date_to: str, timezone_name: str) -> tuple[str, str]:
+    start = normalize_period_bound(date_from, timezone_name, end=False)
+    end = normalize_period_bound(date_to, timezone_name, end=True)
+    if datetime.fromisoformat(end.replace("Z", "+00:00")) < datetime.fromisoformat(start.replace("Z", "+00:00")):
+        raise ValueError("report period end precedes start")
+    return start, end
 
 
 def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
@@ -86,6 +108,7 @@ def main() -> int:
     p.add_argument("--ai-catalog-seed", type=Path, help="Optional same-run supported MCP/model/plugin registry evidence")
     p.add_argument("--run-id"); p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
+    args.date_from, args.date_to = normalize_period(args.date_from, args.date_to, args.timezone)
     run_id = args.run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     weekly_root = args.report_root / args.server / "weekly"
     period_dir = weekly_root / args.period_key
@@ -97,20 +120,23 @@ def main() -> int:
     (run_dir / "raw").mkdir(parents=True, exist_ok=False)
     ai_seed(run_dir / "ai-security-seed.json", args.ai_catalog_seed)
     diagnostics: list[dict] = []
-    run(commands[0], True, diagnostics); run(commands[1], True, diagnostics)
-    skill_ok = run(commands[2], False, diagnostics)
-    ai_path = run_dir / "ai-security.json"
-    if not ai_path.exists(): shutil.copyfile(run_dir / "ai-security-seed.json", ai_path)
-    if not skill_ok:
-        value = json.loads(ai_path.read_text(encoding="utf-8")); value["status"] = "partial"
-        value.setdefault("limitations", []).append("Skills security collection failed; see collection diagnostics.")
-        ai_path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-    access_ok = run(commands[3], False, diagnostics)
-    merge = commands[4]
-    if not access_ok:
-        merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]
-    run(merge, True, diagnostics); run(commands[5], True, diagnostics); run(commands[6], True, diagnostics)
-    (run_dir / "collection-diagnostics.json").write_text(json.dumps(diagnostics, indent=2) + "\n", encoding="utf-8")
+    diagnostics_path = run_dir / "collection-diagnostics.json"
+    try:
+        run(commands[0], True, diagnostics); run(commands[1], True, diagnostics)
+        skill_ok = run(commands[2], False, diagnostics)
+        ai_path = run_dir / "ai-security.json"
+        if not ai_path.exists(): shutil.copyfile(run_dir / "ai-security-seed.json", ai_path)
+        if not skill_ok:
+            value = json.loads(ai_path.read_text(encoding="utf-8")); value["status"] = "partial"
+            value.setdefault("limitations", []).append("Skills security collection failed; see collection diagnostics.")
+            ai_path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+        access_ok = run(commands[3], False, diagnostics)
+        merge = commands[4]
+        if not access_ok:
+            merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]
+        run(merge, True, diagnostics); run(commands[5], True, diagnostics); run(commands[6], True, diagnostics)
+    finally:
+        diagnostics_path.write_text(json.dumps(diagnostics, indent=2) + "\n", encoding="utf-8")
     report = json.loads((run_dir / "data.json").read_text(encoding="utf-8"))
     if report.get("schema_version") != "0.3" or not (run_dir / "report.html").stat().st_size:
         raise RuntimeError("report validation failed")

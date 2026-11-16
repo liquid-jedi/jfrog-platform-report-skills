@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.0.2"
+  version: "1.0.3"
 ---
 
 # JFrog Platform Report Skill
@@ -178,6 +178,12 @@ or partial and must never be replaced by AI repository counts.
 3. Collect evidence into source envelopes; on live runs always preserve an Artifactory
    traffic-counter snapshot before rendering. Do not silently coerce failures to zero.
    Do not read a previous report during this step.
+   Invoke the canonical runner with the planner's exact bounds. Do not make preparatory
+   or guessed product-version API probes: the runner feature-detects supported evidence,
+   and a 404 must be preserved as an unavailable capability rather than retried through
+   another guessed path. Do not manually retry the whole run after a transport reset;
+   the collector performs one bounded retry for connection-reset errors and records a
+   persistent failure.
 4. Validate source evidence and assumptions against the schemas.
 5. Calculate metrics and scenarios with `scripts/generate_report.py`.
 6. Validate the result, inject it into the fixed, versioned `assets/dashboard.html`
