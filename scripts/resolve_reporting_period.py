@@ -7,7 +7,39 @@ import argparse
 import json
 import os
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+
+def detect_timezone(environment: dict[str, str] | None = None,
+                    localtime_path: Path = Path("/etc/localtime"),
+                    timezone_file: Path = Path("/etc/timezone")) -> str:
+    environment = environment or dict(os.environ)
+    for key in ("JFROG_REPORT_TIMEZONE", "TZ"):
+        candidate = environment.get(key)
+        if candidate:
+            try:
+                ZoneInfo(candidate)
+                return candidate
+            except ZoneInfoNotFoundError:
+                pass
+    try:
+        resolved = str(localtime_path.resolve())
+        marker = "/zoneinfo/"
+        if marker in resolved:
+            candidate = resolved.split(marker, 1)[1]
+            ZoneInfo(candidate)
+            return candidate
+    except (OSError, ZoneInfoNotFoundError):
+        pass
+    try:
+        candidate = timezone_file.read_text(encoding="utf-8").strip()
+        if candidate:
+            ZoneInfo(candidate)
+            return candidate
+    except (OSError, ZoneInfoNotFoundError):
+        pass
+    return "UTC"
 
 
 def parse_now(value: str | None) -> datetime:
@@ -109,7 +141,7 @@ def resolve(mode: str, timezone_name: str, now: datetime,
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=("completed-week", "current-week", "week-ending", "explicit", "calendar-month"), default="completed-week")
-    parser.add_argument("--timezone", default=os.environ.get("JFROG_REPORT_TIMEZONE", "UTC"))
+    parser.add_argument("--timezone", default=detect_timezone())
     parser.add_argument("--now", help="Testing/replay clock with offset or Z")
     parser.add_argument("--date-from")
     parser.add_argument("--date-to")

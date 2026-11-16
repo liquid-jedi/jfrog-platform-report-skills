@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # JFrog Platform Report Skill
@@ -132,12 +132,27 @@ same-run supported MCP/model/plugin registry evidence with `--ai-catalog-seed` w
 available. A missing or failed optional asset collector remains explicitly unavailable
 or partial and must never be replaced by AI repository counts.
 
-1. Resolve the instance, then run `scripts/list_report_sections.py` and present its
-   section labels as a plain numbered list. Ask the user to choose `All` (default),
-   `Executive`, or any comma-separated subset. Use plain text rather than a host-specific
-   form or UI API so the same interaction works in Claude, Claude Code, Cursor, ChatGPT,
-   Codex, Gemini and other Agent Skills hosts. If the user's initial prompt already names
-   a profile or sections, validate that choice with `--select` and do not ask again.
+1. Resolve the instance, period, report profile, timezone and output root, then present
+   **one compact confirmation**. The normal profile is `Full (recommended)`; alternatives
+   are `Executive` and `Custom`. Do not print the individual section list unless the user
+   chooses Custom. Do not ask separate questions for profile and output location.
+   Use this host-neutral shape so it works in Claude, Claude Code, Cursor, ChatGPT,
+   Codex, Gemini and other Agent Skills hosts:
+
+   ```text
+   Ready to generate the weekly JFrog Platform report:
+   • Instance: <server> (JFrog CLI default)
+   • Period: <inclusive local dates>
+   • Report: Full (recommended)
+   • Timezone: <timezone>
+   • Save to: <promoted report path>
+
+   Proceed? Reply Y, or say what to change (server, report, timezone or location).
+   ```
+
+   If the user chooses Custom, run `scripts/list_report_sections.py` and then show the
+   numbered section labels. If the initial prompt already names a profile or sections,
+   validate it with `--select` and do not ask again.
    Section selection controls rendering only: collect and validate the full available
    evidence model, and pass the selected IDs to `run_live_weekly.py --modules`.
 
@@ -151,9 +166,9 @@ or partial and must never be replaced by AI repository counts.
    Resolve output with `scripts/resolve_report_root.py` after resolving the instance.
    Precedence is an explicit user path, `JFROG_REPORT_ROOT`, a saved per-instance or
    global setting in `~/.config/jfrog-platform-value-report/config.json`, then user
-   input. On first use, ask where to save reports and offer
-   `~/jfrog-platform-reports` as the default. Do not begin live collection until the
-   user accepts the default or supplies another location.
+   input. On first use, include `~/jfrog-platform-reports` in the single confirmation
+   as the recommended default. A plain `Y`, `Proceed`, or equivalent accepts all shown
+   defaults. Do not begin live collection until the user confirms or changes them.
 3. Collect evidence into source envelopes; on live runs always preserve an Artifactory
    traffic-counter snapshot before rendering. Do not silently coerce failures to zero.
    Do not read a previous report during this step.
@@ -205,10 +220,12 @@ Therefore the preferred natural-language invocation is simply:
 
 `Generate weekly platform report`
 
-Timezone precedence is explicit user timezone, then `JFROG_REPORT_TIMEZONE`, then
-`UTC`. Always print the selected timezone and inclusive local/UTC bounds before
-collection. If a date-only request is ambiguous without a timezone, use the persisted
-setting or UTC and state that choice; do not vary the week with the machine's run day.
+Timezone precedence is explicit user timezone, then `JFROG_REPORT_TIMEZONE`, then a
+saved setting, then the machine's recognized IANA timezone, and finally `UTC`. Use
+`scripts/resolve_reporting_period.py` for detection; do not guess from an offset.
+Always print the selected timezone and inclusive local dates before collection. Keep
+UTC bounds in the run plan/evidence rather than cluttering the confirmation unless the
+user requests technical detail.
 
 Store weekly runs at `<root>/<server>/weekly/<week-ending>/runs/<UTC-run-id>/`.
 Preserve every run and update the period's `latest.json` only after collection,

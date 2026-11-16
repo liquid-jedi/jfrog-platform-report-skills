@@ -80,7 +80,7 @@ mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
 
-apm install liquid-jedi/jfrog-platform-report-skills#v1.0.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.0.1 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -128,10 +128,12 @@ Generate weekly platform report
 
 The skill then:
 
-1. Discovers the configured JFrog instance, or asks when several are available.
-2. Lists report sections and asks for All, Executive or a custom subset.
-3. Resolves the last completed ISO week in the configured timezone.
-4. Asks for a report location on first use, offering `~/jfrog-platform-reports`.
+1. Discovers the configured JFrog instance, preferring the JFrog CLI default.
+2. Resolves the last completed ISO week using the machine's local IANA timezone.
+3. Shows one compact confirmation with the instance, period, Full report profile and
+   default output location. Reply `Proceed` to accept everything.
+4. Offers `Executive` or `Custom` only when requested; the full section list is shown
+   only for a Custom report.
 5. Collects fresh read-only evidence, validates it, renders the fixed template and
    checks the previous month for missed weekly coverage.
 

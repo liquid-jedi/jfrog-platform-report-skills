@@ -13,9 +13,17 @@ class ModularityAndPortabilityTests(unittest.TestCase):
     def test_section_catalog_is_machine_readable_and_complete(self):
         result = subprocess.run([sys.executable, str(ROOT / "scripts" / "list_report_sections.py")], check=True, capture_output=True, text=True)
         value = json.loads(result.stdout)
-        self.assertTrue(value["selection_required"])
+        self.assertFalse(value["selection_required"])
         self.assertIn("ai-security", [row["id"] for row in value["sections"]])
-        self.assertEqual(value["default"], "all")
+        self.assertEqual(value["default"], "full")
+        self.assertFalse(value["show_section_list"])
+
+    def test_executive_is_a_profile_not_one_section(self):
+        result = subprocess.run([sys.executable, str(ROOT / "scripts" / "list_report_sections.py"), "--select", "executive"], check=True, capture_output=True, text=True)
+        value = json.loads(result.stdout)
+        self.assertEqual(value["profile"], "executive")
+        self.assertIn("trend", value["selected"])
+        self.assertIn("recommendations", value["selected"])
 
     def test_runner_passes_selected_modules_to_renderer(self):
         result = subprocess.run([sys.executable, str(ROOT / "scripts" / "run_live_weekly.py"),

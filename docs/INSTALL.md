@@ -31,7 +31,7 @@ Install APM using an official method from <https://microsoft.github.io/apm/>. Th
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.0.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.0.1 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -80,7 +80,10 @@ python3 scripts/list_report_sections.py
 Generate weekly platform report
 ```
 
-The agent resolves the JFrog instance and asks for report sections and output root.
+The agent resolves the JFrog instance, local timezone, last completed ISO week and
+output root, then presents one compact confirmation. `Full` is recommended and a
+single `Proceed` accepts the defaults. Choose `Executive` for the concise profile or
+`Custom` to display and select individual sections.
 The default output location offered on first use is `~/jfrog-platform-reports`.
 
 ## Platform compatibility

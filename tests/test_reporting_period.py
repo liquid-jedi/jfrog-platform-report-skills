@@ -1,4 +1,5 @@
 import importlib.util
+import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
@@ -42,6 +43,15 @@ class ReportingPeriodTests(unittest.TestCase):
         result = PERIOD.resolve("calendar-month", "UTC", datetime(2026, 11, 16, tzinfo=timezone.utc), month="2026-10")
         self.assertEqual(result["completeness"], "complete")
         self.assertEqual(result["utc"], {"start": "2026-10-01T00:00:00Z", "end": "2026-10-31T23:59:59Z"})
+
+    def test_timezone_prefers_report_environment(self):
+        self.assertEqual(PERIOD.detect_timezone({"JFROG_REPORT_TIMEZONE": "Asia/Kolkata"}), "Asia/Kolkata")
+
+    def test_timezone_detects_iana_localtime_symlink(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); zone = root / "zoneinfo" / "Asia" / "Kolkata"; zone.parent.mkdir(parents=True)
+            zone.write_text(""); link = root / "localtime"; link.symlink_to(zone)
+            self.assertEqual(PERIOD.detect_timezone({}, link, root / "missing"), "Asia/Kolkata")
 
 
 if __name__ == "__main__":

@@ -13,25 +13,36 @@ CATALOG = Path(__file__).resolve().parent.parent / "assets" / "report-sections.j
 
 def selection(catalog: dict, requested: str | None) -> dict:
     known = [row["id"] for row in catalog["sections"]]
-    selected = known if not requested or requested == "all" else [part.strip() for part in requested.split(",") if part.strip()]
+    choice = (requested or "full").strip().lower()
+    if choice in {"all", "full"}:
+        profile = "full"
+        selected = catalog["profiles"]["full"]
+    elif choice == "executive":
+        profile = "executive"
+        selected = catalog["profiles"]["executive"]
+    else:
+        profile = "custom"
+        selected = [part.strip() for part in choice.split(",") if part.strip()]
     unknown = sorted(set(selected) - set(known))
     if unknown:
         raise ValueError(f"unknown report sections: {', '.join(unknown)}")
     return {
         "schema_version": "1.0",
-        "selection_required": requested is None,
-        "default": "all",
+        "selection_required": False,
+        "default": "full",
+        "profile": profile,
+        "show_section_list": profile == "custom",
         "profiles": catalog["profiles"],
         "sections": catalog["sections"],
         "selected": selected,
         "renderer_modules": ",".join(selected),
-        "prompt": "Select report sections by number or name, or choose All (default). Collection remains complete; this choice controls report presentation only."
+        "prompt": "Report: Full (recommended). Reply Proceed to continue, Executive for a concise leadership view, or Custom to choose individual sections."
     }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="List and validate modular JFrog report sections")
-    parser.add_argument("--select", help="Comma-separated section IDs, or all")
+    parser.add_argument("--select", help="Full, Executive, or comma-separated custom section IDs")
     args = parser.parse_args()
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     try:

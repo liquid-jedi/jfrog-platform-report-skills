@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from datetime import timezone
 from pathlib import Path
 
-from resolve_reporting_period import parse_now, resolve
+from resolve_reporting_period import detect_timezone, parse_now, resolve
 
 
 def plan(server: str, output_root: Path, mode: str, timezone_name: str, now,
@@ -45,7 +44,7 @@ def main() -> int:
     parser.add_argument("--server", required=True)
     parser.add_argument("--output-root", required=True, type=Path)
     parser.add_argument("--mode", choices=("completed-week", "current-week", "week-ending", "explicit", "calendar-month"), default="completed-week")
-    parser.add_argument("--timezone", default=os.environ.get("JFROG_REPORT_TIMEZONE", "UTC"))
+    parser.add_argument("--timezone", default=detect_timezone())
     parser.add_argument("--now")
     parser.add_argument("--date-from")
     parser.add_argument("--date-to")
