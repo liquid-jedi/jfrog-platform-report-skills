@@ -31,7 +31,7 @@ Install APM using an official method from <https://microsoft.github.io/apm/>. Th
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.0.0 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -42,8 +42,10 @@ configuration directory.
 Verify:
 
 ```bash
-test -f .agents/skills/jfrog-platform-report/SKILL.md
-find .agents/skills/jfrog-platform-report -maxdepth 2 -type f | sort
+test -f .agents/skills/jfrog-platform-report-skills/SKILL.md
+grep '^name: jfrog-platform-report$' \
+  .agents/skills/jfrog-platform-report-skills/SKILL.md
+find .agents/skills/jfrog-platform-report-skills -maxdepth 2 -type f | sort
 ```
 
 Commit `apm.yml` and the generated lockfile for a team workspace.
@@ -92,7 +94,7 @@ The default output location offered on first use is `~/jfrog-platform-reports`.
 
 ## Updating
 
-- APM: update the pinned dependency and review the lockfile change.
+- APM: update the pinned release and review the lockfile change.
 - Global Skills: rerun the `npx skills add` command.
 - Local clone: `git pull`, then run the test suite.
 - JFrog AI Catalog: publish and install a new signed semantic version.

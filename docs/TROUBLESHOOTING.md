@@ -6,7 +6,9 @@ Confirm the installed folder contains `SKILL.md` and its frontmatter name is
 `jfrog-platform-report`. Restart or reload the agent after installation when required.
 
 ```bash
-find .agents/skills/jfrog-platform-report -maxdepth 2 -type f | sort
+find .agents/skills/jfrog-platform-report-skills -maxdepth 2 -type f | sort
+grep '^name: jfrog-platform-report$' \
+  .agents/skills/jfrog-platform-report-skills/SKILL.md
 npx skills list -g | grep jfrog-platform-report
 ```
 

@@ -80,14 +80,16 @@ mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
 
-apm install liquid-jedi/jfrog-platform-report-skills \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.0.0 \
   --target claude,cursor,codex,gemini
 ```
 
 Verify:
 
 ```bash
-find .agents/skills/jfrog-platform-report -maxdepth 2 -type f | sort
+find .agents/skills/jfrog-platform-report-skills -maxdepth 2 -type f | sort
+grep '^name: jfrog-platform-report$' \
+  .agents/skills/jfrog-platform-report-skills/SKILL.md
 ```
 
 ### Option B — global Agent Skills install
