@@ -5,11 +5,12 @@
 `JFrog Agentic Dashboard Skills` is the umbrella. Persona skills remain separate:
 
 - `jfrog-ciso-report`: security and risk decisions.
-- `jfrog-cio-value-report`: platform value and transformation decisions.
+- `jfrog-platform-report`: platform value, risk, governance and transformation decisions.
 - Focused profiles/modules reuse shared evidence concepts without becoming one mega-skill.
 
 The existing CISO skill is a structural reference for fixed-template rendering,
-snapshots, and deterministic pagination. It is not the CIO product specification.
+snapshots, and deterministic pagination. It is not the product specification for
+this broader JFrog Platform report.
 
 ## Layers
 

@@ -258,7 +258,7 @@ def static_report(data, enabled=None):
     out = [nav, disclosure("Data provenance and revalidation", provenance)]
     if "executive" in enabled:
         summary = data.get("executive_summary") or {}
-        body = leadership_lens(meta.get("report_purpose", "Monthly platform value and risk review."), "Gives CIO and CISO leadership one shared view of adoption, preventive controls and actionable risk.", "Agree priorities, owners and investments for the next operating period.")
+        body = leadership_lens(meta.get("report_purpose", "Monthly platform value and risk review."), "Gives platform, security and technology leadership one shared view of adoption, preventive controls and actionable risk.", "Agree priorities, owners and investments for the next operating period.")
         body += '<div class="grid" style="margin-top:14px">' + "".join(map(card, data["executive_signals"])) + '</div>'
         trends = [] if (data.get("weekly_trend") or {}).get("series") else (data.get("prior_period_comparison") or {}).get("metrics", [])
         if trends:
@@ -502,13 +502,13 @@ def main():
     if unknown:
         raise ValueError(f"unknown report modules: {', '.join(sorted(unknown))}")
     replacements = {
-        "__JFROG_CIO_DATA__": esc(json.dumps(data, separators=(",", ":"), ensure_ascii=False)),
+        "__JFROG_PLATFORM_REPORT_DATA__": esc(json.dumps(data, separators=(",", ":"), ensure_ascii=False)),
         "<!--JFROG_LOGO-->": (args.template.parent / "jfrog-logo-white.svg").read_text(encoding="utf-8"),
         "<!--REPORT_TYPE-->": esc(data["meta"]["report_type"]),
         "<!--REPORT_RANGE-->": esc(f'{data["meta"]["date_from"]} – {data["meta"]["date_to"]}'),
         "<!--REPORT_SERVER-->": esc(data["meta"]["server_id"]),
-        "<!--REPORT_PERSONA-->": esc(data["meta"].get("persona", "CIO & CISO executive leadership")),
-        "<!--JFROG_CIO_STATIC-->": static_report(data, requested),
+        "<!--REPORT_PERSONA-->": esc(data["meta"].get("persona", "Platform, security and technology leadership")),
+        "<!--JFROG_PLATFORM_REPORT_STATIC-->": static_report(data, requested),
     }
     rendered = template
     for key,value in replacements.items():

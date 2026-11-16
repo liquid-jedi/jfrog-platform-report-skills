@@ -1,128 +1,246 @@
-# JFrog CIO Value Report
+# JFrog Platform Report Skill
 
-This skill is part of the **JFrog Agentic Dashboard Skills** product family. It
-generates modular CIO value reports from classified JFrog evidence and explicit
-customer assumptions. See `SKILL.md` for agent instructions and
-`references/architecture.md` for the implementation plan.
+> **Evidence-backed platform value and risk reporting for JFrog** — one portable
+> Agent Skill, one fixed HTML template, and deterministic collection across the
+> capabilities available in each customer environment.
 
-The default live cadence is the last completed ISO week in the configured report
-timezone. This makes the result stable when users run it on different weekdays.
-Use `current-week` only for an explicitly requested week-to-date report. Monthly
-executive reports are calendar-month roll-ups of validated weekly event archives.
+[![Skill](https://img.shields.io/badge/Agent%20Skill-jfrog--platform--report-40d348)](SKILL.md)
+[![APM](https://img.shields.io/badge/OpenAPM-compatible-637fe8)](apm.yml)
+[![Tests](https://img.shields.io/badge/tests-67%20passing-40d348)](#development-and-testing)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-## Install and portability
+The skill generates a modular **JFrog Platform Value & Risk Report** for platform,
+security and technology leadership. It separates period activity from current posture,
+marks every metric as observed, derived, projected, benchmark or unavailable, and
+never turns missing evidence into zero.
 
-The canonical distribution is this Agent Skills folder. It contains one `SKILL.md`,
-standard-library Python scripts and one fixed HTML template, so reporting behavior is
-not duplicated per agent or operating system.
+The agent does not invent report HTML or calculate business metrics in free-form
+reasoning. Deterministic Python collectors and calculators produce structured JSON,
+which is injected into the versioned template at `assets/dashboard.html`.
 
-- Cross-agent convenience installer: `npx skills add <git-repository> --skill jfrog-cio-value-report`
-- OpenAPM: install the repository subdirectory containing this folder, for example
-  `apm install <git-repository>/jfrog-cio-value-report`; `apm.yml` declares the hybrid
-  skill package and deliberately leaves target choice to the consumer.
-- JFrog customers: publish the same folder as a signed skill to a governed JFrog AI
-  Catalog repository and install it with `jf skills install`.
+## What the report covers
 
-`npx` is a convenient adapter, not the skill format and not a universal requirement.
-The portable contract is the Agent Skills folder itself. macOS and Linux/WSL are the
-supported execution baseline; native Windows is best-effort. WSL uses the same tested
-Python and JFrog CLI path, avoiding a separate Windows implementation.
+Sections are independently selectable. The skill still collects and validates the
+complete available evidence model so a focused view never changes totals or formulas.
 
-Before collection, agents run `scripts/list_report_sections.py` and present the same
-plain-text choices in Claude, Claude Code, Cursor, ChatGPT/Codex, Gemini, or another
-Agent Skills host. `All` is the default. A focused selection changes only rendering;
-the full available evidence model is still collected and validated.
+| Section | What it helps answer |
+|---|---|
+| Executive overview | What changed, what matters, and what needs leadership attention? |
+| Trends | Is value, adoption or risk improving week over week? |
+| Curation | What was evaluated, approved or blocked, and who used the control? |
+| Artifactory | What is stored, how repositories are distributed, and how traffic changes? |
+| Xray | What security and license findings were created during the period? |
+| AI security | What models, MCP servers, skills and plugins are governed and how were they classified? |
+| Access, tokens & OIDC | Which credentials need rotation and where is workload identity used? |
+| JFrog Advanced Security | Which findings are applicable, fixable or exploitable? |
+| Runtime security | Which risks are present in running production images? |
+| Economic context | What value scenarios are supportable from explicit customer assumptions? |
+| Recommendations | Which actions should be owned in the next 7 or 30 days? |
+| Methodology & evidence | Where did each result come from and what remains unavailable? |
 
-Resolve a run before collecting:
+Optional capabilities are feature-detected. An Artifactory-only customer still gets a
+valid report; missing Xray, Curation, JAS, Runtime or AI Catalog evidence does not break
+generation and is never silently represented as zero.
 
-```bash
-python3 scripts/plan_report_run.py --server solenglatest \
-  --output-root /path/to/reports --timezone Asia/Kolkata
+## How it works
+
+```mermaid
+flowchart LR
+  P["Agent preflight\ninstance · period · sections · output"] --> C["Read-only collection\nJFrog CLI · APIs · supported evidence"]
+  C --> N["Deterministic normalization\nclassification · formulas · validation"]
+  N --> T["Fixed versioned template\nassets/dashboard.html"]
+  T --> R["Self-contained report.html\nweekly archive · monthly roll-up"]
 ```
 
-At month end, pass each validated weekly run directory to the deterministic roll-up:
+## Prerequisites
+
+| Requirement | Check | Notes |
+|---|---|---|
+| Python 3.11+ | `python3 --version` | Standard-library scripts; no Python package installation required |
+| JFrog CLI | `jf --version` | Required for live collection |
+| Configured JFrog server | `jf config show` | The skill discovers the default or sole configured instance |
+| Base JFrog Agent Skill | Agent-specific skill list | Provides current JFrog CLI and API operating guidance |
+| Browser | Open `report.html` | Only needed to view or print the generated report |
+
+macOS and Linux/WSL are supported. Native Windows is best-effort; WSL is recommended
+so the same tested code path is used without a second OS-specific implementation.
+
+## Install
+
+The canonical artifact is this repository's Agent Skills folder. APM and `npx skills`
+are installation adapters; they do not contain separate report logic.
+
+### Option A — APM project install
+
+Best for teams that want a reproducible project-local installation and lockfile.
 
 ```bash
-python3 scripts/rollup_weekly_archives.py --month 2026-10 \
-  --timezone Asia/Kolkata --archive /path/to/week-1/run \
-  --archive /path/to/week-2/run --output /path/to/monthly-evidence.json
+# Install APM using an official method from https://microsoft.github.io/apm/
+mkdir -p ~/jfrog-platform-reporting
+cd ~/jfrog-platform-reporting
+apm init -y
+
+apm install liquid-jedi/jfrog-platform-report-skills \
+  --target claude,cursor,codex,gemini
 ```
 
-Every report invocation should finish by auditing the previous calendar month for
-missed weeks:
+Verify:
 
 ```bash
-python3 scripts/audit_weekly_coverage.py --report-root /path/to/reports \
-  --server solenglatest --timezone Asia/Kolkata
+find .agents/skills/jfrog-platform-report -maxdepth 2 -type f | sort
 ```
 
-The audit is read-only. It proposes recoverable backfills but never runs them without
-the user's approval, so the same workflow works without a scheduler in Codex, Claude,
-Gemini, and other Agent Skills-compatible hosts.
+### Option B — global Agent Skills install
 
-After a weekly report validates, add calendar-month week-over-week movement before
-rendering:
+Best for an individual who wants the skill available from any folder.
 
 ```bash
-python3 scripts/apply_weekly_trends.py --report /path/to/current/data.json \
-  --weekly-root /path/to/reports/solenglatest/weekly --month 2026-11 \
-  --timezone Asia/Kolkata --output /path/to/current/data-with-trends.json
+npx skills add git@github.com:liquid-jedi/jfrog-platform-report-skills.git \
+  -g --skill jfrog-platform-report
 ```
 
-The template renders a dedicated trend section. Verified adverse states and adverse
-metric directions use red text; contextual changes remain neutral.
-
-The default fixtures intentionally contain no currency or financial assumptions.
-The report therefore renders financial value as unavailable rather than inventing a
-customer projection. Weekly/monthly views lead with period activity, comparison to
-the prior period, a short trend, and year-to-date context.
-
-The report has independently selectable modules for Executive overview, Trends,
-Curation, Artifactory, Xray, AI security, Access/OIDC, JAS, Runtime, Economic context,
-Recommendations, and Evidence. The complete metric and evidence contract is in
-`references/product-modules.md`. Full collection is normalized before presentation,
-so focused reports do not change formulas or totals.
-
-Generate the offline demonstration:
+Verify:
 
 ```bash
-python3 scripts/generate_report.py --evidence fixtures/artifactory-only.json \
-  --assumptions fixtures/assumptions.json --profile executive \
-  --output build/artifactory-only
+npx skills list -g | grep jfrog-platform-report
 ```
 
-Render all available live-report modules or a focused subset:
+### Option C — local clone for development
 
 ```bash
-python3 scripts/render_report.py --data build/live/data.json \
-  --template assets/dashboard.html --output build/live/report.html --modules all
-
-python3 scripts/render_report.py --data build/live/data.json \
-  --template assets/dashboard.html --output build/live/curation.html \
-  --modules curation,evidence
+git clone https://github.com/liquid-jedi/jfrog-platform-report-skills.git
+cd jfrog-platform-report-skills
+python3 -m unittest discover -s tests -v
 ```
 
-Accepted module names are emitted by `scripts/list_report_sections.py`; do not maintain
-a second hard-coded list in host-specific instructions.
+Detailed installation and troubleshooting are in [docs/INSTALL.md](docs/INSTALL.md)
+and [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
-For a live full-platform run, preserve collector responses and normalize them with
-`scripts/enrich_report_modules.py` before rendering. The enrichment adds Artifactory
-storage posture, Xray period findings, JAS applicability evidence, and AI/agent
-repository footprint. It deliberately does not infer open backlog, remediation age,
-downloads, provenance, or scanner findings from configuration data.
+## Run a report
 
-Run tests:
+The shortest invocation is:
+
+```text
+Generate weekly platform report
+```
+
+The skill then:
+
+1. Discovers the configured JFrog instance, or asks when several are available.
+2. Lists report sections and asks for All, Executive or a custom subset.
+3. Resolves the last completed ISO week in the configured timezone.
+4. Asks for a report location on first use, offering `~/jfrog-platform-reports`.
+5. Collects fresh read-only evidence, validates it, renders the fixed template and
+   checks the previous month for missed weekly coverage.
+
+Other examples:
+
+```text
+Generate weekly platform report for solenglatest.
+Generate this week's platform report with Artifactory, Xray and AI security.
+Generate the week ending 2026-11-15 platform report.
+Generate the monthly executive platform report for October 2026.
+```
+
+No prompt needs to contain the server ID when the JFrog CLI has an unambiguous default.
+
+## Output layout
+
+Each instance has an independent archive:
+
+```text
+<report-root>/
+└── <instance>/
+    └── weekly/
+        └── <week-ending>/
+            ├── report.html
+            ├── data.json
+            ├── latest.json
+            └── runs/
+                └── <UTC-run-id>/
+                    ├── report.html
+                    ├── data.json
+                    ├── evidence.json
+                    ├── collection-diagnostics.json
+                    └── raw/
+```
+
+The promoted report is always:
+
+```text
+<report-root>/<instance>/weekly/<week-ending>/report.html
+```
+
+Successful reruns preserve earlier run directories. A failed rerun never replaces the
+last validated report.
+
+## Evidence and safety rules
+
+- Live collection is read-only by default.
+- Publishing to Artifactory requires an explicit user request.
+- Missing, forbidden, unlicensed, partial and genuine-zero states remain distinct.
+- Current posture is never backdated as historical activity.
+- Financial projections require explicit customer assumptions and configurable currency.
+- External benchmarks are labelled benchmark and never presented as customer results.
+- Pagination failure fails the run rather than publishing partial totals.
+
+## Modular rendering
+
+```bash
+python3 scripts/list_report_sections.py
+
+python3 scripts/render_report.py \
+  --data /path/to/data.json \
+  --template assets/dashboard.html \
+  --output /path/to/report.html \
+  --modules executive,trend,artifactory,ai-security,recommendations,evidence
+```
+
+## Development and testing
+
+No test requires a production JFrog environment:
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
-The canonical live weekly entrypoint is `scripts/run_live_weekly.py`. It performs a
-fresh base collection, current Skills security collection, optional MCP/model/plugin
-evidence merge, Access posture collection, weekly trend calculation, rendering,
-validation, and atomic promotion to `latest.json`.
 
-Before the first live run, `scripts/resolve_report_root.py` asks for an output root
-when neither `JFROG_REPORT_ROOT` nor a saved configuration exists. The offered default
-is `~/jfrog-platform-reports`; reports are separated by instance at
-`<report-root>/<instance>/weekly/<week-ending>/report.html`.
+Generate an offline demonstration:
 
+```bash
+python3 scripts/generate_report.py \
+  --evidence fixtures/artifactory-only.json \
+  --assumptions fixtures/assumptions.json \
+  --profile executive \
+  --output build/artifactory-only
+```
+
+## Repository layout
+
+```text
+SKILL.md                 Agent workflow and safety contract
+agents/openai.yaml       Optional Codex/OpenAI interface metadata
+apm.yml                  OpenAPM package metadata
+assets/                  Fixed HTML template, JFrog logo and section catalog
+scripts/                 Deterministic collectors, calculators and renderers
+schemas/                 Evidence and assumptions contracts
+references/              Architecture, data sources and metric definitions
+fixtures/                Offline demonstration inputs
+tests/                   Production-independent test suite
+docs/                    Installation and troubleshooting guides
+```
+
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [Installation](docs/INSTALL.md) | APM, global install, verification and updates |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Common installation, JFrog and report issues |
+| [Architecture](references/architecture.md) | Deterministic workflow and extension boundaries |
+| [Data-source matrix](references/data-source-matrix.md) | Supported evidence and known API gaps |
+| [Metric contract](references/metric-contract.md) | Classification, formulas and financial rules |
+| [Product modules](references/product-modules.md) | Module ownership and interpretation |
+
+This is not an official JFrog publication. Reports are generated using JFrog Platform
+Skills from evidence visible to the configured customer identity.
+
+**Author:** Avinash Giri · **License:** [Apache 2.0](LICENSE)

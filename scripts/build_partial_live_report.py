@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize successful payloads from one live run into a classified CIO report."""
+"""Normalize successful payloads from one live run into a classified JFrog Platform report."""
 
 from __future__ import annotations
 

@@ -115,7 +115,7 @@ class ReportTests(unittest.TestCase):
         report = self.report()
         html = GEN.render(report, ROOT / "assets" / "dashboard.html")
         self.assertIn("JFrog Platform Value &amp; Risk Report", html)
-        self.assertNotIn("__JFROG_CIO_DATA__", html)
+        self.assertNotIn("__JFROG_PLATFORM_REPORT_DATA__", html)
         self.assertIn('type="application/json"', html)
         self.assertIn('data-export-mode="executive"', html)
         self.assertIn('data-export-mode="custom"', html)

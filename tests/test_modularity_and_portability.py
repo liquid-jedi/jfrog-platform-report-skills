@@ -33,7 +33,7 @@ class ModularityAndPortabilityTests(unittest.TestCase):
 
     def test_apm_manifest_is_target_agnostic(self):
         manifest = (ROOT / "apm.yml").read_text(encoding="utf-8")
-        self.assertIn("name: jfrog-cio-value-report", manifest)
+        self.assertIn("name: jfrog-platform-report", manifest)
         self.assertIn("includes: auto", manifest)
         self.assertNotIn("targets:", manifest)
 

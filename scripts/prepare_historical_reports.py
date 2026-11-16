@@ -24,7 +24,7 @@ def change(a,b):
     d=round(a-b,2); return d,None if b==0 else round(d/b*100,1)
 def fmt(v): return f"{v:,}" if isinstance(v,(int,float)) else str(v)
 def normalize(r,start,end,platform=None):
-    r["meta"].update({"persona":"CIO & CISO executive leadership","secondary_personas":["VP Platform Engineering","Application Security","FinOps","Engineering leadership"],"period_start":start,"period_end":end,"generated":datetime.now(timezone.utc).date().isoformat(),"report_purpose":"Monthly operating review of platform adoption, software supply-chain risk, governance and prioritized action."})
+    r["meta"].update({"persona":"Platform, security and technology leadership","secondary_personas":["VP Platform Engineering","Application Security","FinOps","Engineering leadership"],"period_start":start,"period_end":end,"generated":datetime.now(timezone.utc).date().isoformat(),"report_purpose":"Monthly operating review of platform adoption, software supply-chain risk, governance and prioritized action."})
     for name in ("curation","xray","jas"):
         for item in (r.get(name) or {}).get("metrics",[]):
             if item["id"] in PERIOD_IDS: item["time_basis"]="period_activity"

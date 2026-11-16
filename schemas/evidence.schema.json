@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://jfrog.example/schemas/cio-evidence-0.1.json",
+  "$id": "https://jfrog.example/schemas/platform-report-evidence-0.1.json",
   "type": "object",
   "required": ["schema_version", "mode", "period", "reporting", "sources", "artifactory"],
   "properties": {

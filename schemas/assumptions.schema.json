@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://jfrog.example/schemas/cio-assumptions-0.1.json",
+  "$id": "https://jfrog.example/schemas/platform-report-assumptions-0.1.json",
   "type": "object",
   "required": ["status", "currency", "annual_cost", "discount_rate", "projections"],
   "properties": {

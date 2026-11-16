@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect CIO report evidence without consuming prior reports or snapshots."""
+"""Collect JFrog Platform report evidence without consuming prior reports or snapshots."""
 
 from __future__ import annotations
 
@@ -184,7 +184,7 @@ def fetch_violations(collector: Collector, date_from: str, date_to: str,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fresh, read-only JFrog CIO evidence collector")
+    parser = argparse.ArgumentParser(description="Fresh, read-only JFrog Platform report evidence collector")
     parser.add_argument("--server", required=True)
     parser.add_argument("--date-from", required=True)
     parser.add_argument("--date-to", required=True)
@@ -221,7 +221,7 @@ def main() -> int:
     result = {
         "schema_version": "0.3",
         "provenance": {
-            "source": "live", "server_id": args.server, "collector": "jfrog-cio-value-report",
+            "source": "live", "server_id": args.server, "collector": "jfrog-platform-report",
             "collection_started_at": collected_at, "prior_report_input_used": False,
             "raw_manifest": collector.sources,
         },

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministically calculate and render a JFrog CIO value report."""
+"""Deterministically calculate and render a JFrog Platform value and risk report."""
 
 from __future__ import annotations
 
@@ -156,8 +156,8 @@ def calculate(evidence: dict, assumptions: dict, profile: str) -> dict:
 
 def render(report: dict, template_path: Path) -> str:
     template = template_path.read_text(encoding="utf-8")
-    require(template.count("__JFROG_CIO_DATA__") == 1, "template must contain one data placeholder")
-    return template.replace("__JFROG_CIO_DATA__", json.dumps(report, separators=(",", ":"), ensure_ascii=False))
+    require(template.count("__JFROG_PLATFORM_REPORT_DATA__") == 1, "template must contain one data placeholder")
+    return template.replace("__JFROG_PLATFORM_REPORT_DATA__", json.dumps(report, separators=(",", ":"), ensure_ascii=False))
 
 
 def main() -> int:

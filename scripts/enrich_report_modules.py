@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enrich a classified CIO report with deterministic live module evidence."""
+"""Enrich a classified JFrog Platform report with deterministic live module evidence."""
 
 from __future__ import annotations
 

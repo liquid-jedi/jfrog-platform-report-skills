@@ -78,7 +78,7 @@ def run(command: list[str], required: bool, diagnostics: list[dict]) -> bool:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="Generate and promote one live weekly CIO report")
+    p = argparse.ArgumentParser(description="Generate and promote one live weekly JFrog Platform report")
     p.add_argument("--server", required=True); p.add_argument("--date-from", required=True); p.add_argument("--date-to", required=True)
     p.add_argument("--period-key", required=True); p.add_argument("--month", required=True)
     p.add_argument("--timezone", default="UTC"); p.add_argument("--report-root", required=True, type=Path)

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://jfrog.com/schemas/cio/runtime-evidence.schema.json",
+  "$id": "https://jfrog.com/schemas/platform-report/runtime-evidence.schema.json",
   "title": "Normalized Runtime Security evidence",
   "type": "object",
   "required": ["schema_version", "collected_at", "source"],

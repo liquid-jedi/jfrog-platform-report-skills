@@ -172,7 +172,7 @@ def main() -> int:
                  "period_label": period_label, "date_from": format_date(period["start"]), "date_to": format_date(period["end"]),
                  "period_start": period["start"], "period_end": period["end"],
                  "generated": datetime.now(timezone.utc).date().isoformat(), "fallback_used": False,
-                 "persona": "CIO & CISO executive leadership",
+                 "persona": "Platform, security and technology leadership",
                  "report_purpose": "Periodic operating review of platform adoption, supply-chain risk, governance and prioritized action."},
         "evidence_revalidation": {"message": "Fresh API evidence only. Historical activity and current-state inventory are displayed with separate timestamps."},
         "executive_signals": [

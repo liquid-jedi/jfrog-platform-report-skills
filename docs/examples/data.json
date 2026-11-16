@@ -1,0 +1,184 @@
+{
+  "schema_version": "0.1",
+  "profile": "executive",
+  "mode": "offline-demo",
+  "period": {
+    "start": "2026-09-01",
+    "end": "2026-09-30",
+    "label": "September 2026"
+  },
+  "reporting": {
+    "cadence": "monthly",
+    "report_date": "2026-09-30",
+    "period": {
+      "start": "2026-09-01",
+      "end": "2026-09-30",
+      "label": "September 2026"
+    },
+    "year_to_date": {
+      "start": "2026-01-01",
+      "end": "2026-09-30"
+    },
+    "previous_period": {
+      "start": "2026-08-01",
+      "end": "2026-08-31",
+      "downloads": 17100000,
+      "builds_published": 33500
+    },
+    "history": [
+      {
+        "label": "Jul 2026",
+        "downloads": 16200000,
+        "builds_published": 31900
+      },
+      {
+        "label": "Aug 2026",
+        "downloads": 17100000,
+        "builds_published": 33500
+      },
+      {
+        "label": "Sep 2026",
+        "downloads": 18500000,
+        "builds_published": 36000
+      }
+    ]
+  },
+  "period_activity": {
+    "downloads": 18500000,
+    "downloads_previous": 17100000,
+    "builds_published": 36000,
+    "builds_previous": 33500,
+    "downloads_delta_pct": "8.2",
+    "builds_delta_pct": "7.5"
+  },
+  "year_to_date": {
+    "downloads": 149000000,
+    "builds_published": 291000
+  },
+  "modules": [
+    "estate",
+    "financial",
+    "opportunities",
+    "coverage"
+  ],
+  "metrics": [
+    {
+      "id": "repositories-total",
+      "label": "Repositories",
+      "classification": "observed",
+      "value": 120,
+      "unit": "count",
+      "sources": [
+        "artifactory-repositories"
+      ],
+      "formula": "count(repositories)",
+      "confidence": "high",
+      "data_gaps": [],
+      "meaning": "The total number of configured repositories in this report scope.",
+      "why_it_matters": "This shows the size of the package-management estate the platform supports."
+    },
+    {
+      "id": "artifacts-total",
+      "label": "Artifacts",
+      "classification": "observed",
+      "value": 4200000,
+      "unit": "count",
+      "sources": [
+        "artifactory-storage"
+      ],
+      "formula": "storage summary artifact count",
+      "confidence": "high",
+      "data_gaps": [],
+      "meaning": "The number of artifact records stored in the selected scope.",
+      "why_it_matters": "Artifact volume is an indicator of platform adoption and lifecycle-management demand."
+    },
+    {
+      "id": "storage-tib",
+      "label": "Storage",
+      "classification": "derived",
+      "value": "8.00",
+      "unit": "TiB",
+      "sources": [
+        "artifactory-storage"
+      ],
+      "formula": "storage_bytes / 2^40",
+      "confidence": "high",
+      "data_gaps": [],
+      "meaning": "The physical storage used by artifacts in this report scope.",
+      "why_it_matters": "Storage trend is a core input to capacity planning and cost governance."
+    },
+    {
+      "id": "downloads",
+      "label": "Downloads",
+      "classification": "observed",
+      "value": 18500000,
+      "unit": "count",
+      "sources": [
+        "artifactory-downloads"
+      ],
+      "formula": "count(download events)",
+      "confidence": "high",
+      "data_gaps": [],
+      "meaning": "Artifact download activity during the selected period, when a period-capable source is available.",
+      "why_it_matters": "Download volume is an adoption signal and an input to transfer and cache-efficiency analysis."
+    },
+    {
+      "id": "builds-published",
+      "label": "Builds published",
+      "classification": "observed",
+      "value": 36000,
+      "unit": "count",
+      "sources": [
+        "artifactory-build-info"
+      ],
+      "formula": "count(build-info records)",
+      "confidence": "high",
+      "data_gaps": [],
+      "meaning": "Build records published during the selected period.",
+      "why_it_matters": "Build-info adoption improves traceability from source and CI to released artifacts."
+    }
+  ],
+  "financial": {
+    "available": false,
+    "classification": "unavailable",
+    "currency": null,
+    "reason": "Customer financial assumptions were not provided.",
+    "annual_benefit": null,
+    "annual_cost": null,
+    "net_annual_benefit": null,
+    "three_year_benefit": null,
+    "three_year_cost": null,
+    "net_present_value": null,
+    "roi_percent": null,
+    "payback_years": null,
+    "benefit_by_category": {},
+    "sensitivity": {}
+  },
+  "sources": [
+    {
+      "id": "artifactory-repositories",
+      "status": "available",
+      "complete": true,
+      "source": "offline-fixture",
+      "reason": null
+    },
+    {
+      "id": "artifactory-storage",
+      "status": "available",
+      "complete": true,
+      "source": "offline-fixture",
+      "reason": null
+    },
+    {
+      "id": "xray",
+      "status": "unlicensed",
+      "complete": false,
+      "source": "capability-detection",
+      "reason": "Not present in Artifactory-only fixture"
+    }
+  ],
+  "limitations": [
+    "Financial value is unavailable until customer assumptions are explicitly provided.",
+    "Optional products are reported as unavailable rather than zero."
+  ]
+}

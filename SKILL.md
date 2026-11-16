@@ -1,17 +1,17 @@
 ---
-name: jfrog-cio-value-report
+name: jfrog-platform-report
 description: >-
   Generate modular, evidence-backed JFrog Platform Value & Risk reports. Use when a
   user says "generate weekly platform report", asks for a JFrog platform report,
-  executive value report, CIO report, adoption, efficiency, reliability, delivery,
+  executive value report, platform leadership report, adoption, efficiency, reliability, delivery,
   or platform-opportunity reporting. Supports Artifactory-only, Artifactory and Xray,
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "0.10.0"
+  version: "1.0.0"
 ---
 
-# JFrog CIO Value Report
+# JFrog Platform Report Skill
 
 Generate a deterministic report from structured JFrog evidence. The agent chooses
 scope and orchestrates collection; scripts normalize, classify, calculate, validate,
@@ -194,7 +194,8 @@ The user does not need to include a server ID in the prompt. Resolve it during
 preflight with the installed JFrog integration skill and `jf config show`:
 
 1. Use a server explicitly named by the user.
-2. Otherwise use `JFROG_CIO_SERVER_ID` when configured.
+2. Otherwise use `JFROG_PLATFORM_REPORT_SERVER_ID` when configured. Continue to
+   accept `JFROG_CIO_SERVER_ID` as a deprecated compatibility alias.
 3. Otherwise use the JFrog CLI server marked as default.
 4. Otherwise use the sole configured server.
 5. If several servers remain and none is default, list their IDs and ask the user to
@@ -258,7 +259,7 @@ python3 scripts/generate_report.py \
   --evidence fixtures/artifactory-only.json \
   --assumptions fixtures/assumptions.json \
   --profile executive \
-  --output /tmp/jfrog-cio-demo
+  --output /tmp/jfrog-platform-report-demo
 ```
 
 ## Extension rule
