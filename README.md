@@ -5,7 +5,7 @@
 _A weekly operating record for JFrog Platform value, risk and action._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.3.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.3.0)
+[![Release](https://img.shields.io/badge/RELEASE-v1.3.1-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.3.1)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -69,7 +69,7 @@ apm init -y
 Install the pinned release:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.3.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.3.1 \
   --target claude,cursor,codex,gemini
 ```
 
