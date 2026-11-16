@@ -2,13 +2,11 @@
 
 # JFrog Platform Report Skill
 
-### Fresh JFrog evidence. Clear leadership decisions.
-
-_A portable Agent Skill for deterministic, modular Platform Value & Risk reporting._
+_Evidence-backed weekly reporting for JFrog Platform leadership._
 
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-jfrog--platform--report-40d348?style=for-the-badge)](SKILL.md)
-[![APM](https://img.shields.io/badge/APM-compatible-637fe8?style=for-the-badge)](apm.yml)
-[![Tests](https://img.shields.io/badge/tests-82%20passing-40d348?style=for-the-badge)](#development)
+[![Release](https://img.shields.io/badge/release-v1.2.1-637fe8?style=for-the-badge)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.2.1)
+[![Supported OS](https://img.shields.io/badge/OS-macOS%20%7C%20Linux%20%7C%20WSL-40d348?style=for-the-badge)](#requirements)
 [![License](https://img.shields.io/badge/license-Apache--2.0-1f6feb?style=for-the-badge)](LICENSE)
 
 </div>
@@ -23,20 +21,56 @@ or **unavailable**. Missing evidence is never silently converted to zero.
 > This is not an official JFrog publication. Reports are generated using JFrog
 > Platform Skills from evidence visible to the configured customer identity.
 
+## Why this report exists
+
+JFrog Platform data is operationally rich but distributed across Artifactory, Xray,
+Curation, JAS, Runtime, AI Catalog and Access. Product dashboards are designed for
+day-to-day operation; leadership reviews need a durable, time-bounded record that
+connects activity, posture, trend and action.
+
+This skill provides that operating rhythm:
+
+- **A weekly evidence archive** that preserves what happened during the period.
+- **A shared leadership view** across platform adoption, supply-chain risk and AI governance.
+- **Week-over-week trends** built only from validated reports with comparable evidence.
+- **Prioritized recommendations** with a clear 7-day or 30-day decision horizon.
+- **Explicit evidence quality** so observed results, projections, benchmarks and gaps cannot be confused.
+- **A monthly executive roll-up** built from the validated weekly record rather than reconstructed later.
+
 ## Quick start
 
 ### APM — reproducible project installation
 
+The following commands are for **macOS, Linux and Windows WSL**.
+
+Create a working directory:
+
 ```bash
 mkdir -p ~/jfrog-platform-reporting
-cd ~/jfrog-platform-reporting
-apm init -y
+```
 
-apm install liquid-jedi/jfrog-platform-report-skills#v1.2.0 \
+Enter the directory:
+
+```bash
+cd ~/jfrog-platform-reporting
+```
+
+Initialize APM:
+
+```bash
+apm init -y
+```
+
+Install the pinned release:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.2.1 \
   --target claude,cursor,codex,gemini
 ```
 
 ### Global Agent Skills installation
+
+For **macOS, Linux and Windows WSL** with Node.js available:
 
 ```bash
 npx skills add git@github.com:liquid-jedi/jfrog-platform-report-skills.git \
@@ -54,6 +88,31 @@ week, presents one compact confirmation, collects fresh evidence and saves the r
 under the configured per-instance archive.
 
 [Installation details](docs/INSTALL.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
+
+## Requirements
+
+| Requirement | Purpose |
+|---|---|
+| macOS, Linux or Windows WSL | Supported execution environments; WSL is recommended over native Windows |
+| Python 3.11 or later | Runs deterministic collectors, normalization and rendering |
+| JFrog CLI | Provides authenticated, read-only access to the selected JFrog instance |
+| Configured JFrog server | The skill discovers the default or sole configured server |
+| Base JFrog Agent Skill | Provides current CLI and API operating guidance |
+
+## Inputs and decisions
+
+The short prompt does not hide configuration. The skill resolves safe defaults and asks
+only when a choice is required.
+
+| Input | Default behavior | When the user is asked |
+|---|---|---|
+| **JFrog instance** | Uses the JFrog CLI default, or the sole configured instance | When multiple instances exist and none is unambiguously selected |
+| **Report period** | Last completed ISO week in the report timezone | When the user requests another week, a partial current week or a monthly roll-up |
+| **Report sections** | Full report | The user may choose Executive or Custom; Custom exposes section selection |
+| **Timezone** | Local IANA timezone, otherwise UTC | When detection is unavailable or the user wants another reporting timezone |
+| **Output location** | Saved per-instance location; first-run recommendation is `~/jfrog-platform-reports` | On first use, or when no location has been configured |
+| **Economic context** | External Forrester TEI benchmark only | Customer projections require an approved profile with currency, costs, baselines, coverage and realization assumptions |
+| **Missed weekly coverage** | Audited after every successful report | Recoverable missing weeks from the previous calendar month are offered for explicit approval |
 
 ## One report, modular views
 
@@ -143,7 +202,9 @@ Section selection changes presentation, not collection or calculation semantics.
 
 ```bash
 python3 scripts/list_report_sections.py
+```
 
+```bash
 python3 scripts/render_report.py \
   --data /path/to/data.json \
   --template assets/dashboard.html \
@@ -151,15 +212,33 @@ python3 scripts/render_report.py \
   --modules executive,trend,artifactory,ai-security,recommendations,evidence
 ```
 
-## Development
+<details>
+<summary><strong>Development and verification</strong></summary>
 
-The test suite uses fixtures and does not require a production JFrog environment.
+The fixture-based suite protects reporting semantics: financial formulas, evidence
+classification, missing permissions, unlicensed products, pagination failure,
+same-day reruns, portability and HTML generation. It intentionally runs without a
+production JFrog environment so contributors can verify changes without customer data.
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/liquid-jedi/jfrog-platform-report-skills.git
+```
+
+Enter the repository:
+
+```bash
 cd jfrog-platform-report-skills
+```
+
+Run verification:
+
+```bash
 python3 -m unittest discover -s tests -v
 ```
+
+</details>
 
 | Resource | Purpose |
 |---|---|
@@ -170,15 +249,3 @@ python3 -m unittest discover -s tests -v
 | [Product modules](references/product-modules.md) | Module ownership and interpretation |
 | [Installation](docs/INSTALL.md) | APM, global installation and updates |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common installation and collection issues |
-
----
-
-<div align="center">
-
-Built for Claude, Claude Code, Cursor, Codex, ChatGPT, Gemini and other Agent Skills hosts.
-
-**Author:** Avinash Giri · **License:** [Apache 2.0](LICENSE)
-
-Report typography uses [Open Sans](assets/OFL-OpenSans.txt), distributed under the SIL Open Font License.
-
-</div>
