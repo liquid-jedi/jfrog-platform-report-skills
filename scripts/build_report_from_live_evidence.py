@@ -8,6 +8,7 @@ import json
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 
 def metric(mid, label, value, unit, classification, source, formula="API field", time_basis=None):
@@ -30,8 +31,8 @@ def raw_pages(raw_dir: Path, prefix: str, key: str) -> list[dict]:
     return rows
 
 
-def format_date(value: str) -> str:
-    return datetime.fromisoformat(value.replace("Z", "+00:00")).strftime("%B %d, %Y").replace(" 0", " ")
+def format_date(value: datetime) -> str:
+    return value.strftime("%B %d, %Y").replace(" 0", " ")
 
 
 def pct(numerator, denominator):
@@ -47,8 +48,10 @@ def main() -> int:
     evidence = load(args.evidence)
     raw = args.raw_dir
     period = evidence["reporting"]["period"]
-    start = datetime.fromisoformat(period["start"].replace("Z", "+00:00"))
-    end = datetime.fromisoformat(period["end"].replace("Z", "+00:00"))
+    report_timezone = evidence["reporting"].get("timezone", "UTC")
+    zone = ZoneInfo(report_timezone)
+    start = datetime.fromisoformat(period["start"].replace("Z", "+00:00")).astimezone(zone)
+    end = datetime.fromisoformat(period["end"].replace("Z", "+00:00")).astimezone(zone)
     period_label = start.strftime("%B %Y") if end.day >= 28 else f"{start.strftime('%B %d').replace(' 0', ' ')}–{end.strftime('%d, %Y').lstrip('0')}"
 
     repositories = load(raw / "artifactory-repositories.json")
@@ -169,8 +172,9 @@ def main() -> int:
         "schema_version": "0.3",
         "meta": {"title": "JFrog Platform Value & Risk Report", "server_id": evidence["provenance"]["server_id"],
                  "data_source": "live", "report_type": evidence["reporting"]["cadence"].title(),
-                 "period_label": period_label, "date_from": format_date(period["start"]), "date_to": format_date(period["end"]),
+                 "period_label": period_label, "date_from": format_date(start), "date_to": format_date(end),
                  "period_start": period["start"], "period_end": period["end"],
+                 "timezone": report_timezone,
                  "generated": datetime.now(timezone.utc).date().isoformat(), "fallback_used": False,
                  "persona": "Platform, security and technology leadership",
                  "report_purpose": "Periodic operating review of platform adoption, supply-chain risk, governance and prioritized action."},

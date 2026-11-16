@@ -49,7 +49,7 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
     ai = run_dir / "ai-security.json"
     commands = [
         [py, str(HERE / "collect_live.py"), "--server", args.server, "--date-from", args.date_from,
-         "--date-to", args.date_to, "--cadence", "weekly", "--output", str(run_dir / "evidence.json"),
+         "--date-to", args.date_to, "--timezone", args.timezone, "--cadence", "weekly", "--output", str(run_dir / "evidence.json"),
          "--raw-dir", str(raw)],
         [py, str(HERE / "build_report_from_live_evidence.py"), "--evidence", str(run_dir / "evidence.json"),
          "--raw-dir", str(raw), "--output", str(run_dir / "data.base.json")],

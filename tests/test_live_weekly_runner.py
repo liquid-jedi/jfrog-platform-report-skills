@@ -42,6 +42,8 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
             value = json.loads(subprocess.run(command, check=True, capture_output=True, text=True).stdout)
             commands = value["commands"]
             names = [Path(row[1]).name for row in commands]
+            collector = commands[0]
+            self.assertEqual(collector[collector.index("--timezone") + 1], "UTC")
             self.assertIn("collect_skill_security.py", names)
             merge = commands[names.index("merge_current_evidence.py")]
             self.assertIn("--ai-catalog-evidence", merge)

@@ -198,6 +198,7 @@ def main() -> int:
     parser.add_argument("--server", required=True)
     parser.add_argument("--date-from", required=True)
     parser.add_argument("--date-to", required=True)
+    parser.add_argument("--timezone", default="UTC")
     parser.add_argument("--cadence", choices=["weekly", "monthly", "custom"], required=True)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--raw-dir", required=True, type=Path)
@@ -235,7 +236,8 @@ def main() -> int:
             "collection_started_at": collected_at, "prior_report_input_used": False,
             "raw_manifest": collector.sources,
         },
-        "reporting": {"cadence": args.cadence, "period": {"start": args.date_from, "end": args.date_to}},
+        "reporting": {"cadence": args.cadence, "timezone": args.timezone,
+                      "period": {"start": args.date_from, "end": args.date_to}},
         "artifactory": {
             **inventory_as_of, "repositories_total": len(repositories),
             "repositories_by_type": dict(Counter(str(row.get("type") or "unknown").lower() for row in repositories)),

@@ -50,6 +50,24 @@ class WeeklyCoverageAuditTests(unittest.TestCase):
             self.assertTrue(result["suggest_backfill"])
             self.assertEqual(len(result["missing_weeks"]), 5)
 
+    def test_month_overlap_does_not_make_partial_iso_week_fully_backfillable(self):
+        with tempfile.TemporaryDirectory() as temp:
+            result = AUDIT.audit(
+                Path(temp), "s", "2026-10", "UTC",
+                datetime(2026, 10, 31, tzinfo=timezone.utc),
+            )
+            first = next(row for row in result["missing_weeks"] if row["period_key"] == "2026-10-04")
+            self.assertEqual(first["month_overlap_start"], "2026-10-01")
+            self.assertEqual(first["week_start"], "2026-09-28")
+            self.assertEqual(first["curation_backfill"], "partially_backfillable")
+
+    def test_clipped_archive_does_not_cover_a_complete_iso_week(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            archive(root, "s", "2026-11-01", "2026-10-26T00:00:00Z", "2026-10-31T23:59:59Z")
+            result = AUDIT.audit(root, "s", "2026-10", "UTC", datetime(2026, 11, 2, tzinfo=timezone.utc))
+            self.assertIn("2026-11-01", [row["period_key"] for row in result["missing_weeks"]])
+
 
 if __name__ == "__main__":
     unittest.main()

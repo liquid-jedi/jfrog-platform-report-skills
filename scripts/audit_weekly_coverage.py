@@ -90,15 +90,15 @@ def audit(report_root: Path, server: str, month: str, timezone_name: str,
     missing = []
     covered = []
     for week in expected_weeks(start, end):
-        overlap_start = week["month_overlap_start"].astimezone(timezone.utc)
-        overlap_end = week["month_overlap_end"].astimezone(timezone.utc)
-        matches = [p for p in periods if p["start"] <= overlap_start and p["end"] >= overlap_end]
+        week_start = week["week_start"].astimezone(timezone.utc)
+        week_end = week["week_end"].astimezone(timezone.utc)
+        matches = [p for p in periods if p["start"] <= week_start and p["end"] >= week_end]
         if matches:
             covered.append({"period_key": week["period_key"], "run_directory": matches[-1]["run_directory"]})
             continue
-        if overlap_start >= cutoff:
+        if week_start >= cutoff:
             curation = "fully_backfillable"
-        elif overlap_end >= cutoff:
+        elif week_end >= cutoff:
             curation = "partially_backfillable"
         else:
             curation = "expired"
