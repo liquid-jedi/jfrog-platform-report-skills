@@ -1,0 +1,4 @@
+name: jfrog-cio-value-report
+version: 0.10.0
+description: Deterministic, modular JFrog Platform Value & Risk reporting skill.
+includes: auto

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jfrog.example/schemas/cio-assumptions-0.1.json",
+  "type": "object",
+  "required": ["status", "currency", "annual_cost", "discount_rate", "projections"],
+  "properties": {
+    "status": {"enum": ["not_configured", "customer_provided"]},
+    "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
+    "annual_cost": {"type": ["number", "null"], "minimum": 0},
+    "discount_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "projections": {"type": "array", "items": {"type": "object", "required": ["id", "category", "baseline_units", "value_per_unit", "adoption_coverage", "realization_factor", "conservative_factor", "expected_factor", "optimistic_factor", "benefit_key"]}}
+  }
+}

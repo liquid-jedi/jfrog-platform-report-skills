@@ -1,0 +1,4 @@
+interface:
+  display_name: "JFrog Platform Value Report"
+  short_description: "Generate weekly JFrog value and risk reports"
+  default_prompt: "Generate weekly platform report"

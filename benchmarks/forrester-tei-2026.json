@@ -1,0 +1,29 @@
+{
+  "id": "forrester-tei-jfrog-ssc-security-2026",
+  "classification": "benchmark",
+  "title": "The Total Economic Impact of JFrog Software Supply Chain Security",
+  "publisher": "Forrester Consulting",
+  "commissioned_by": "JFrog",
+  "study_context": "Composite organization based on interviews with five JFrog customers",
+  "composite": {
+    "annual_revenue_usd": 2000000000,
+    "employees": 6000,
+    "engineers": 500,
+    "deployment": "SaaS enterprise tier; hybrid cloud and on-premises applications"
+  },
+  "three_year_risk_adjusted": {
+    "benefits_pv_usd": 5425630,
+    "costs_pv_usd": 1419324,
+    "npv_usd": 4006306,
+    "roi_percent": 282,
+    "payback": "Less than 6 months",
+    "discount_rate_percent": 10
+  },
+  "benefit_categories_pv_usd": {
+    "reduced_vulnerabilities": 2531367,
+    "faster_vulnerability_remediation": 1151015,
+    "developer_onboarding": 1405882,
+    "tool_consolidation": 337366
+  },
+  "applicability_note": "These are results for Forrester's composite organization, not observed or projected results for solenglatest. Customer projections require customer-supplied baselines, costs, adoption coverage, and realization factors."
+}

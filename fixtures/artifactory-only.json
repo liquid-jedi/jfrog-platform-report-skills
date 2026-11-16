@@ -1,0 +1,33 @@
+{
+  "schema_version": "0.1",
+  "mode": "offline-demo",
+  "period": {"start": "2026-01-01", "end": "2026-12-31"},
+  "reporting": {
+    "cadence": "monthly",
+    "report_date": "2026-09-30",
+    "period": {"start": "2026-09-01", "end": "2026-09-30", "label": "September 2026"},
+    "year_to_date": {"start": "2026-01-01", "end": "2026-09-30"},
+    "previous_period": {"start": "2026-08-01", "end": "2026-08-31", "downloads": 17100000, "builds_published": 33500},
+    "history": [
+      {"label": "Jul 2026", "downloads": 16200000, "builds_published": 31900},
+      {"label": "Aug 2026", "downloads": 17100000, "builds_published": 33500},
+      {"label": "Sep 2026", "downloads": 18500000, "builds_published": 36000}
+    ]
+  },
+  "sources": [
+    {"id": "artifactory-repositories", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "artifactory-storage", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "xray", "status": "unlicensed", "complete": false, "source": "capability-detection", "reason": "Not present in Artifactory-only fixture"}
+  ],
+  "artifactory": {
+    "repositories_total": 120,
+    "local_repositories": 48,
+    "remote_repositories": 44,
+    "virtual_repositories": 28,
+    "storage_bytes": 8796093022208,
+    "artifacts_total": 4200000,
+    "downloads": 18500000,
+    "builds_published": 36000
+  },
+  "year_to_date": {"downloads": 149000000, "builds_published": 291000}
+}

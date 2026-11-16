@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jfrog.com/schemas/cio/ai-catalog-evidence.schema.json",
+  "title": "Normalized AI Catalog evidence",
+  "type": "object",
+  "required": ["schema_version", "collected_at", "source", "inventory"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "collected_at": {"type": "string", "format": "date-time"},
+    "security_collected_at": {"type": "string", "format": "date-time"},
+    "source": {"type": "string", "minLength": 1},
+    "status": {"enum": ["available", "partial", "unavailable"]},
+    "collection_quality": {"type": "object", "additionalProperties": true},
+    "period": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "string", "format": "date-time"}, "end": {"type": "string", "format": "date-time"}}, "additionalProperties": false},
+    "inventory": {"type": "object", "properties": {"models": {"$ref": "#/$defs/assetGroup"}, "mcp_servers": {"$ref": "#/$defs/assetGroup"}, "skills": {"$ref": "#/$defs/assetGroup"}, "plugins": {"$ref": "#/$defs/assetGroup"}}, "additionalProperties": false},
+    "shadow_ai": {"type": "object", "additionalProperties": true},
+    "gateway_activity": {"type": "object", "additionalProperties": true},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "count": {"type": "integer", "minimum": 0},
+    "counts": {"type": "object", "additionalProperties": {"$ref": "#/$defs/count"}},
+    "asset": {"type": "object", "required": ["name"], "properties": {
+      "name": {"type": "string"}, "version": {"type": ["string", "null"]}, "type": {"type": ["string", "null"]},
+      "repository": {"type": ["string", "null"]}, "origin": {"type": ["string", "null"]},
+      "security_status": {"type": ["string", "null"]}, "vulnerability_status": {"type": ["string", "null"]},
+      "vulnerability_count": {"$ref": "#/$defs/count"}, "project_key": {"type": ["string", "null"]},
+      "project_status": {"enum": ["Linked", "Unlinked", "Unknown"]}
+    }, "additionalProperties": true},
+    "assetGroup": {"type": "object", "properties": {
+      "visible": {"$ref": "#/$defs/count"}, "total": {"$ref": "#/$defs/count"}, "scanned": {"$ref": "#/$defs/count"},
+      "security_observed": {"$ref": "#/$defs/count"}, "visible_assets": {"type": "array", "items": {"$ref": "#/$defs/asset"}},
+      "visible_names": {"type": "array", "items": {"type": "string"}}, "security_counts": {"$ref": "#/$defs/counts"},
+      "vulnerability_counts": {"$ref": "#/$defs/counts"}, "project_counts": {"$ref": "#/$defs/counts"}
+    }, "additionalProperties": true}
+  },
+  "additionalProperties": false
+}

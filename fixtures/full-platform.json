@@ -1,0 +1,93 @@
+{
+  "schema_version": "0.1",
+  "mode": "full-platform",
+  "period": {"start": "2026-01-01", "end": "2026-12-31"},
+  "reporting": {
+    "cadence": "monthly",
+    "report_date": "2026-09-30",
+    "period": {"start": "2026-09-01", "end": "2026-09-30", "label": "September 2026"},
+    "year_to_date": {"start": "2026-01-01", "end": "2026-09-30"},
+    "previous_period": {"downloads": 79000000, "builds_published": 135000},
+    "history": [
+      {"label": "Jul 2026", "downloads": 75000000, "builds_published": 128000},
+      {"label": "Aug 2026", "downloads": 79000000, "builds_published": 135000},
+      {"label": "Sep 2026", "downloads": 84000000, "builds_published": 142000}
+    ]
+  },
+  "sources": [
+    {"id": "artifactory-repositories", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "artifactory-storage", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "xray", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "curation", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "advanced-security", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "ai-security", "status": "available", "complete": true, "source": "offline-fixture", "reason": null},
+    {"id": "runtime", "status": "no_data", "complete": true, "source": "offline-fixture", "reason": "Licensed but unused fixture"},
+    {"id": "agentic-remediation", "status": "unlicensed", "complete": false, "source": "capability-detection", "reason": "Not licensed in fixture"}
+  ],
+  "artifactory": {
+    "repositories_total": 280,
+    "local_repositories": 110,
+    "remote_repositories": 96,
+    "virtual_repositories": 74,
+    "storage_bytes": 35184372088832,
+    "artifacts_total": 18400000,
+    "downloads": 84000000,
+    "builds_published": 142000,
+    "uploads": 2150000,
+    "unique_artifacts_downloaded": 3100000,
+    "repositories_by_package_type": {"Maven": 84, "Docker": 61, "npm": 55, "PyPI": 34, "HuggingFaceML": 18, "other": 28},
+    "storage_growth_bytes": 1099511627776,
+    "inactive_repositories": 17,
+    "unowned_repositories": 6,
+    "cleanup_policy_coverage_pct": 72.5
+  },
+  "xray": {
+    "status": "available",
+    "indexed_repositories": 250,
+    "non_indexed_repositories": 30,
+    "violations": 18000,
+    "new_violations": 2100,
+    "resolved_violations": 2600,
+    "open_critical": 84,
+    "fix_available": 9700,
+    "older_than_90_days": 4100,
+    "active_watches": 35,
+    "recommendations": ["Prioritize critical findings with a fix and production build impact."]
+  },
+  "curation": {
+    "status": "available",
+    "requests": 9200000,
+    "approved": 9158000,
+    "blocked": 42000,
+    "unique_requester_identities": 412,
+    "requesters_with_blocks": 96,
+    "repositories_used": 88,
+    "unique_blocked_versions": 6800,
+    "enabled_policies": 198,
+    "pending_waivers": 26,
+    "oldest_pending_waiver_days": 118
+  },
+  "ai_security": {
+    "status": "available",
+    "repositories_total": 52,
+    "repositories_by_type": {"HuggingFaceML": 31, "AgentPlugins": 9, "AgentPackages": 7, "AIEditorExtensions": 5},
+    "new_assets_period": 140,
+    "scanned_assets": 610,
+    "unscanned_assets": 44,
+    "policy_exceptions": 7,
+    "limitations": ["Repository and asset inventory does not prove active consumption."]
+  },
+  "jas": {
+    "status": "available",
+    "applications_covered": 138,
+    "applications_stale_or_unscanned": 12,
+    "new_findings": 730,
+    "resolved_findings": 910,
+    "critical_exploitable": 28,
+    "non_applicable_findings": 5200,
+    "secrets_open": 17,
+    "iac_open": 64,
+    "sast_open": 143,
+    "limitations": ["Fixture values demonstrate the module contract; they are not customer results."]
+  }
+}

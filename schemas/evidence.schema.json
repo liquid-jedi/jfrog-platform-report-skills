@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jfrog.example/schemas/cio-evidence-0.1.json",
+  "type": "object",
+  "required": ["schema_version", "mode", "period", "reporting", "sources", "artifactory"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "mode": {"enum": ["artifactory-only", "artifactory-xray", "full-platform", "offline-demo"]},
+    "period": {"type": "object", "required": ["start", "end"]},
+    "reporting": {"type": "object", "required": ["cadence", "report_date", "period", "year_to_date"], "properties": {"cadence": {"enum": ["weekly", "monthly", "custom"]}}},
+    "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+    "artifactory": {
+      "type": "object",
+      "required": ["repositories_total", "local_repositories", "remote_repositories", "virtual_repositories", "storage_bytes", "artifacts_total"],
+      "properties": {
+        "repositories_total": {"type": "integer", "minimum": 0},
+        "local_repositories": {"type": "integer", "minimum": 0},
+        "remote_repositories": {"type": "integer", "minimum": 0},
+        "virtual_repositories": {"type": "integer", "minimum": 0},
+        "storage_bytes": {"type": "integer", "minimum": 0},
+        "artifacts_total": {"type": "integer", "minimum": 0},
+        "downloads": {"type": ["integer", "null"], "minimum": 0},
+        "builds_published": {"type": ["integer", "null"], "minimum": 0},
+        "uploads": {"type": ["integer", "null"], "minimum": 0},
+        "unique_artifacts_downloaded": {"type": ["integer", "null"], "minimum": 0},
+        "repositories_by_package_type": {"type": "object"},
+        "storage_growth_bytes": {"type": ["integer", "null"]},
+        "inactive_repositories": {"type": ["integer", "null"], "minimum": 0},
+        "unowned_repositories": {"type": ["integer", "null"], "minimum": 0},
+        "cleanup_policy_coverage_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100}
+      }
+    },
+    "curation": {"$ref": "#/$defs/productModule"},
+    "xray": {"$ref": "#/$defs/productModule"},
+    "ai_security": {"$ref": "#/$defs/productModule"},
+    "jas": {"$ref": "#/$defs/productModule"}
+  },
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "required": ["id", "label", "classification", "value", "unit", "sources", "formula"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "classification": {"enum": ["observed", "derived", "projected", "benchmark", "unavailable"]},
+        "value": {},
+        "unit": {"type": "string"},
+        "sources": {"type": "array", "items": {"type": "string"}},
+        "formula": {"type": "string"},
+        "confidence": {"enum": ["high", "medium", "low", "unavailable"]},
+        "data_gaps": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "productModule": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["available", "partial", "no_data", "permission_denied", "unlicensed", "unsupported", "not_configured", "collection_failed"]},
+        "reason": {"type": ["string", "null"]},
+        "metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}},
+        "period_metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}},
+        "posture_metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}},
+        "recommendations": {"type": "array", "items": {"type": "string"}},
+        "limitations": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "object",
+      "required": ["id", "status", "complete", "source"],
+      "properties": {
+        "id": {"type": "string"},
+        "status": {"enum": ["available", "partial", "no_data", "permission_denied", "unlicensed", "unsupported", "not_configured", "collection_failed"]},
+        "complete": {"type": "boolean"},
+        "source": {"type": "string"},
+        "reason": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

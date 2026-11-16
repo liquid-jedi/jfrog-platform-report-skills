@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jfrog.com/schemas/cio/runtime-evidence.schema.json",
+  "title": "Normalized Runtime Security evidence",
+  "type": "object",
+  "required": ["schema_version", "collected_at", "source"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "collected_at": {"type": "string", "format": "date-time"},
+    "source": {"type": "string", "minLength": 1},
+    "vulnerability_prioritization": {"type": "object", "properties": {"critical_high": {"$ref": "#/$defs/count"}, "applicable": {"$ref": "#/$defs/count"}, "with_fix": {"$ref": "#/$defs/count"}, "validated": {"$ref": "#/$defs/count"}}, "additionalProperties": false},
+    "live_assessment": {"type": "object", "properties": {"images": {"$ref": "#/$defs/count"}, "malicious_packages": {"$ref": "#/$defs/count"}, "critical_applicable": {"$ref": "#/$defs/count"}, "critical_applicable_images": {"$ref": "#/$defs/count"}, "integrity_violations": {"$ref": "#/$defs/count"}, "integrity_violation_images": {"$ref": "#/$defs/count"}}, "additionalProperties": false},
+    "running_image_trend": {"type": "array", "items": {"type": "object", "required": ["date", "running_image_tags", "critical_high_applicable"], "properties": {"date": {"type": "string", "format": "date"}, "running_image_tags": {"$ref": "#/$defs/count"}, "critical_high_applicable": {"$ref": "#/$defs/count"}}, "additionalProperties": false}}
+  },
+  "$defs": {"count": {"type": "integer", "minimum": 0}},
+  "additionalProperties": false
+}
