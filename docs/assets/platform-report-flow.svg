@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500" role="img" aria-labelledby="title desc">
+  <title id="title">JFrog Platform Report Skill workflow</title>
+  <desc id="desc">JFrog Platform evidence flows through a deterministic Agent Skill into a modular executive report.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%"><stop offset="0" stop-color="#161b22"/><stop offset="1" stop-color="#0d1117"/></radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.muted{fill:#8b949e}.white{fill:#f0f6fc}.green{fill:#40d348}.blue{fill:#637fe8}.red{fill:#ff7b72}.box{fill:#0d1117;stroke:#30363d}.dashbox{fill:#161b22;stroke:#30363d}.flow{fill:none;stroke:#30363d;stroke-width:2;stroke-dasharray:7 7;animation:dash 6s linear infinite}.gear{transform-origin:440px 252px;animation:spin 8s linear infinite}.skeleton{animation:reveal 6s ease-in-out infinite}.product{fill:#484f58;animation:pulse 4s ease-in-out infinite}.p2{animation-delay:.7s}.p3{animation-delay:1.4s}.p4{animation-delay:2.1s}.p5{animation-delay:2.8s}.particle{filter:url(#glow);animation:travel 2.4s linear infinite}.delay1{animation-delay:.8s}.delay2{animation-delay:1.6s}.out{animation-name:travelOut;fill:#637fe8}.out2{animation-delay:1.2s}@keyframes dash{to{stroke-dashoffset:-100}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{fill:#484f58}10%,25%{fill:#40d348}}@keyframes reveal{0%,38%{opacity:1}48%,92%{opacity:0}100%{opacity:1}}@keyframes travel{0%{transform:translate(190px,250px);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translate(352px,250px);opacity:0}}@keyframes travelOut{0%{transform:translate(520px,250px);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translate(642px,250px);opacity:0}}
+    </style>
+  </defs>
+  <rect x="1" y="1" width="898" height="498" rx="14" fill="url(#bg)" stroke="#30363d"/>
+  <text x="450" y="48" text-anchor="middle" class="white" font-size="24" font-weight="700">JFrog Platform Report Skill</text>
+  <rect x="330" y="62" width="240" height="27" rx="14" fill="#12351d" stroke="#2d7d3d"/>
+  <text x="450" y="80" text-anchor="middle" class="green" font-size="12" font-weight="700">DETERMINISTIC COLLECTION &amp; RENDERING</text>
+
+  <path d="M190 250H360M520 250H650" class="flow"/>
+  <circle r="5" class="green particle"/><circle r="5" class="green particle delay1"/><circle r="5" class="green particle delay2"/>
+  <circle r="5" class="particle out"/><circle r="5" class="particle out out2"/>
+
+  <rect x="40" y="130" width="150" height="240" rx="9" class="dashbox"/>
+  <text x="115" y="165" text-anchor="middle" class="white" font-size="18" font-weight="700">JFrog Platform</text>
+  <text x="115" y="208" text-anchor="middle" class="product" font-size="13">Artifactory</text>
+  <text x="115" y="239" text-anchor="middle" class="product p2" font-size="13">Xray</text>
+  <text x="115" y="270" text-anchor="middle" class="product p3" font-size="13">JAS</text>
+  <text x="115" y="301" text-anchor="middle" class="product p4" font-size="13">Curation</text>
+  <text x="115" y="332" text-anchor="middle" class="product p5" font-size="13">AI Security</text>
+
+  <rect x="360" y="170" width="160" height="160" rx="10" fill="#161b22" stroke="#40d348" stroke-width="2"/>
+  <g class="gear" fill="none" stroke="#40d348" stroke-width="3"><circle cx="440" cy="252" r="20"/><circle cx="440" cy="252" r="7"/><path d="M440 224v-10m0 76v-10m28-28h10m-76 0h10m48-20 7-7m-54 54 7-7m40 7 7 7m-54-54 7 7"/></g>
+  <text x="440" y="300" text-anchor="middle" class="white" font-size="15" font-weight="700">Report Skill</text>
+  <text x="440" y="317" text-anchor="middle" class="green" font-size="9">NORMALIZE · CLASSIFY · VALIDATE</text>
+
+  <rect x="650" y="105" width="220" height="320" rx="9" class="box"/>
+  <text x="670" y="132" class="muted" font-size="9" letter-spacing="1">DASHBOARD</text>
+  <text x="670" y="150" class="white" font-size="14" font-weight="700">JFrog Platform Report</text>
+  <path d="M665 162h190" stroke="#30363d"/>
+  <g class="dashbox"><rect x="670" y="178" width="82" height="64" rx="5"/><rect x="768" y="178" width="82" height="64" rx="5"/><rect x="670" y="252" width="82" height="64" rx="5"/><rect x="768" y="252" width="82" height="64" rx="5"/></g>
+  <g font-size="9" class="muted"><text x="680" y="195">PERIOD XRAY</text><text x="778" y="195">CRITICAL</text><text x="680" y="269">CURATION</text><text x="778" y="269">REPOSITORIES</text></g>
+  <g font-size="18" font-weight="700"><text x="680" y="223" class="red">14,060</text><text x="778" y="223" class="red">1,603</text><text x="680" y="297" class="green">73,334</text><text x="778" y="297" class="green">1,547</text></g>
+  <g class="skeleton" fill="#30363d"><rect x="677" y="208" width="65" height="20" rx="3"/><rect x="775" y="208" width="65" height="20" rx="3"/><rect x="677" y="282" width="65" height="20" rx="3"/><rect x="775" y="282" width="65" height="20" rx="3"/></g>
+  <rect x="670" y="329" width="180" height="34" rx="5" class="dashbox"/><text x="680" y="343" class="muted" font-size="8">TOP RISK</text><text x="680" y="356" class="red" font-size="10">1  Critical Xray intake</text>
+  <rect x="670" y="374" width="180" height="34" rx="5" class="dashbox"/><text x="680" y="388" class="muted" font-size="8">ACTION</text><text x="680" y="401" class="green" font-size="10">1  Prioritize critical findings</text>
+  <text x="450" y="468" text-anchor="middle" class="muted" font-size="12">Fresh evidence in · classified leadership intelligence out</text>
+</svg>

@@ -115,13 +115,15 @@ class ReportTests(unittest.TestCase):
         report = self.report()
         html = GEN.render(report, ROOT / "assets" / "dashboard.html")
         self.assertIn("JFrog Platform Value &amp; Risk Report", html)
+        self.assertIn("data:font/ttf;base64,", html)
+        self.assertNotIn("__JFROG_OPEN_SANS_FONT__", html)
         self.assertNotIn("__JFROG_PLATFORM_REPORT_DATA__", html)
         self.assertIn('type="application/json"', html)
         self.assertIn('data-export-mode="executive"', html)
         self.assertIn('data-export-mode="custom"', html)
         self.assertIn('id="print-report"', html)
         self.assertIn('"classification":"unavailable"', html)
-        self.assertNotIn("EUR", html)
+        self.assertIsNone(report["financial"]["currency"])
 
     def test_every_metric_has_plain_language_explanation(self):
         for item in self.report(profile="full")["metrics"]:

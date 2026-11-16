@@ -2,6 +2,7 @@
 """Render classified report JSON into the fixed, script-free HTML template."""
 
 import argparse
+import base64
 import html
 import json
 from pathlib import Path
@@ -541,6 +542,7 @@ def main():
     replacements = {
         "__JFROG_PLATFORM_REPORT_DATA__": esc(json.dumps(data, separators=(",", ":"), ensure_ascii=False)),
         "<!--JFROG_LOGO-->": (args.template.parent / "jfrog-logo-white.svg").read_text(encoding="utf-8"),
+        "__JFROG_OPEN_SANS_FONT__": base64.b64encode((args.template.parent / "OpenSans-Variable.ttf").read_bytes()).decode("ascii"),
         "<!--REPORT_TYPE-->": esc(data["meta"]["report_type"]),
         "<!--REPORT_RANGE-->": esc(f'{data["meta"]["date_from"]} – {data["meta"]["date_to"]}'),
         "<!--REPORT_SERVER-->": esc(data["meta"]["server_id"]),

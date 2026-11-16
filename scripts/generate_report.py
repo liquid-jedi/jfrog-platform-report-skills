@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
@@ -157,7 +158,9 @@ def calculate(evidence: dict, assumptions: dict, profile: str) -> dict:
 def render(report: dict, template_path: Path) -> str:
     template = template_path.read_text(encoding="utf-8")
     require(template.count("__JFROG_PLATFORM_REPORT_DATA__") == 1, "template must contain one data placeholder")
-    return template.replace("__JFROG_PLATFORM_REPORT_DATA__", json.dumps(report, separators=(",", ":"), ensure_ascii=False))
+    return (template
+            .replace("__JFROG_PLATFORM_REPORT_DATA__", json.dumps(report, separators=(",", ":"), ensure_ascii=False))
+            .replace("__JFROG_OPEN_SANS_FONT__", base64.b64encode((template_path.parent / "OpenSans-Variable.ttf").read_bytes()).decode("ascii")))
 
 
 def main() -> int:
