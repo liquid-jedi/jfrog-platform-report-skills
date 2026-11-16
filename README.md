@@ -2,16 +2,21 @@
 
 # JFrog Platform Report Skill
 
-_Evidence-backed weekly reporting for JFrog Platform leadership._
+_A weekly operating record for JFrog Platform value, risk and action._
 
-[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-jfrog--platform--report-40d348?style=for-the-badge)](SKILL.md)
-[![Release](https://img.shields.io/badge/release-v1.2.1-637fe8?style=for-the-badge)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.2.1)
-[![Supported OS](https://img.shields.io/badge/OS-macOS%20%7C%20Linux%20%7C%20WSL-40d348?style=for-the-badge)](#requirements)
-[![License](https://img.shields.io/badge/license-Apache--2.0-1f6feb?style=for-the-badge)](LICENSE)
+[![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
+[![Release](https://img.shields.io/badge/RELEASE-v1.3.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.3.0)
+[![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
+[![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
 </div>
 
 ![JFrog Platform evidence flowing through the report skill into an executive dashboard](docs/assets/platform-report-flow.svg)
+
+[**View live dashboard**](https://liquid-jedi.github.io/jfrog-platform-report-skills/examples/report.html) &nbsp;|&nbsp;
+[**Executive PDF**](docs/examples/jfrog-platform-report-executive.pdf) &nbsp;|&nbsp;
+[**Full PDF**](docs/examples/jfrog-platform-report-full.pdf) &nbsp;|&nbsp;
+[**Read the report guide**](docs/REPORT-GUIDE.md)
 
 The skill collects fresh, read-only evidence from the capabilities available in a
 customer's JFrog environment and turns it into a self-contained weekly HTML report.
@@ -39,7 +44,7 @@ This skill provides that operating rhythm:
 
 ## Quick start
 
-### APM — reproducible project installation
+### APM: reproducible project installation
 
 The following commands are for **macOS, Linux and Windows WSL**.
 
@@ -64,7 +69,7 @@ apm init -y
 Install the pinned release:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.2.1 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.3.0 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -129,6 +134,12 @@ only when a choice is required.
 | **Economic context** | What external benchmark or approved customer scenario is defensible? |
 | **Recommendations** | Which actions need an owner in the next 7 or 30 days? |
 
+Each tile has a documented interpretation, source boundary, evidence classification
+and decision use. See the [report guide](docs/REPORT-GUIDE.md) for the complete tile
+catalog and the [synthetic live example](https://liquid-jedi.github.io/jfrog-platform-report-skills/examples/report.html)
+for a working report with trends, anonymized identities, fictional repositories and
+recommendations.
+
 Artifactory-only, Artifactory + Xray and full-platform environments are supported.
 Optional products are feature-detected; an unavailable capability does not break the
 report or masquerade as a genuine zero.
@@ -154,7 +165,7 @@ flowchart LR
 ## Truthful economics
 
 Without an approved per-instance economic profile, the bundled Forrester TEI composite
-is shown strictly as external **benchmark** context—not customer ROI. An explicitly
+is shown strictly as external **benchmark** context, not customer ROI. An explicitly
 approved profile can enable deterministic conservative, expected and optimistic
 customer projections with configurable currency, costs, coverage and realization.
 
@@ -247,5 +258,9 @@ python3 -m unittest discover -s tests -v
 | [Data-source matrix](references/data-source-matrix.md) | Supported evidence and known product-data gaps |
 | [Metric contract](references/metric-contract.md) | Classification, formulas and financial rules |
 | [Product modules](references/product-modules.md) | Module ownership and interpretation |
+| [Report guide](docs/REPORT-GUIDE.md) | Tile meanings, classifications, colors and decision use |
+| [Synthetic dashboard](docs/examples/report.html) | Interactive full-platform example with fictional data |
+| [Executive PDF](docs/examples/jfrog-platform-report-executive.pdf) | Concise printable leadership example |
+| [Full PDF](docs/examples/jfrog-platform-report-full.pdf) | Complete printable example across all modules |
 | [Installation](docs/INSTALL.md) | APM, global installation and updates |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common installation and collection issues |

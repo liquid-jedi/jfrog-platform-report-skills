@@ -3,31 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Deterministic weekly JFrog Platform value and risk reporting for platform, security and technology leadership.">
   <title>JFrog Platform Report Skill</title>
   <style>
-    :root{--page:#07142d;--panel:#0d2041;--line:#31425f;--text:#f7f9fc;--muted:#b4c0d4;--green:#40d348}
-    *{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font:16px/1.6 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
-    main{max-width:1060px;margin:auto;padding:72px 24px}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
-    h1{font-size:48px;line-height:1.08;margin:10px 0 20px;max-width:850px}p{color:var(--muted);max-width:780px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:30px 0 50px}
-    a.button{padding:12px 18px;border-radius:9px;text-decoration:none;font-weight:750;border:1px solid var(--line);color:var(--text);background:var(--panel)}a.primary{background:var(--green);color:#061226;border-color:var(--green)}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:14px}.card h2{font-size:17px;margin:0 0 8px}.card p{font-size:14px;margin:0}
-    code{color:#b9ffc0}@media(max-width:760px){h1{font-size:36px}.grid{grid-template-columns:1fr}}
+    :root{--page:#0d1117;--panel:#090c10;--soft:#111820;--line:#30363d;--text:#f0f6fc;--muted:#9da7b3;--green:#40d348;--red:#ff7b72}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--page);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+    a{color:inherit}.wrap{width:min(1120px,calc(100% - 40px));margin:auto}.top{border-bottom:1px solid var(--line);background:rgba(13,17,23,.94);position:sticky;top:0;z-index:5}.top .wrap{display:flex;align-items:center;justify-content:space-between;padding:15px 0}.brand{font-weight:750}.nav{display:flex;gap:22px}.nav a{color:var(--muted);text-decoration:none;font-size:14px}.nav a:hover{color:var(--text)}
+    .hero{padding:80px 0 44px;text-align:center}.eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.hero h1{font-size:clamp(40px,7vw,70px);line-height:1.03;margin:12px auto 18px;max-width:900px;letter-spacing:-.035em}.lead{font-size:20px;max-width:760px;margin:auto;color:var(--muted)}.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:32px 0}.button{padding:12px 18px;border:1px solid var(--line);background:var(--soft);border-radius:8px;text-decoration:none;font-weight:750}.button.primary{background:var(--green);border-color:var(--green);color:#07120a}.hero img{display:block;width:min(900px,100%);margin:54px auto 0}
+    section{padding:68px 0;border-top:1px solid var(--line)}h2{font-size:34px;line-height:1.2;margin:0 0 14px}section>div>p{color:var(--muted);max-width:760px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}.card{padding:24px;background:var(--panel);border:1px solid var(--line);border-radius:12px}.card h3{font-size:17px;margin:0 0 8px}.card p{font-size:14px;color:var(--muted);margin:0}.metric{font-size:30px;font-weight:760;color:var(--green);margin:8px 0}.metric.risk{color:var(--red)}
+    .sample{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}.sample .preview{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.sample img{width:100%;display:block;border-radius:7px}.links{display:grid;gap:10px;margin-top:24px}.links a{display:flex;justify-content:space-between;padding:13px 16px;border:1px solid var(--line);border-radius:8px;text-decoration:none;background:var(--soft)}code{color:#b7f5bd}footer{padding:36px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:780px){.nav{display:none}.grid,.sample{grid-template-columns:1fr}.hero{padding-top:55px}}
   </style>
 </head>
-<body><main>
-  <div class="eyebrow">Portable Agent Skill</div>
-  <h1>JFrog Platform Report Skill</h1>
-  <p>Generate deterministic weekly and monthly JFrog Platform Value &amp; Risk reports from fresh, classified evidence—using one fixed HTML template across Claude, Cursor, Codex, Gemini and other Agent Skills-compatible hosts.</p>
-  <div class="actions">
-    <a class="button primary" href="examples/report.html">View example report</a>
-    <a class="button" href="https://github.com/liquid-jedi/jfrog-platform-report-skills">GitHub repository</a>
-    <a class="button" href="INSTALL.md">Installation</a>
-  </div>
-  <div class="grid">
-    <div class="card"><h2>Modular</h2><p>Select Executive, Curation, Artifactory, Xray, AI security, Access/OIDC, JAS, Runtime, Trends and more.</p></div>
-    <div class="card"><h2>Truthful evidence</h2><p>Observed, derived, projected, benchmark and unavailable values stay visibly distinct.</p></div>
-    <div class="card"><h2>Consistent output</h2><p>Structured JSON is injected into a fixed, versioned template. The agent never invents report HTML.</p></div>
-  </div>
-  <p style="margin-top:46px">Invoke it with: <code>Generate weekly platform report</code></p>
-</main></body>
+<body>
+  <header class="top"><div class="wrap"><div class="brand">JFrog Platform Report Skill</div><nav class="nav"><a href="#why">Why</a><a href="#coverage">Coverage</a><a href="#sample">Sample</a><a href="https://github.com/liquid-jedi/jfrog-platform-report-skills">GitHub</a></nav></div></header>
+  <main>
+    <div class="hero wrap">
+      <div class="eyebrow">Portable Agent Skill</div>
+      <h1>Turn JFrog operating data into a weekly leadership record</h1>
+      <p class="lead">Collect fresh, read-only evidence. Preserve what happened. Separate observed results, derived metrics, projections, benchmarks and unavailable data.</p>
+      <div class="actions"><a class="button primary" href="examples/report.html">View live dashboard</a><a class="button" href="examples/jfrog-platform-report-executive.pdf">Executive PDF</a><a class="button" href="REPORT-GUIDE.md">Read the report guide</a></div>
+      <img src="assets/platform-report-flow.svg" alt="JFrog Platform evidence flowing through the Agent Skill into a weekly leadership report">
+    </div>
+    <section id="why"><div class="wrap"><div class="eyebrow">Why it exists</div><h2>A durable record, not another point-in-time screen</h2><p>Product consoles help teams operate each JFrog capability. Leadership needs a time-bounded record that connects platform adoption, preventive controls, current risk, trend and accountable action.</p><div class="grid">
+      <article class="card"><h3>Comparable weekly evidence</h3><p>Validated archives create week-over-week trends without reconstructing history from current inventory.</p></article>
+      <article class="card"><h3>One evidence language</h3><p>Every value carries a classification, source, formula and period boundary.</p></article>
+      <article class="card"><h3>Actions with an owner</h3><p>Recommendations connect report evidence to a 7-day or 30-day operating decision.</p></article>
+    </div></div></section>
+    <section id="coverage"><div class="wrap"><div class="eyebrow">Coverage</div><h2>Modular across the JFrog Platform</h2><p>The report works for Artifactory-only environments and adds optional modules when supported evidence is available.</p><div class="grid">
+      <article class="card"><h3>Platform activity</h3><div class="metric">Artifactory</div><p>Repositories, storage, uploads, downloads, traffic deltas and cache efficiency.</p></article>
+      <article class="card"><h3>Software supply chain risk</h3><div class="metric risk">Xray and JAS</div><p>New findings, severity, coverage, exploitability and fix availability.</p></article>
+      <article class="card"><h3>Preventive controls</h3><div class="metric">Curation</div><p>Requests evaluated, blocks, unique users, packages, policies and waivers.</p></article>
+      <article class="card"><h3>Agentic governance</h3><div class="metric risk">AI security</div><p>MCP servers, skills, plugins and models with scan state, risk and project attribution.</p></article>
+      <article class="card"><h3>Identity posture</h3><div class="metric risk">Access and OIDC</div><p>Token rotation windows, non-expiring credentials and workload trust mappings.</p></article>
+      <article class="card"><h3>Production context</h3><div class="metric risk">Runtime</div><p>Running images, applicable risk, malicious packages and integrity signals.</p></article>
+    </div></div></section>
+    <section id="sample"><div class="wrap sample"><div><div class="eyebrow">Synthetic example</div><h2>Explore every report capability without customer data</h2><p>The public example uses fictional names and values. It includes weekly trends, anonymized requester identities, fictional repositories, AI asset security states, token rotation planning and recommendations.</p><div class="links"><a href="examples/report.html"><span>Interactive full dashboard</span><b>Open</b></a><a href="examples/jfrog-platform-report-executive.pdf"><span>Executive PDF</span><b>Open</b></a><a href="examples/jfrog-platform-report-full.pdf"><span>Full PDF</span><b>Open</b></a><a href="REPORT-GUIDE.md"><span>Tile and metric guide</span><b>Read</b></a></div></div><div class="preview"><img src="assets/sample-dashboard-preview.png" alt="Synthetic JFrog Platform report preview"></div></div></section>
+  </main>
+  <footer><div class="wrap">This is not an official JFrog publication. Reports are generated using JFrog Platform Skills from evidence visible to the configured customer identity.</div></footer>
+</body>
 </html>

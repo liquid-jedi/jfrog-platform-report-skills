@@ -1,184 +1,1484 @@
 {
-  "schema_version": "0.1",
-  "profile": "executive",
-  "mode": "offline-demo",
-  "period": {
-    "start": "2026-09-01",
-    "end": "2026-09-30",
-    "label": "September 2026"
+  "schema_version": "0.3",
+  "meta": {
+    "title": "JFrog Platform Value & Risk Report",
+    "server_id": "northstar-demo",
+    "data_source": "Synthetic demonstration fixture",
+    "report_type": "Weekly",
+    "period_label": "October 26-31, 2026",
+    "period_range": "October 26-31, 2026",
+    "date_from": "2026-10-26",
+    "date_to": "2026-10-31",
+    "period_start": "2026-10-26T00:00:00Z",
+    "period_end": "2026-10-31T23:59:59Z",
+    "generated": "2026-11-01T08:00:00Z",
+    "fallback_used": false,
+    "persona": "Platform, security and technology leadership",
+    "report_purpose": "Weekly operating review of platform adoption, preventive controls, software supply chain risk and prioritized action."
   },
-  "reporting": {
-    "cadence": "monthly",
-    "report_date": "2026-09-30",
-    "period": {
-      "start": "2026-09-01",
-      "end": "2026-09-30",
-      "label": "September 2026"
+  "evidence_revalidation": {
+    "message": "Synthetic demonstration data. No customer system or live JFrog instance was queried."
+  },
+  "executive_signals": [
+    {
+      "id": "xray-critical-findings",
+      "label": "Critical findings",
+      "value": 126,
+      "unit": "findings",
+      "classification": "observed",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "bad"
     },
-    "year_to_date": {
-      "start": "2026-01-01",
-      "end": "2026-09-30"
+    {
+      "id": "curation-blocked",
+      "label": "Risky requests prevented",
+      "value": 187,
+      "unit": "requests",
+      "classification": "observed",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "good"
     },
-    "previous_period": {
-      "start": "2026-08-01",
-      "end": "2026-08-31",
-      "downloads": 17100000,
-      "builds_published": 33500
+    {
+      "id": "binary-cache-hit-rate",
+      "label": "Cache hit rate",
+      "value": 87.4,
+      "unit": "%",
+      "classification": "derived",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "good"
     },
-    "history": [
+    {
+      "id": "exec-ai-risk",
+      "label": "Risky AI assets",
+      "value": 7,
+      "unit": "assets",
+      "classification": "derived",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "bad",
+      "meaning": "AI asset records that are malicious, suspicious, vulnerable, unscanned or not linked to a project.",
+      "why_it_matters": "These records need review before the assets can be treated as governed and production-ready."
+    }
+  ],
+  "executive_summary": {
+    "risks": [
       {
-        "label": "Jul 2026",
-        "downloads": 16200000,
-        "builds_published": 31900
+        "title": "Critical vulnerability intake remains elevated",
+        "detail": "126 critical findings entered the estate this week, with the highest concentration in two container repositories."
       },
       {
-        "label": "Aug 2026",
-        "downloads": 17100000,
-        "builds_published": 33500
+        "title": "AI asset governance has visible gaps",
+        "detail": "Seven MCP, skill, plugin or model records are suspicious, vulnerable, malicious, unscanned or not linked to a project."
+      }
+    ],
+    "outcomes": [
+      {
+        "title": "Curation stopped risky dependency demand",
+        "detail": "187 requests were blocked before the packages entered development workflows."
       },
       {
-        "label": "Sep 2026",
-        "downloads": 18500000,
-        "builds_published": 36000
+        "title": "Artifact delivery remained cache efficient",
+        "detail": "The binary provider cache served 87.4% of eligible requests during the period."
+      }
+    ],
+    "actions": [
+      {
+        "title": "Assign owners to critical findings with fixes",
+        "detail": "Start with the two repositories responsible for 61% of critical intake."
+      },
+      {
+        "title": "Quarantine and review risky AI assets",
+        "detail": "Remove the malicious MCP server, review suspicious skills and link approved assets to accountable projects."
       }
     ]
   },
-  "period_activity": {
-    "downloads": 18500000,
-    "downloads_previous": 17100000,
-    "builds_published": 36000,
-    "builds_previous": 33500,
-    "downloads_delta_pct": "8.2",
-    "builds_delta_pct": "7.5"
+  "platform": {
+    "metrics": [
+      {
+        "id": "repositories",
+        "label": "Repositories",
+        "value": 246,
+        "unit": "repositories",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "local-repositories",
+        "label": "Local repositories",
+        "value": 92,
+        "unit": "repositories",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "remote-repositories",
+        "label": "Remote repositories",
+        "value": 71,
+        "unit": "repositories",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "virtual-repositories",
+        "label": "Virtual repositories",
+        "value": 83,
+        "unit": "repositories",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "project-linked-repositories",
+        "label": "Repositories linked to projects",
+        "value": 219,
+        "unit": "repositories",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Repositories with a project key",
+        "risk_state": "neutral"
+      }
+    ],
+    "package_types": [
+      [
+        "Docker",
+        68
+      ],
+      [
+        "Maven",
+        61
+      ],
+      [
+        "npm",
+        47
+      ],
+      [
+        "PyPI",
+        31
+      ],
+      [
+        "Other",
+        39
+      ]
+    ]
   },
-  "year_to_date": {
-    "downloads": 149000000,
-    "builds_published": 291000
+  "artifactory_detail": {
+    "status": "available",
+    "collected_at": "2026-11-01T08:00:00Z",
+    "metrics": [
+      {
+        "id": "artifact-storage",
+        "label": "Artifact storage",
+        "value": 18.7,
+        "unit": "TiB",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "total bytes / 2^40",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "artifacts-count",
+        "label": "Artifacts stored",
+        "value": 9240000,
+        "unit": "artifacts",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "period-downloads",
+        "label": "Downloads during report period",
+        "value": 1842900,
+        "unit": "requests",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "period-end counter - period-start counter",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "period-uploads",
+        "label": "Uploads during report period",
+        "value": 128400,
+        "unit": "requests",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "period-end counter - period-start counter",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "binary-cache-hit-rate",
+        "label": "Binary provider cache hit rate",
+        "value": 87.4,
+        "unit": "%",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "cache hits / cache requests x 100",
+        "risk_state": "neutral"
+      }
+    ],
+    "repository_types": [
+      [
+        "Local",
+        92
+      ],
+      [
+        "Remote",
+        71
+      ],
+      [
+        "Virtual",
+        83
+      ]
+    ],
+    "package_types": [
+      [
+        "Docker",
+        68
+      ],
+      [
+        "Maven",
+        61
+      ],
+      [
+        "npm",
+        47
+      ],
+      [
+        "PyPI",
+        31
+      ],
+      [
+        "Other",
+        39
+      ]
+    ],
+    "top_storage": [
+      {
+        "repository": "payments-containers-local",
+        "used_space": "3.4 TiB",
+        "files": 184320,
+        "package_type": "Docker",
+        "project": "PAY"
+      },
+      {
+        "repository": "shared-maven-release-local",
+        "used_space": "2.1 TiB",
+        "files": 742810,
+        "package_type": "Maven",
+        "project": "PLAT"
+      },
+      {
+        "repository": "analytics-python-local",
+        "used_space": "1.2 TiB",
+        "files": 263104,
+        "package_type": "PyPI",
+        "project": "DATA"
+      }
+    ],
+    "traffic_evidence": {
+      "collected_at": "2026-11-01T08:00:00Z",
+      "counters": {
+        "download_requests_total": 98432000,
+        "upload_requests_total": 6214800
+      },
+      "period_delta": {
+        "download_requests_delta": 1842900,
+        "upload_requests_delta": 128400,
+        "cache_fs_hit_rate": "87.4%"
+      }
+    },
+    "interpretation": [
+      "Artifact traffic increased 5.8% while cache efficiency remained above the 85% operating threshold.",
+      "The three largest repositories account for 35.8% of stored bytes and should have explicit retention ownership."
+    ]
   },
-  "modules": [
-    "estate",
-    "financial",
-    "opportunities",
-    "coverage"
-  ],
-  "metrics": [
-    {
-      "id": "repositories-total",
-      "label": "Repositories",
-      "classification": "observed",
-      "value": 120,
-      "unit": "count",
-      "sources": [
-        "artifactory-repositories"
-      ],
-      "formula": "count(repositories)",
-      "confidence": "high",
-      "data_gaps": [],
-      "meaning": "The total number of configured repositories in this report scope.",
-      "why_it_matters": "This shows the size of the package-management estate the platform supports."
+  "curation": {
+    "status": "available",
+    "coverage_label": "Complete period collection",
+    "collection": {
+      "rows_fetched": 68420
     },
-    {
-      "id": "artifacts-total",
-      "label": "Artifacts",
-      "classification": "observed",
-      "value": 4200000,
-      "unit": "count",
-      "sources": [
-        "artifactory-storage"
+    "metrics": [
+      {
+        "id": "curation-decisions",
+        "label": "Requests evaluated",
+        "value": 68420,
+        "unit": "requests",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "curation-retained-window",
+        "label": "Retained audit decisions",
+        "value": 68420,
+        "unit": "decisions",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "curation-blocked",
+        "label": "Blocked requests",
+        "value": 187,
+        "unit": "requests",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "curation-block-rate",
+        "label": "Block rate",
+        "value": 0.27,
+        "unit": "%",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "blocked / evaluated x 100",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "curation-users",
+        "label": "Curation unique users",
+        "value": 38,
+        "unit": "identities",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "curation-repos",
+        "label": "Repositories using Curation",
+        "value": 54,
+        "unit": "repositories",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "unique-blocked-packages",
+        "label": "Unique blocked package versions",
+        "value": 63,
+        "unit": "versions",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      }
+    ],
+    "events_by_package_type": [
+      [
+        "npm",
+        28410
       ],
-      "formula": "storage summary artifact count",
-      "confidence": "high",
-      "data_gaps": [],
-      "meaning": "The number of artifact records stored in the selected scope.",
-      "why_it_matters": "Artifact volume is an indicator of platform adoption and lifecycle-management demand."
-    },
-    {
-      "id": "storage-tib",
-      "label": "Storage",
-      "classification": "derived",
-      "value": "8.00",
-      "unit": "TiB",
-      "sources": [
-        "artifactory-storage"
+      [
+        "Maven",
+        17320
       ],
-      "formula": "storage_bytes / 2^40",
-      "confidence": "high",
-      "data_gaps": [],
-      "meaning": "The physical storage used by artifacts in this report scope.",
-      "why_it_matters": "Storage trend is a core input to capacity planning and cost governance."
-    },
-    {
-      "id": "downloads",
-      "label": "Downloads",
-      "classification": "observed",
-      "value": 18500000,
-      "unit": "count",
-      "sources": [
-        "artifactory-downloads"
+      [
+        "PyPI",
+        14510
       ],
-      "formula": "count(download events)",
-      "confidence": "high",
-      "data_gaps": [],
-      "meaning": "Artifact download activity during the selected period, when a period-capable source is available.",
-      "why_it_matters": "Download volume is an adoption signal and an input to transfer and cache-efficiency analysis."
-    },
-    {
-      "id": "builds-published",
-      "label": "Builds published",
-      "classification": "observed",
-      "value": 36000,
-      "unit": "count",
-      "sources": [
-        "artifactory-build-info"
+      [
+        "Go",
+        8180
+      ]
+    ],
+    "top_block_reasons": [
+      [
+        "Malicious package",
+        72
       ],
-      "formula": "count(build-info records)",
-      "confidence": "high",
-      "data_gaps": [],
-      "meaning": "Build records published during the selected period.",
-      "why_it_matters": "Build-info adoption improves traceability from source and CI to released artifacts."
-    }
-  ],
-  "financial": {
-    "available": false,
-    "classification": "unavailable",
-    "currency": null,
-    "reason": "Customer financial assumptions were not provided.",
-    "annual_benefit": null,
-    "annual_cost": null,
-    "net_annual_benefit": null,
-    "three_year_benefit": null,
-    "three_year_cost": null,
-    "net_present_value": null,
-    "roi_percent": null,
-    "payback_years": null,
-    "benefit_by_category": {},
-    "sensitivity": {}
+      [
+        "Critical CVE",
+        51
+      ],
+      [
+        "License policy",
+        39
+      ],
+      [
+        "Immature version",
+        25
+      ]
+    ],
+    "top_blocked": [
+      {
+        "package": "sample-left-pad",
+        "ecosystem": "npm",
+        "count": 34
+      },
+      {
+        "package": "demo-logging-core",
+        "ecosystem": "Maven",
+        "count": 21
+      },
+      {
+        "package": "example-parser",
+        "ecosystem": "PyPI",
+        "count": 17
+      }
+    ],
+    "top_users": [
+      {
+        "user": "developer-07",
+        "requests": 8420,
+        "blocked": 21,
+        "repos": 7,
+        "packages": 1260
+      },
+      {
+        "user": "build-service-03",
+        "requests": 7180,
+        "blocked": 9,
+        "repos": 11,
+        "packages": 980
+      },
+      {
+        "user": "developer-14",
+        "requests": 6240,
+        "blocked": 17,
+        "repos": 5,
+        "packages": 846
+      }
+    ],
+    "top_policies": [
+      [
+        "Block malicious packages",
+        72
+      ],
+      [
+        "Block critical CVEs",
+        51
+      ],
+      [
+        "Restrict licenses",
+        39
+      ]
+    ],
+    "show_configuration": false,
+    "interpretation": [
+      "Curation evaluated 68,420 requests from 38 identities and blocked 187 risky requests.",
+      "Repeat demand is concentrated in three packages, which indicates where developer guidance can reduce friction."
+    ]
   },
-  "sources": [
-    {
-      "id": "artifactory-repositories",
-      "status": "available",
-      "complete": true,
-      "source": "offline-fixture",
-      "reason": null
+  "xray": {
+    "status": "available",
+    "metrics": [
+      {
+        "id": "xray-new-findings",
+        "label": "New findings",
+        "value": 2840,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "xray-critical-findings",
+        "label": "Critical findings",
+        "value": 126,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "xray-high-findings",
+        "label": "High findings",
+        "value": 719,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "xray-unique-cves",
+        "label": "Unique CVEs",
+        "value": 463,
+        "unit": "CVEs",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "xray-indexed-repositories",
+        "label": "Indexed repositories",
+        "value": 224,
+        "unit": "repositories",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "xray-non-indexed",
+        "label": "Repositories not indexed",
+        "value": 22,
+        "unit": "repositories",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "warning"
+      }
+    ],
+    "policy_types": {
+      "Security": 31,
+      "License": 8,
+      "Operational": 5
     },
-    {
-      "id": "artifactory-storage",
-      "status": "available",
-      "complete": true,
-      "source": "offline-fixture",
-      "reason": null
+    "indexed_ecosystems": [
+      [
+        "Docker",
+        64
+      ],
+      [
+        "Maven",
+        58
+      ],
+      [
+        "npm",
+        44
+      ],
+      [
+        "PyPI",
+        28
+      ],
+      [
+        "Other",
+        30
+      ]
+    ],
+    "violations_by_severity": [
+      [
+        "Critical",
+        126
+      ],
+      [
+        "High",
+        719
+      ],
+      [
+        "Medium",
+        1284
+      ],
+      [
+        "Low",
+        711
+      ]
+    ],
+    "violations_by_type": [
+      [
+        "Security",
+        2513
+      ],
+      [
+        "License",
+        327
+      ]
+    ],
+    "top_cves": [
+      [
+        "CVE-2026-41001",
+        84
+      ],
+      [
+        "CVE-2026-32914",
+        61
+      ],
+      [
+        "CVE-2026-20877",
+        49
+      ]
+    ],
+    "top_affected_repositories": [
+      [
+        "payments-containers-local",
+        392
+      ],
+      [
+        "shared-maven-release-local",
+        271
+      ],
+      [
+        "analytics-python-local",
+        184
+      ]
+    ],
+    "collection_note": "Synthetic period findings are deduplicated by issue, infected component and impacted artifact."
+  },
+  "ai_catalog": {
+    "status": "available",
+    "metrics": [
+      {
+        "id": "ai-repositories",
+        "label": "AI and agent repositories",
+        "value": 21,
+        "unit": "repositories",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "ai-repository-storage",
+        "label": "AI repository storage",
+        "value": 2.8,
+        "unit": "TiB",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "ai-repository-artifacts",
+        "label": "AI repository artifacts",
+        "value": 18420,
+        "unit": "artifacts",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      }
+    ],
+    "repositories_by_type": [
+      [
+        "Models",
+        8
+      ],
+      [
+        "MCP servers",
+        4
+      ],
+      [
+        "Skills",
+        6
+      ],
+      [
+        "Plugins",
+        3
+      ]
+    ],
+    "repositories_by_repository_type": [
+      [
+        "Local",
+        13
+      ],
+      [
+        "Remote",
+        3
+      ],
+      [
+        "Virtual",
+        5
+      ]
+    ],
+    "top_storage": [],
+    "note": "Synthetic registry inventory demonstrates asset security, scan state, governance and project attribution."
+  },
+  "jas": {
+    "status": "available",
+    "metrics": [
+      {
+        "id": "jas-applicable",
+        "label": "Applicable vulnerabilities",
+        "value": 214,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "jas-fix-available",
+        "label": "Applicable with a fix",
+        "value": 183,
+        "unit": "findings",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "jas-secrets",
+        "label": "Open secrets findings",
+        "value": 11,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "jas-iac",
+        "label": "Open IaC findings",
+        "value": 37,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "warning"
+      }
+    ],
+    "capabilities": [
+      [
+        "Contextual analysis",
+        18
+      ],
+      [
+        "Secrets",
+        7
+      ],
+      [
+        "IaC",
+        6
+      ],
+      [
+        "SAST",
+        5
+      ]
+    ],
+    "applicability": [
+      [
+        "Applicable",
+        214
+      ],
+      [
+        "Not applicable",
+        1630
+      ],
+      [
+        "Rescan required",
+        87
+      ],
+      [
+        "Not scanned",
+        42
+      ]
+    ],
+    "policy_names": [
+      "Production contextual risk",
+      "Secrets in release artifacts",
+      "Infrastructure policy"
+    ],
+    "note": "JAS values are synthetic and are not added to Xray occurrence totals."
+  },
+  "runtime": {
+    "status": "available",
+    "metrics": [
+      {
+        "id": "runtime-critical-high",
+        "label": "Critical and high",
+        "value": 142,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "runtime-critical-applicable",
+        "label": "Applicable in runtime",
+        "value": 34,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "runtime-with-fix",
+        "label": "With a fix version",
+        "value": 29,
+        "unit": "findings",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "runtime-validated",
+        "label": "Validated in runtime",
+        "value": 31,
+        "unit": "findings",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "runtime-images",
+        "label": "Running images",
+        "value": 418,
+        "unit": "images",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "runtime-malicious-packages",
+        "label": "Malicious packages",
+        "value": 1,
+        "unit": "packages",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "runtime-integrity-violations",
+        "label": "Integrity violations",
+        "value": 2,
+        "unit": "violations",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      }
+    ],
+    "running_image_trend": [
+      {
+        "date": "2026-10-27",
+        "running_image_tags": 392,
+        "critical_high_applicable": 38
+      },
+      {
+        "date": "2026-10-29",
+        "running_image_tags": 407,
+        "critical_high_applicable": 36
+      },
+      {
+        "date": "2026-10-31",
+        "running_image_tags": 418,
+        "critical_high_applicable": 34
+      }
+    ],
+    "note": "Synthetic production context for sample-report demonstration only."
+  },
+  "economic_model": {
+    "status": "benchmark",
+    "disclaimer": "External Forrester TEI composite benchmark. This is not a customer result or customer projection.",
+    "summary": {
+      "benefits_pv_usd": 9970000,
+      "costs_pv_usd": 3200000,
+      "npv_usd": 6770000,
+      "roi_percent": 211,
+      "payback": "Under 6 months"
     },
-    {
-      "id": "xray",
-      "status": "unlicensed",
-      "complete": false,
-      "source": "capability-detection",
-      "reason": "Not present in Artifactory-only fixture"
-    }
-  ],
+    "benefit_categories": {
+      "developer_productivity": 4100000,
+      "security_risk_reduction": 3020000,
+      "platform_efficiency": 2850000
+    },
+    "composite": {
+      "developers": "2,500",
+      "applications": "450",
+      "analysis_period": "Three years"
+    },
+    "methodology_inputs": {
+      "developer_time": {
+        "value_per_unit_usd": 78,
+        "risk_adjustment": "15%",
+        "source_formula": "Composite benchmark"
+      }
+    },
+    "profile": {
+      "status": "not_configured"
+    },
+    "scenarios": {},
+    "assumptions": [],
+    "unavailable_models": []
+  },
+  "current_ai_security": {
+    "status": "available",
+    "as_of": "2026-11-01T08:00:00Z",
+    "metrics": [
+      {
+        "id": "ai-malicious-assets",
+        "label": "Malicious AI assets",
+        "value": 1,
+        "unit": "assets",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "ai-suspicious-assets",
+        "label": "Suspicious AI assets",
+        "value": 4,
+        "unit": "assets",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "ai-vulnerable-assets",
+        "label": "Vulnerable AI assets",
+        "value": 3,
+        "unit": "assets",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "ai-unlinked-assets",
+        "label": "AI assets not linked to a project",
+        "value": 5,
+        "unit": "assets",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "warning"
+      }
+    ],
+    "inventory": {
+      "mcp_servers": {
+        "visible_assets": [
+          {
+            "name": "issue-triage-mcp",
+            "version": "2.4.1",
+            "security_status": "Not malicious",
+            "vulnerability_status": "No known vulnerabilities",
+            "vulnerability_count": 0,
+            "project_key": "PLAT",
+            "project_status": "Linked",
+            "governance": "Allowed",
+            "repository": "agent-tools-local"
+          },
+          {
+            "name": "release-notes-mcp",
+            "version": "1.8.0",
+            "security_status": "Suspicious",
+            "vulnerability_status": "No known vulnerabilities",
+            "vulnerability_count": 0,
+            "project_key": "Not linked",
+            "project_status": "Not linked",
+            "governance": "Allowed",
+            "repository": "agent-tools-local"
+          },
+          {
+            "name": "legacy-query-mcp",
+            "version": "0.9.3",
+            "security_status": "Malicious",
+            "vulnerability_status": "Vulnerable",
+            "vulnerability_count": 3,
+            "project_key": "LABS",
+            "project_status": "Linked",
+            "governance": "Blocked",
+            "repository": "agent-tools-quarantine-local"
+          },
+          {
+            "name": "remote-docs-mcp",
+            "version": "remote",
+            "security_status": "N/A",
+            "vulnerability_status": "No Xray data",
+            "vulnerability_count": null,
+            "project_key": "Unknown",
+            "project_status": "Unknown",
+            "governance": "Allowed",
+            "repository": "Public remote"
+          }
+        ],
+        "security_counts": {
+          "malicious": 1,
+          "suspicious": 1,
+          "vulnerable": 0,
+          "not_malicious": 1,
+          "scanning": 0,
+          "not_scanned": 0,
+          "n_a": 1
+        },
+        "vulnerability_counts": {
+          "vulnerable": 1,
+          "no_known_vulnerabilities": 2,
+          "no_xray_data": 1
+        },
+        "project_counts": {
+          "linked": 2,
+          "unlinked": 1,
+          "unknown": 1
+        }
+      },
+      "skills": {
+        "visible_assets": [
+          {
+            "name": "release-health-check",
+            "version": "1.4.0",
+            "security_status": "Not malicious",
+            "vulnerability_status": "No known vulnerabilities",
+            "vulnerability_count": 0,
+            "project_key": "REL",
+            "project_status": "Linked",
+            "governance": "Allowed",
+            "repository": "agent-skills-local"
+          },
+          {
+            "name": "dependency-upgrade-helper",
+            "version": "2.1.2",
+            "security_status": "Suspicious",
+            "vulnerability_status": "Vulnerable",
+            "vulnerability_count": 2,
+            "project_key": "PLAT",
+            "project_status": "Linked",
+            "governance": "Blocked",
+            "repository": "agent-skills-local"
+          },
+          {
+            "name": "service-log-summarizer",
+            "version": "1.0.6",
+            "security_status": "Vulnerable",
+            "vulnerability_status": "Vulnerable",
+            "vulnerability_count": 4,
+            "project_key": "Not linked",
+            "project_status": "Not linked",
+            "governance": "Blocked",
+            "repository": "agent-skills-local"
+          },
+          {
+            "name": "incident-brief",
+            "version": "0.7.1",
+            "security_status": "Suspicious",
+            "vulnerability_status": "No known vulnerabilities",
+            "vulnerability_count": 0,
+            "project_key": "Not linked",
+            "project_status": "Not linked",
+            "governance": "Allowed",
+            "repository": "agent-skills-local"
+          },
+          {
+            "name": "runbook-search",
+            "version": "1.2.0",
+            "security_status": "Not scanned",
+            "vulnerability_status": "No Xray data",
+            "vulnerability_count": null,
+            "project_key": "Unknown",
+            "project_status": "Unknown",
+            "governance": "Review",
+            "repository": "agent-skills-local"
+          }
+        ],
+        "security_counts": {
+          "malicious": 0,
+          "suspicious": 2,
+          "vulnerable": 1,
+          "not_malicious": 1,
+          "scanning": 0,
+          "not_scanned": 1,
+          "n_a": 0
+        },
+        "vulnerability_counts": {
+          "vulnerable": 2,
+          "no_known_vulnerabilities": 2,
+          "no_xray_data": 1
+        },
+        "project_counts": {
+          "linked": 2,
+          "unlinked": 2,
+          "unknown": 1
+        }
+      },
+      "plugins": {
+        "visible_assets": [
+          {
+            "name": "deployment-review-plugin",
+            "version": "3.0.0",
+            "security_status": "Not malicious",
+            "vulnerability_status": "No known vulnerabilities",
+            "vulnerability_count": 0,
+            "project_key": "REL",
+            "project_status": "Linked",
+            "governance": "Allowed",
+            "repository": "agent-plugins-local"
+          },
+          {
+            "name": "legacy-shell-plugin",
+            "version": "1.1.0",
+            "security_status": "Suspicious",
+            "vulnerability_status": "Vulnerable",
+            "vulnerability_count": 1,
+            "project_key": "Not linked",
+            "project_status": "Not linked",
+            "governance": "Review",
+            "repository": "agent-plugins-local"
+          }
+        ],
+        "security_counts": {
+          "malicious": 0,
+          "suspicious": 1,
+          "vulnerable": 0,
+          "not_malicious": 1,
+          "scanning": 0,
+          "not_scanned": 0,
+          "n_a": 0
+        },
+        "vulnerability_counts": {
+          "vulnerable": 1,
+          "no_known_vulnerabilities": 1,
+          "no_xray_data": 0
+        },
+        "project_counts": {
+          "linked": 1,
+          "unlinked": 1,
+          "unknown": 0
+        }
+      },
+      "models": {
+        "visible_assets": [
+          {
+            "name": "acme/embedding-small",
+            "version": "1",
+            "security_status": "Not malicious",
+            "vulnerability_status": "No known vulnerabilities",
+            "vulnerability_count": 0,
+            "project_key": "AI",
+            "project_status": "Linked",
+            "governance": "Managed",
+            "repository": "ai-models-local"
+          },
+          {
+            "name": "acme/code-assistant",
+            "version": "7b",
+            "security_status": "Not malicious",
+            "vulnerability_status": "No known vulnerabilities",
+            "vulnerability_count": 0,
+            "project_key": "AI",
+            "project_status": "Linked",
+            "governance": "Managed",
+            "repository": "ai-models-local"
+          },
+          {
+            "name": "external/research-model",
+            "version": "remote",
+            "security_status": "N/A",
+            "vulnerability_status": "No Xray data",
+            "vulnerability_count": null,
+            "project_key": "Not linked",
+            "project_status": "Not linked",
+            "governance": "Unmanaged",
+            "repository": "External"
+          }
+        ],
+        "security_counts": {
+          "malicious": 0,
+          "suspicious": 0,
+          "vulnerable": 0,
+          "not_malicious": 2,
+          "scanning": 0,
+          "not_scanned": 0,
+          "n_a": 1
+        },
+        "vulnerability_counts": {
+          "vulnerable": 0,
+          "no_known_vulnerabilities": 2,
+          "no_xray_data": 1
+        },
+        "project_counts": {
+          "linked": 2,
+          "unlinked": 1,
+          "unknown": 0
+        }
+      }
+    },
+    "shadow_ai": {
+      "visible_assets": [
+        {
+          "name": "external/research-model",
+          "management_status": "Unmanaged"
+        }
+      ]
+    },
+    "gateway_activity": {},
+    "evidence_limitations": [
+      "Registry presence proves governance inventory, not active use."
+    ],
+    "collection_quality": "complete synthetic fixture",
+    "source": "Synthetic demonstration fixture",
+    "note": "Security and project attribution are shown separately for MCP servers, skills, plugins and models."
+  },
+  "access_governance": {
+    "status": "available",
+    "collected_at": "2026-11-01T08:00:00Z",
+    "metrics": [
+      {
+        "id": "access-active-tokens",
+        "label": "Active tokens",
+        "value": 164,
+        "unit": "tokens",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "access-expiring-7d",
+        "label": "Tokens expiring within 7 days",
+        "value": 4,
+        "unit": "tokens",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "access-expiring-30d",
+        "label": "Tokens expiring within 30 days",
+        "value": 17,
+        "unit": "tokens",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "warning"
+      },
+      {
+        "id": "access-non-expiring",
+        "label": "Non-expiring tokens",
+        "value": 9,
+        "unit": "tokens",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
+        "id": "oidc-providers",
+        "label": "OIDC providers",
+        "value": 7,
+        "unit": "providers",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      }
+    ],
+    "token_posture": {
+      "expires_within_7_days": 4,
+      "expires_within_30_days": 17,
+      "non_expiring": 9,
+      "never_used": 6
+    },
+    "rotation_queue": [
+      {
+        "reference": "token-ref-014",
+        "owner": "platform-ci",
+        "description": "Release automation",
+        "expires_at": "2026-11-04",
+        "days_remaining": 3,
+        "last_used": "2026-10-31"
+      },
+      {
+        "reference": "token-ref-027",
+        "owner": "data-build",
+        "description": "Analytics builds",
+        "expires_at": "2026-11-06",
+        "days_remaining": 5,
+        "last_used": "2026-10-30"
+      }
+    ],
+    "providers_by_family": [
+      [
+        "GitHub",
+        4
+      ],
+      [
+        "GitLab",
+        2
+      ],
+      [
+        "Other",
+        1
+      ]
+    ],
+    "repository_claim_patterns": [
+      {
+        "provider_family": "GitHub",
+        "provider": "github-main",
+        "mapping": "payments-ci",
+        "claim": "repository",
+        "pattern": "example-corp/payments-*"
+      },
+      {
+        "provider_family": "GitLab",
+        "provider": "gitlab-main",
+        "mapping": "data-ci",
+        "claim": "project_path",
+        "pattern": "example-corp/data/*"
+      }
+    ],
+    "note": "Expired and revoked token history requires prior snapshots and is unavailable in this synthetic baseline.",
+    "privacy_note": "Safe references are synthetic. No token ID, secret or scope is included."
+  },
+  "weekly_trend": {
+    "status": "available",
+    "month": "2026-10",
+    "month_label": "October 2026",
+    "timezone": "UTC",
+    "weeks": [
+      {
+        "period_key": "2026-10-11",
+        "label": "Oct 5-11"
+      },
+      {
+        "period_key": "2026-10-18",
+        "label": "Oct 12-18"
+      },
+      {
+        "period_key": "2026-10-25",
+        "label": "Oct 19-25"
+      },
+      {
+        "period_key": "2026-11-01",
+        "label": "Oct 26-31"
+      }
+    ],
+    "series": [
+      {
+        "id": "curation-decisions",
+        "label": "Curation decisions",
+        "polarity": "higher_is_better",
+        "latest_change_percent": 5.6,
+        "points": [
+          {
+            "period_key": "2026-10-11",
+            "label": "Oct 5-11",
+            "value": 58200
+          },
+          {
+            "period_key": "2026-10-18",
+            "label": "Oct 12-18",
+            "value": 61140
+          },
+          {
+            "period_key": "2026-10-25",
+            "label": "Oct 19-25",
+            "value": 64790
+          },
+          {
+            "period_key": "2026-11-01",
+            "label": "Oct 26-31",
+            "value": 68420
+          }
+        ]
+      },
+      {
+        "id": "curation-blocked",
+        "label": "Blocked requests",
+        "polarity": "lower_is_better",
+        "latest_change_percent": -8.8,
+        "points": [
+          {
+            "period_key": "2026-10-11",
+            "label": "Oct 5-11",
+            "value": 251
+          },
+          {
+            "period_key": "2026-10-18",
+            "label": "Oct 12-18",
+            "value": 224
+          },
+          {
+            "period_key": "2026-10-25",
+            "label": "Oct 19-25",
+            "value": 205
+          },
+          {
+            "period_key": "2026-11-01",
+            "label": "Oct 26-31",
+            "value": 187
+          }
+        ]
+      },
+      {
+        "id": "xray-critical-findings",
+        "label": "Critical findings",
+        "polarity": "lower_is_better",
+        "latest_change_percent": -15.4,
+        "points": [
+          {
+            "period_key": "2026-10-11",
+            "label": "Oct 5-11",
+            "value": 184
+          },
+          {
+            "period_key": "2026-10-18",
+            "label": "Oct 12-18",
+            "value": 167
+          },
+          {
+            "period_key": "2026-10-25",
+            "label": "Oct 19-25",
+            "value": 149
+          },
+          {
+            "period_key": "2026-11-01",
+            "label": "Oct 26-31",
+            "value": 126
+          }
+        ]
+      },
+      {
+        "id": "traffic-downloads",
+        "label": "Artifact downloads",
+        "polarity": "contextual",
+        "latest_change_percent": 5.9,
+        "points": [
+          {
+            "period_key": "2026-10-11",
+            "label": "Oct 5-11",
+            "value": 1612000
+          },
+          {
+            "period_key": "2026-10-18",
+            "label": "Oct 12-18",
+            "value": 1698000
+          },
+          {
+            "period_key": "2026-10-25",
+            "label": "Oct 19-25",
+            "value": 1741000
+          },
+          {
+            "period_key": "2026-11-01",
+            "label": "Oct 26-31",
+            "value": 1842900
+          }
+        ]
+      }
+    ],
+    "interpretation": "Synthetic weekly values demonstrate direction, polarity and comparable calendar-month trend analysis."
+  },
   "limitations": [
-    "Financial value is unavailable until customer assumptions are explicitly provided.",
-    "Optional products are reported as unavailable rather than zero."
-  ]
+    "All names and values are synthetic.",
+    "No customer environment, identity, repository or JFrog instance was queried."
+  ],
+  "availability_notes": [],
+  "provenance": {
+    "source": "synthetic",
+    "server_id": "northstar-demo",
+    "collector": "generate_sample_data.py",
+    "collection_started_at": "2026-11-01T08:00:00Z",
+    "prior_report_input_used": false,
+    "raw_manifest": "not-applicable"
+  }
 }

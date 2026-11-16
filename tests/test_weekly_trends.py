@@ -82,8 +82,8 @@ class WeeklyTrendTests(unittest.TestCase):
         template = (ROOT / "assets" / "dashboard.html").read_text(encoding="utf-8")
         self.assertNotIn("Audience:", template)
         self.assertNotIn("REPORT_PERSONA", template)
-        self.assertIn("This is not an official JFrog publication.", template)
-        self.assertIn("generated using JFrog Platform Skills", template)
+        self.assertIn("<!--REPORT_FOOTER-->", template)
+        self.assertNotIn("<!--REPORT_PERSONA-->", template)
 
     def test_report_sections_are_single_row_tabs(self):
         template = (ROOT / "assets" / "dashboard.html").read_text(encoding="utf-8")
