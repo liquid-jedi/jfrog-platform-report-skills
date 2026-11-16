@@ -25,5 +25,25 @@
     "developer_onboarding": 1405882,
     "tool_consolidation": 337366
   },
+  "projection_defaults": {
+    "reduced_vulnerabilities": {
+      "value_per_unit_usd": 435,
+      "unit": "avoided vulnerability",
+      "risk_adjustment": 0.10,
+      "source_formula": "avoided vulnerabilities × $435 × (1 - 10% risk adjustment)"
+    },
+    "faster_vulnerability_remediation": {
+      "value_per_unit_usd": 348,
+      "unit": "remediated vulnerability",
+      "risk_adjustment": 0.05,
+      "source_formula": "vulnerabilities remediated × 4 hours saved × $87/hour × (1 - 5% risk adjustment)"
+    },
+    "developer_onboarding": {
+      "value_per_unit_usd": 3306,
+      "unit": "developer onboarded",
+      "risk_adjustment": 0.05,
+      "source_formula": "developers onboarded × 38 hours saved × $87/hour × (1 - 5% risk adjustment)"
+    }
+  },
   "applicability_note": "These are results for Forrester's composite organization, not observed or projected results for solenglatest. Customer projections require customer-supplied baselines, costs, adoption coverage, and realization factors."
 }

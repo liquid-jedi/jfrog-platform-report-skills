@@ -41,6 +41,15 @@ def usd(value):
     return f"${value:,.0f}" if value is not None else "Unavailable"
 
 
+def currency_value(value, currency):
+    if value is None:
+        return "Unavailable"
+    try:
+        return f"{currency} {float(value):,.0f}"
+    except (TypeError, ValueError):
+        return f"{currency} {value}"
+
+
 def is_adverse_text(value):
     text = str(value or "").strip().lower()
     if text in {"not malicious", "no known vulnerabilities", "not vulnerable", "0"}:
@@ -239,6 +248,8 @@ def static_report(data, enabled=None):
     nav_items.extend([("jas","JAS")])
     if data.get("weekly_trend") or (data.get("prior_period_comparison") or {}).get("metrics"):
         nav_items.append(("trend","Trends"))
+    if model.get("status") in {"benchmark", "projected"}:
+        nav_items.append(("economic", "Economic context"))
     nav_items.extend([("recommendations","Recommendations"),("evidence","Evidence notes")])
     access = data.get("access_governance") or {}
     glance_rows = [
@@ -455,13 +466,34 @@ def static_report(data, enabled=None):
         runtime_body += f'<div class="callout" style="margin-top:14px">{esc(runtime.get("note"))}</div>'
         out.append(section("Runtime security prioritization", "Production-only context: running images, applicable vulnerabilities, fixes and integrity signals.", runtime_body, runtime.get("status", "available")))
 
-    scenarios = model.get("scenarios", {})
-    scenario_html = '<div class="scenario-grid">' + ''.join(f'<div class="scenario {name}"><span class="tag projected">{esc(name)}</span><h3>Prevention scenario</h3><div class="value">{usd(value)}</div><div class="metric-note">Benchmark-derived · low confidence · not annualized</div></div>' for name,value in scenarios.items()) + '</div>'
-    assumptions = '<div class="chips">' + ''.join(f'<span class="chip">{esc(x)}</span>' for x in model.get("assumptions", [])) + '</div>'
-    unavailable = data_table("TEI models not yet applicable", ["Benefit model", "Why it is unavailable"], [(x["name"],x["reason"]) for x in model.get("unavailable_models", [])])
-    economic_body = f'<div class="panel economics"><div class="panel-head"><div><h3>Forrester methodology applied to observed prevention evidence</h3><div class="metric-note">Classification: projected · benchmark currency · Confidence: low</div></div><span class="tag projected">illustrative scenario</span></div><div class="panel-body">{scenario_html}<div class="formula">{esc(model.get("formula"))}</div>{assumptions}<p class="footnote">Baseline: {number(model.get("baseline"))} {esc(model.get("baseline_unit"))}. {esc(model.get("applicability"))}</p></div></div><div style="margin-top:14px">{unavailable}</div>'
-    if "economic" in enabled and model.get("status") != "unavailable" and scenarios:
-        out.append(section("Economic context", "The TEI calculation is used as a formula source—not copied as customer ROI.", economic_body))
+    if "economic" in enabled and model.get("status") == "benchmark":
+        summary_econ = model.get("summary") or {}
+        benchmark_cards = [
+            ("Benefits PV", summary_econ.get("benefits_pv_usd")), ("Costs PV", summary_econ.get("costs_pv_usd")),
+            ("Net present value", summary_econ.get("npv_usd")), ("ROI", f'{summary_econ.get("roi_percent")}%'),
+            ("Payback", summary_econ.get("payback")),
+        ]
+        cards_html = '<div class="scenario-grid">' + ''.join(
+            f'<div class="scenario"><span class="tag benchmark">benchmark</span><h3>{esc(label)}</h3><div class="value">{esc(value if label in {"ROI", "Payback"} else currency_value(value, "USD"))}</div><div class="metric-note">Forrester composite organization · not a customer result</div></div>'
+            for label, value in benchmark_cards) + '</div>'
+        categories = data_table("Three-year benefit categories", ["Category", "Present value (USD)"],
+                                [(key.replace("_", " ").title(), currency_value(value, "USD")) for key, value in (model.get("benefit_categories") or {}).items()])
+        composite = data_table("Composite organization", ["Input", "Value"],
+                               [(key.replace("_", " ").title(), value) for key, value in (model.get("composite") or {}).items()])
+        methods = data_table("Reusable TEI methodology inputs", ["Model", "Value per unit", "Risk adjustment", "Source formula"],
+                             [(key.replace("_", " ").title(), currency_value(row.get("value_per_unit_usd"), "USD"), row.get("risk_adjustment"), row.get("source_formula")) for key, row in (model.get("methodology_inputs") or {}).items()])
+        draft_note = " A draft customer profile exists but is not applied." if (model.get("profile") or {}).get("status") == "draft" else ""
+        economic_body = f'<div class="callout neutral"><strong>External benchmark only.</strong> {esc(model.get("disclaimer"))}{esc(draft_note)}</div>{cards_html}<div style="margin-top:14px">{categories}</div><div style="margin-top:14px">{composite}</div><div style="margin-top:14px">{methods}</div>'
+        out.append(section("Economic context", "External benchmark context, kept separate from customer-observed and projected evidence.", economic_body, "benchmark", "economic"))
+    elif "economic" in enabled and model.get("status") == "projected":
+        currency = model.get("currency")
+        scenarios = model.get("scenarios") or {}
+        scenario_html = '<div class="scenario-grid">' + ''.join(f'<div class="scenario {name}"><span class="tag projected">{esc(name)}</span><h3>Annual benefit scenario</h3><div class="value">{esc(currency_value(value, currency))}</div><div class="metric-note">Customer-approved projection · confidence: {esc(model.get("confidence"))}</div></div>' for name, value in scenarios.items()) + '</div>'
+        summary_rows = [(key.replace("_", " ").title(), (f'{value}%' if key == "roi_percent" and value is not None else currency_value(value, currency) if key not in {"payback_years", "discount_rate"} else value)) for key, value in (model.get("summary") or {}).items()]
+        benefits = data_table("Projected benefit categories", ["Category", "Expected annual benefit"], [(key.replace("_", " ").title(), currency_value(value, currency)) for key, value in (model.get("benefit_categories") or {}).items()])
+        details = data_table("Projection inputs", ["Model", "Baseline", "Value per unit", "Source", "Coverage", "Realization", "Expected"], [(row.get("label"), row.get("baseline_units"), currency_value(row.get("value_per_unit"), currency), row.get("value_source"), row.get("adoption_coverage"), row.get("realization_factor"), currency_value((row.get("scenarios") or {}).get("expected"), currency)) for row in model.get("projections", [])])
+        economic_body = f'<div class="callout neutral"><strong>Projected, not observed.</strong> {esc(model.get("disclaimer"))}</div>{scenario_html}<div style="margin-top:14px">{data_table("Customer economic summary", ["Measure", "Value"], summary_rows)}</div><div style="margin-top:14px">{benefits}</div><div style="margin-top:14px">{details}</div><div class="formula">{esc(model.get("formula"))}</div>'
+        out.append(section("Economic context", "Deterministic scenarios from an explicitly approved per-instance profile.", economic_body, "projected", "economic"))
 
     summary = data.get("executive_summary") or {}
     actions = []

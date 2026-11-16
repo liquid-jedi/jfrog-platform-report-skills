@@ -35,6 +35,13 @@ complete available evidence model so a focused view never changes totals or form
 | JFrog Advanced Security | Which findings are applicable, fixable or exploitable? |
 | Runtime security | Which risks are present in running production images? |
 | Economic context | What value scenarios are supportable from explicit customer assumptions? |
+
+Economic context is useful without inventing customer ROI. With no approved
+per-instance economic profile, the report shows the bundled Forrester TEI composite
+only as external `benchmark` evidence. An explicitly approved profile can enable
+deterministic conservative, expected and optimistic customer projections. Profiles
+are stored per instance and snapshotted with every report; see
+[`references/economic-profiles.md`](references/economic-profiles.md).
 | Recommendations | Which actions should be owned in the next 7 or 30 days? |
 | Methodology & evidence | Where did each result come from and what remains unavailable? |
 
@@ -80,7 +87,7 @@ mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
 
-apm install liquid-jedi/jfrog-platform-report-skills#v1.0.5 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.1.0 \
   --target claude,cursor,codex,gemini
 ```
 

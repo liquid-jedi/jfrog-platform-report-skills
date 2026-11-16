@@ -49,6 +49,7 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
     ai = run_dir / "ai-security.json"
     traffic = run_dir / "artifactory-traffic.json"
     traffic_report = run_dir / "data.traffic.json"
+    economic_report = run_dir / "data.economic.json"
     snapshot_root = args.report_root / args.server / "snapshots" / "artifactory-traffic"
     commands = [
         [py, str(HERE / "collect_live.py"), "--server", args.server, "--date-from", args.date_from,
@@ -60,11 +61,15 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
          "--snapshot-root", str(snapshot_root), "--output", str(traffic)],
         [py, str(HERE / "apply_traffic_evidence.py"), "--report", str(run_dir / "data.base.json"),
          "--traffic", str(traffic), "--output", str(traffic_report)],
+        [py, str(HERE / "apply_economic_profile.py"), "--report", str(traffic_report),
+         "--server", args.server, "--benchmark", str(HERE.parent / "benchmarks" / "forrester-tei-2026.json"),
+         "--profile-snapshot", str(run_dir / "economic-profile.snapshot.json"),
+         "--output", str(economic_report)] + (["--profile", str(args.economic_profile)] if args.economic_profile else []),
         [py, str(HERE / "collect_skill_security.py"), "--server-id", args.server, "--evidence", str(seed),
          "--output", str(ai), "--all-skills"],
         [py, str(HERE / "collect_access_governance.py"), "--server-id", args.server,
          "--output", str(run_dir / "access-governance.json")],
-        [py, str(HERE / "merge_current_evidence.py"), "--report", str(traffic_report),
+        [py, str(HERE / "merge_current_evidence.py"), "--report", str(economic_report),
          "--ai-catalog-evidence", str(ai), "--access-governance-evidence", str(run_dir / "access-governance.json"),
          "--output", str(run_dir / "data.current.json")],
         [py, str(HERE / "apply_weekly_trends.py"), "--report", str(run_dir / "data.current.json"),
@@ -113,6 +118,7 @@ def main() -> int:
     p.add_argument("--timezone", default="UTC"); p.add_argument("--report-root", required=True, type=Path)
     p.add_argument("--modules", default="all", help="Comma-separated report section IDs; collection remains complete")
     p.add_argument("--ai-catalog-seed", type=Path, help="Optional same-run supported MCP/model/plugin registry evidence")
+    p.add_argument("--economic-profile", type=Path, help="Optional approved/draft per-instance economic profile")
     p.add_argument("--run-id"); p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
     args.date_from, args.date_to = normalize_period(args.date_from, args.date_to, args.timezone)
@@ -135,18 +141,19 @@ def main() -> int:
             run(commands[3], True, diagnostics)
         else:
             shutil.copyfile(run_dir / "data.base.json", run_dir / "data.traffic.json")
-        skill_ok = run(commands[4], False, diagnostics)
+        run(commands[4], True, diagnostics)
+        skill_ok = run(commands[5], False, diagnostics)
         ai_path = run_dir / "ai-security.json"
         if not ai_path.exists(): shutil.copyfile(run_dir / "ai-security-seed.json", ai_path)
         if not skill_ok:
             value = json.loads(ai_path.read_text(encoding="utf-8")); value["status"] = "partial"
             value.setdefault("limitations", []).append("Skills security collection failed; see collection diagnostics.")
             ai_path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-        access_ok = run(commands[5], False, diagnostics)
-        merge = commands[6]
+        access_ok = run(commands[6], False, diagnostics)
+        merge = commands[7]
         if not access_ok:
             merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]
-        run(merge, True, diagnostics); run(commands[7], True, diagnostics); run(commands[8], True, diagnostics)
+        run(merge, True, diagnostics); run(commands[8], True, diagnostics); run(commands[9], True, diagnostics)
     finally:
         diagnostics_path.write_text(json.dumps(diagnostics, indent=2) + "\n", encoding="utf-8")
     report = json.loads((run_dir / "data.json").read_text(encoding="utf-8"))

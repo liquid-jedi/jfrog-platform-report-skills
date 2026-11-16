@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jfrog.example/schemas/economic-profile-1.0.json",
+  "type": "object",
+  "required": ["schema_version", "server_id", "profile_id", "status", "mode"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "server_id": {"type": "string", "minLength": 1},
+    "profile_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["draft", "customer_approved"]},
+    "mode": {"enum": ["customer", "tei_assisted"]},
+    "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
+    "effective_from": {"type": ["string", "null"], "format": "date"},
+    "approved_by": {"type": ["string", "null"]},
+    "approved_at": {"type": ["string", "null"], "format": "date-time"},
+    "discount_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "usd_to_profile_currency_rate": {"type": "number", "exclusiveMinimum": 0},
+    "fx_as_of": {"type": "string", "format": "date"},
+    "fx_source": {"type": "string", "minLength": 1},
+    "costs": {
+      "type": "object",
+      "properties": {
+        "implementation_one_time": {"type": "number", "minimum": 0},
+        "annual_jfrog_license": {"type": "number", "minimum": 0},
+        "annual_professional_services": {"type": "number", "minimum": 0},
+        "annual_internal_platform_labor": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "benefit_models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "benefit_key", "category", "baseline_units", "adoption_coverage", "realization_factor", "conservative_factor", "expected_factor", "optimistic_factor"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "label": {"type": "string"},
+          "enabled": {"type": "boolean"},
+          "benefit_key": {"type": "string", "minLength": 1},
+          "category": {"type": "string", "minLength": 1},
+          "baseline_units": {"type": "number", "minimum": 0},
+          "baseline_source": {"type": "string", "minLength": 1},
+          "benchmark_unit": {"type": "string", "minLength": 1},
+          "value_per_unit": {"type": "number", "minimum": 0},
+          "risk_adjustment": {"type": "number", "minimum": 0, "maximum": 1},
+          "adoption_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+          "realization_factor": {"type": "number", "minimum": 0, "maximum": 1},
+          "conservative_factor": {"type": "number", "minimum": 0},
+          "expected_factor": {"type": "number", "minimum": 0},
+          "optimistic_factor": {"type": "number", "minimum": 0},
+          "confidence": {"enum": ["low", "medium", "high"]}
+        },
+        "oneOf": [
+          {"required": ["benchmark_unit"], "not": {"required": ["value_per_unit"]}},
+          {"required": ["value_per_unit"], "not": {"required": ["benchmark_unit"]}}
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.0.5"
+  version: "1.1.0"
 ---
 
 # JFrog Platform Report Skill
@@ -29,9 +29,11 @@ and render. Never calculate financial or platform KPIs in free-form reasoning.
 - Missing, unlicensed, forbidden, partial, and genuine-zero states are distinct.
 - Never represent a projection or benchmark as an observed customer result.
 - Never count the same benefit in more than one value category.
-- Use customer-configured currency; never assume a currency, cost, rate, or benefit.
-- If financial assumptions were not explicitly supplied, classify the entire financial
-  module as `unavailable` and render no currency or projected amount.
+- Use customer-configured currency for customer projections; never assume a customer
+  currency, cost, rate, baseline, adoption coverage, realization, or benefit.
+- Without an approved profile, render the bundled Forrester composite only as
+  `benchmark` context. Never label it customer ROI or use it to produce a customer
+  projection.
 - For weekly and monthly runs, lead with the selected period, prior-period movement,
   and trend. Show year-to-date and estate totals only as context.
 - Put report type, inclusive start date, inclusive end date, server, scope, and
@@ -166,8 +168,8 @@ or partial and must never be replaced by AI repository counts.
    live request is the **last completed ISO week (Monday 00:00 through Sunday
    23:59:59) in the report timezone**, regardless of which day it is run. Use
    `scripts/plan_report_run.py`; do not calculate dates in free-form reasoning.
-   Request financial
-   assumptions only when the user wants financial modeling; otherwise leave it unavailable.
+   Request financial assumptions only when the user wants customer financial modeling.
+   Otherwise use benchmark-only economic context without blocking the report.
 
    Resolve output with `scripts/resolve_report_root.py` after resolving the instance.
    Precedence is an explicit user path, `JFROG_REPORT_ROOT`, a saved per-instance or
@@ -175,7 +177,16 @@ or partial and must never be replaced by AI repository counts.
    input. On first use, include `~/jfrog-platform-reports` in the single confirmation
    as the recommended default. A plain `Y`, `Proceed`, or equivalent accepts all shown
    defaults. Do not begin live collection until the user confirms or changes them.
-3. Collect evidence into source envelopes; on live runs always preserve an Artifactory
+3. Resolve the per-instance economic profile. Precedence is `--economic-profile`,
+   `JFROG_REPORT_ECONOMIC_PROFILE`, then
+   `~/.config/jfrog-platform-value-report/instances/<server>/economic-profile.json`.
+   A missing or draft profile shows external benchmark context only. Only
+   `customer_approved` may produce deterministic customer projections. Never infer
+   annual avoided vulnerabilities from weekly findings or treat Curation blocks as
+   realized savings. Preserve the exact profile snapshot in the run directory. When
+   creating or replacing a profile, read [economic profiles](references/economic-profiles.md),
+   show the complete draft to the user, and obtain explicit approval before saving it.
+4. Collect evidence into source envelopes; on live runs always preserve an Artifactory
    traffic-counter snapshot before rendering. Do not silently coerce failures to zero.
    Do not read a previous report during this step.
    Invoke the canonical runner with the planner's exact bounds. Do not make preparatory
@@ -184,9 +195,9 @@ or partial and must never be replaced by AI repository counts.
    another guessed path. Do not manually retry the whole run after a transport reset;
    the collector performs one bounded retry for connection-reset errors and records a
    persistent failure.
-4. Validate source evidence and assumptions against the schemas.
-5. Calculate metrics and scenarios with `scripts/generate_report.py`.
-6. Validate the result, inject it into the fixed, versioned `assets/dashboard.html`
+5. Validate source evidence and assumptions against the schemas.
+6. Calculate metrics and scenarios with `scripts/generate_report.py`.
+7. Validate the result, inject it into the fixed, versioned `assets/dashboard.html`
    template, and verify artifacts. Agents must never synthesize or restyle report HTML.
    Only after this succeeds may a prior validated report be used to calculate trend
    deltas; that comparison must not change the current report's observed values.
@@ -194,8 +205,8 @@ or partial and must never be replaced by AI repository counts.
    validates and before rendering. It reads only validated weekly `latest.json`
    archives intersecting the current calendar month and creates the dedicated
    week-over-week trend section.
-7. Explain observed results, projections, limitations, and data gaps separately.
-8. As the final read-only step, run `scripts/audit_weekly_coverage.py` for the
+8. Explain observed results, projections, limitations, and data gaps separately.
+9. As the final read-only step, run `scripts/audit_weekly_coverage.py` for the
    previous calendar month. If coverage is complete, say nothing about backfill. If
    weeks are missing, show their complete Monday–Sunday local dates and Curation
    backfill eligibility. Offer collection only for fully backfillable weeks. A partially
