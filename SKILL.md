@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.3.1"
+  version: "1.3.2"
 ---
 
 # JFrog Platform Report Skill
@@ -208,7 +208,7 @@ or partial and must never be replaced by AI repository counts.
 8. Explain observed results, projections, limitations, and data gaps separately.
 9. As the final read-only step, run `scripts/audit_weekly_coverage.py` for the
    previous calendar month. If coverage is complete, say nothing about backfill. If
-   weeks are missing, show their complete Monday–Sunday local dates and Curation
+   weeks are missing, show their complete Monday-Sunday local dates and Curation
    backfill eligibility. Offer collection only for fully backfillable weeks. A partially
    retained week may be described as incomplete but must not be promoted as a weekly
    archive or included in a complete monthly roll-up. Never clip a weekly backfill to

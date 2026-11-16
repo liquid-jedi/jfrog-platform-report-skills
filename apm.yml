@@ -1,4 +1,4 @@
 name: jfrog-platform-report
-version: 1.3.1
+version: 1.3.2
 description: Deterministic, modular JFrog Platform Value & Risk reporting skill.
 includes: auto
