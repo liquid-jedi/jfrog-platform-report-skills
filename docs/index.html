@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <header class="top"><div class="wrap"><div class="brand-lockup"><div class="brand">JFrog Platform Report Skill</div><a class="version" href="https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.1" aria-label="View JFrog Platform Report Skill release v1.6.1">v1.6.1</a></div><nav class="nav"><a href="#why">Why</a><a href="#coverage">Coverage</a><a href="#install">Install</a><a href="#upgrade">Upgrade</a><a href="#sample">Sample</a><a href="report-guide.html">Guide</a><a href="https://github.com/liquid-jedi/jfrog-platform-report-skills">GitHub</a></nav></div></header>
+  <header class="top"><div class="wrap"><div class="brand-lockup"><div class="brand">JFrog Platform Report Skill</div><a class="version" href="https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.2" aria-label="View JFrog Platform Report Skill release v1.6.2">v1.6.2</a></div><nav class="nav"><a href="#why">Why</a><a href="#coverage">Coverage</a><a href="#install">Install</a><a href="#upgrade">Upgrade</a><a href="#sample">Sample</a><a href="report-guide.html">Guide</a><a href="https://github.com/liquid-jedi/jfrog-platform-report-skills">GitHub</a></nav></div></header>
   <main>
     <div class="hero wrap">
       <div class="eyebrow">Portable Agent Skill</div>
@@ -53,9 +53,9 @@ exec "$SHELL" -l</code></pre></div><div class="step"><b>Configure JFrog</b><pre>
 jf config show</code></pre></div></article>
       <article class="install-card wide"><h3>Install the official JFrog Platform Skill</h3><p>The report depends on the base JFrog Platform Skill. Install the official JFrog plugin for the agent that will generate reports.</p><div class="install-grid"><div><div class="step"><b>Codex plugin</b><pre><code>codex plugin marketplace add jfrog/codex-plugin
 codex plugin add jfrog@codex-plugin</code></pre></div></div><div><div class="step"><b>Claude Code plugin</b><p>Start <code>claude</code>, open the plugin manager, and install <code>jfrog@claude-plugins-official</code>. Follow the official host-specific JFrog plugin instructions for other agents.</p></div></div></div></article>
-      <article class="install-card wide"><h3>Install JFrog Platform Report Skill v1.6.1 with APM</h3><p>Use only the targets installed on your machine.</p><div class="step"><b>Create the APM project</b><pre><code>mkdir -p ~/jfrog-platform-reporting
+      <article class="install-card wide"><h3>Install JFrog Platform Report Skill v1.6.2 with APM</h3><p>Use only the targets installed on your machine.</p><div class="step"><b>Create the APM project</b><pre><code>mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
-apm init -y</code></pre></div><div class="step"><b>Install and verify</b><pre><code>apm install liquid-jedi/jfrog-platform-report-skills#v1.6.1 \
+apm init -y</code></pre></div><div class="step"><b>Install and verify</b><pre><code>apm install liquid-jedi/jfrog-platform-report-skills#v1.6.2 \
   --target claude,cursor,codex,gemini
 apm deps list
 apm audit</code></pre></div><p>The <code>liquid-jedi/...</code> value is the public GitHub package coordinate, not a JFrog server or customer instance.</p></article>
@@ -66,13 +66,11 @@ apm audit</code></pre></div><p>The <code>liquid-jedi/...</code> value is the pub
   git@github.com:liquid-jedi/jfrog-platform-report-skills.git \
   -g --skill jfrog-platform-report</code></pre></div></article>
     </div></div></section>
-    <section id="upgrade"><div class="wrap"><div class="eyebrow">Upgrade</div><h2>Change the pin, preview, update and verify</h2><p>Run these steps from the directory containing the existing <code>apm.yml</code>. A bare <code>apm update</code> cannot move an exact version pin until the manifest is changed.</p><div class="install-grid"><article class="install-card"><h3>1. Update the manifest pin</h3><p>Set the report Skill dependency to the current release.</p><div class="step"><b>apm.yml</b><pre><code>dependencies:
-  apm:
-    - liquid-jedi/jfrog-platform-report-skills#v1.6.1</code></pre></div><div class="step"><b>Preview</b><pre><code>apm update liquid-jedi/jfrog-platform-report-skills \
-  --target claude \
-  --dry-run</code></pre></div></article><article class="install-card"><h3>2. Apply and verify</h3><p>Use the target installed on this machine. Multiple targets use a comma-separated value.</p><div class="step"><b>Upgrade Claude</b><pre><code>apm update liquid-jedi/jfrog-platform-report-skills \
+    <section id="upgrade"><div class="wrap"><div class="eyebrow">Upgrade</div><h2>Upgrade with one versioned command</h2><p>Run the command from the directory containing <code>apm.yml</code>. Passing a newer tag updates the existing manifest pin and deploys that release.</p><div class="install-grid"><article class="install-card"><h3>Normal upgrade</h3><div class="step"><b>Upgrade Claude</b><pre><code>apm install liquid-jedi/jfrog-platform-report-skills#v1.6.2 \
   --target claude</code></pre></div><div class="step"><b>Verify</b><pre><code>apm deps list
-apm audit</code></pre></div><p>If a top-level <code>targets</code> list is already saved in <code>apm.yml</code>, omit <code>--target</code>. Do not use <code>apm install</code> to change an existing pin; it can correctly report that the package already exists.</p></article></div></div></section>
+apm audit</code></pre></div><p>Replace <code>claude</code> with the installed target, or use a comma-separated target list.</p></article><article class="install-card"><h3>Protected local changes</h3><p>If APM reports <code>no trustworthy local deployment baseline</code>, it is protecting files that may have been edited after installation. Review or preserve those changes first.</p><div class="step"><b>Verified disposable installation only</b><pre><code>apm install liquid-jedi/jfrog-platform-report-skills#v1.6.2 \
+  --target claude \
+  --force</code></pre></div><p>Use <code>--force</code> only when the installed copy is disposable or its local fix is already included in the selected release.</p></article></div></div></section>
     <section id="sample"><div class="wrap sample"><div><div class="eyebrow">Synthetic example</div><h2>Explore every report capability without customer data</h2><p>The public example uses fictional names and values. It includes weekly trends, anonymized requester identities, fictional repositories, AI asset security states, token rotation planning and recommendations.</p><div class="links"><a href="examples/report.html"><span>Interactive full dashboard</span><b>Open</b></a><a href="examples/jfrog-platform-report-executive.pdf"><span>Executive PDF</span><b>Open</b></a><a href="examples/jfrog-platform-report-full.pdf"><span>Full PDF</span><b>Open</b></a><a href="report-guide.html"><span>Tile and metric guide</span><b>Read</b></a></div></div><div class="preview"><img src="assets/sample-dashboard-preview.png" alt="Synthetic JFrog Platform report preview"></div></div></section>
   </main>
   <footer><div class="wrap">This is not an official JFrog publication. Reports are generated using JFrog Platform Skills from evidence visible to the configured customer identity.</div></footer>

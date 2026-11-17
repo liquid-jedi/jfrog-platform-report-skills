@@ -43,6 +43,24 @@ backfill only when the source can still provide it.
 Failed runs never replace `latest.json` or the promoted `report.html`. Review
 `collection-diagnostics.json`, correct the source or permission issue, and rerun.
 
+## APM reports no trustworthy local deployment baseline
+
+APM found deployed files that it cannot safely overwrite from its recorded baseline.
+This commonly happens after an agent or user edits the installed Skill in place.
+
+Do not use `--force` blindly. Review or preserve the changed files first. If the local
+copy is disposable, or the local correction is already included in the target release,
+repeat the versioned install with `--force` once:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.6.2 \
+  --target claude \
+  --force
+```
+
+Replace `claude` with the target in use. A successful transaction refreshes the lockfile
+and restores a trustworthy deployment baseline for later upgrades.
+
 ## The report looks different between runs
 
 Every run must use `assets/dashboard.html`. Check its template version marker. Data may
