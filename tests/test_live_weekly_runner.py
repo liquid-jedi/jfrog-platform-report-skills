@@ -47,7 +47,7 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         interface = (ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
         self.assertIn("generate weekly jfrog platform report", skill.lower())
-        self.assertIn('default_prompt: "Generate weekly JFrog Platform report"', interface)
+        self.assertIn('default_prompt: "Generate weekly JFrog Platform dashboard"', interface)
         self.assertIn("jf config show", skill)
 
     def test_plan_always_collects_and_merges_ai_security(self):

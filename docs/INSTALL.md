@@ -109,7 +109,7 @@ gemini
 Then enter this prompt in the agent chat:
 
 ```text
-Generate weekly JFrog Platform report
+Generate weekly JFrog Platform dashboard
 ```
 
 ## 5. First-run walkthrough

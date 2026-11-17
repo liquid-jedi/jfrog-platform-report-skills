@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500" role="img" aria-labelledby="title desc">
-  <title id="title">JFrog Platform Report Skill workflow</title>
+  <title id="title">JFrog Platform Dashboard Skill workflow</title>
   <desc id="desc">JFrog Platform evidence moves through an Agent Skill used by Claude Code, Codex, Cursor and Antigravity, then becomes a modular executive report.</desc>
   <defs>
     <radialGradient id="bg" cx="50%" cy="48%" r="72%"><stop offset="0" stop-color="#151c26"/><stop offset="1" stop-color="#0d1117"/></radialGradient>
@@ -10,7 +10,7 @@
     <style>.agent:last-child{transform:translate(129px)}</style>
   </defs>
   <rect x="1" y="1" width="898" height="498" rx="14" fill="url(#bg)" stroke="#30363d"/>
-  <text x="450" y="51" text-anchor="middle" class="white" font-size="24" font-weight="700">JFrog Platform Report Skill</text>
+  <text x="450" y="51" text-anchor="middle" class="white" font-size="24" font-weight="700">JFrog Platform Dashboard Skill</text>
   <text x="450" y="78" text-anchor="middle" class="muted" font-size="12">Validated JFrog evidence becomes a consistent leadership report</text>
   <path d="M190 238H350M530 238H650" class="flow"/>
   <circle r="5" class="green particle"/><circle r="5" class="green particle delay1"/><circle r="5" class="green particle delay2"/>

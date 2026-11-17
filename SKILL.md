@@ -1,17 +1,17 @@
 ---
 name: jfrog-platform-report
 description: >-
-  Generate modular, evidence-backed JFrog Platform Value & Risk reports. Use when a
-  user says "generate weekly JFrog Platform report", asks for a JFrog platform report,
+  Generate modular JFrog Platform Value & Risk dashboards and report exports. Use when a
+  user says "generate weekly JFrog Platform dashboard" or "generate weekly JFrog Platform report", asks for a JFrog platform dashboard or report,
   executive value report, platform leadership report, adoption, efficiency, reliability, delivery,
   or platform-opportunity reporting. Supports Artifactory-only, Artifactory and Xray,
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.6.3"
+  version: "1.6.4"
 ---
 
-# JFrog Platform Report Skill
+# JFrog Platform Dashboard Skill
 
 Generate a deterministic report from structured JFrog evidence. The agent chooses
 scope and orchestrates collection; scripts normalize, classify, calculate, validate,
@@ -249,7 +249,7 @@ or partial and must never be replaced by AI repository counts.
 
 Map user language to deterministic modes:
 
-- "Generate weekly JFrog Platform report", "Generate weekly platform report",
+- "Generate weekly JFrog Platform dashboard", "Generate weekly JFrog Platform report",
   "Generate my weekly report", or no dates:
   `completed-week` with the full available capability profile.
 - "This week" or "week to date": `current-week`, visibly labelled partial.
@@ -277,7 +277,7 @@ preflight with the installed JFrog integration skill and `jf config show`:
 
 Therefore the preferred natural-language invocation is simply:
 
-`Generate weekly JFrog Platform report`
+`Generate weekly JFrog Platform dashboard`
 
 Timezone precedence is explicit user timezone, then `JFROG_REPORT_TIMEZONE`, then a
 saved setting, then the machine's recognized IANA timezone, and finally `UTC`. Use

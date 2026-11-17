@@ -1,46 +1,46 @@
 <div align="center">
 
-# JFrog Platform Report Skill
+# JFrog Platform Dashboard Skill
 
-_A weekly operating record for JFrog Platform value, risk and action._
+_Generate a weekly JFrog Platform dashboard with your AI agent._
 
-[![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.6.3-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.3)
+[![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20DASHBOARD-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
+[![Release](https://img.shields.io/badge/RELEASE-v1.6.4-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.4)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
 </div>
 
-![JFrog Platform evidence flowing through the report skill into an executive dashboard](docs/assets/platform-report-flow-v2.svg)
+![JFrog Platform data flowing through the Dashboard Skill into a weekly dashboard](docs/assets/platform-report-flow-v2.svg)
 
 [**View live dashboard**](https://liquid-jedi.github.io/jfrog-platform-report-skills/examples/report.html) &nbsp;|&nbsp;
 [**Executive PDF**](docs/examples/jfrog-platform-report-executive.pdf) &nbsp;|&nbsp;
 [**Full PDF**](docs/examples/jfrog-platform-report-full.pdf) &nbsp;|&nbsp;
 [**Read the report guide**](https://liquid-jedi.github.io/jfrog-platform-report-skills/report-guide.html)
 
-The skill collects fresh, read-only evidence from the capabilities available in a
-customer's JFrog environment and turns it into a self-contained weekly HTML report.
-Every metric is classified as **observed**, **derived**, **projected**, **benchmark**,
-or **unavailable**. Missing evidence is never silently converted to zero.
+Built for teams that need a repeatable view of platform activity, risk, governance and
+change over time, without manually assembling data from multiple product areas. The
+Skill produces a self-contained weekly HTML dashboard with optional PDF exports. Every
+metric is classified as **observed**, **derived**, **projected**, **benchmark**, or
+**unavailable**. Missing data is never silently converted to zero.
 
-> This is not an official JFrog publication. Reports are generated using JFrog
-> Platform Skills from evidence visible to the configured customer identity.
+> This is not an official JFrog publication. Dashboards are generated using JFrog
+> Platform Skills and data available to the configured customer identity.
 
-## Why this report exists
+## Why it exists
 
-JFrog Platform data is operationally rich but distributed across Artifactory, Xray,
-Curation, JAS, Runtime, AI Catalog and Access. Product dashboards are designed for
-day-to-day operation; leadership reviews need a durable, time-bounded record that
-connects activity, posture, trend and action.
+### One week. One view. Fewer loose ends.
 
-This skill provides that operating rhythm:
+Platform activity is spread across products, APIs and point-in-time screens. The JFrog
+Platform Dashboard Skill captures what is available for the week and packages it into
+a view that can be reviewed, compared and shared.
 
-- **A weekly evidence archive** that preserves what happened during the period.
-- **A shared leadership view** across platform adoption, supply-chain risk and AI governance.
-- **Week-over-week trends** built only from validated reports with comparable evidence.
-- **Prioritized recommendations** with a clear 7-day or 30-day decision horizon.
-- **Explicit evidence quality** so observed results, projections, benchmarks and gaps cannot be confused.
-- **A monthly executive roll-up** built from the validated weekly record rather than reconstructed later.
+- **Run it with your agent.** Choose an instance, reporting period and sections. The
+  Skill handles the collection and dashboard workflow.
+- **Keep the weeks comparable.** Each successful run creates a dated snapshot, giving
+  future dashboards a reliable basis for trends.
+- **See what needs attention.** Available platform signals are grouped into activity,
+  risk, governance and follow-up actions.
 
 ## Install and run
 
@@ -98,10 +98,10 @@ jf config add
 jf config show
 ```
 
-Install the JFrog plugin for the agent that runs inside WSL. The report skill requires
+Install the JFrog plugin for the agent that runs inside WSL. The Dashboard Skill requires
 the base JFrog Platform Skill as well as the JFrog CLI.
 
-### 3. Install the report skill with APM
+### 3. Install the Dashboard Skill with APM
 
 The same commands work on macOS and WSL:
 
@@ -110,12 +110,14 @@ mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
 apm install liquid-jedi/jfrog-platform-report-skills \
-  --target claude,cursor,codex,gemini
+  --target claude
 apm deps list
 apm audit
 ```
 
-Use only the targets installed on the machine. Persist them in `apm.yml` for upgrades:
+Replace `claude` with the agent where APM should deploy the Skill. Supported targets
+include `claude`, `codex`, `cursor`, `gemini` and `antigravity`. Persist the selected
+targets in `apm.yml` for upgrades:
 
 ```yaml
 targets:
@@ -123,6 +125,7 @@ targets:
   - codex
   - cursor
   - gemini
+  - antigravity
 ```
 
 ### 4. Start the agent and invoke the skill
@@ -139,11 +142,11 @@ or:
 codex
 ```
 
-For Cursor, open the folder in Cursor and start Agent chat. For Gemini CLI, run
-`gemini`. Then enter this prompt in the agent chat:
+For Cursor, open the folder in Cursor and start Agent chat. Run `gemini` for Gemini
+CLI or `agy` for Antigravity CLI. Then enter this prompt in the agent chat:
 
 ```text
-Generate weekly JFrog Platform report
+Generate weekly JFrog Platform dashboard
 ```
 
 ### 5. First-run walkthrough
@@ -172,6 +175,11 @@ The skill asks one decision at a time. Example instance names below are generic:
 7. **Confirmation:** review the instance, period, scope, timezone, destination and any
    approved backfill, then answer `Y` to begin read-only collection.
 
+![Example installation, invocation and first-run customer choices](docs/assets/agent-run-walkthrough.svg)
+
+The example uses fictional instance names, dates and paths. Actual choices reflect the
+JFrog CLI configuration and dashboard history available on the customer's machine.
+
 ### Alternative global Skills installation
 
 For hosts that use the Skills CLI, install globally with Node.js available:
@@ -197,7 +205,7 @@ Replace `claude` with another installed target, or use a comma-separated list su
 `--target claude,codex,cursor,gemini`. If targets are already declared at the top level
 of `apm.yml`, the `--target` option can be omitted.
 
-The unpinned manifest entry follows the repository's default release line while
+The unpinned manifest entry follows the repository's production-ready default branch while
 `apm.lock.yaml` records the exact resolved commit. Existing installations that still
 contain a `#v...` ref need the one-time migration in
 [Troubleshooting](docs/TROUBLESHOOTING.md#an-existing-installation-is-pinned-to-an-older-tag).
@@ -217,7 +225,7 @@ shown in the initial installation command is a package coordinate, not a JFrog s
 | JFrog CLI | Provides authenticated, read-only access to the selected JFrog instance |
 | One or more configured JFrog servers | First use lists every `jf config show` instance for explicit selection |
 | Official JFrog plugin and base Platform Skill | Provides supported CLI and API operating guidance for the selected agent |
-| Claude Code, Codex, Cursor or Gemini CLI | Agent host used to invoke and orchestrate the Skill |
+| Claude Code, Codex, Cursor, Gemini CLI or Google Antigravity | Agent host used to invoke and orchestrate the Skill |
 
 ## Inputs and decisions
 
