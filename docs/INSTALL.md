@@ -1,31 +1,66 @@
 # Installation
 
-The installed skill name is `jfrog-platform-report`. The repository is
-`liquid-jedi/jfrog-platform-report-skills`.
+The installed skill name is `jfrog-platform-report`. APM is the recommended method
+because it pins the package and records the selected agent targets.
 
-## Choose an installation mode
+## 1. Install prerequisites on macOS
 
-| Mode | Best for | Updates |
-|---|---|---|
-| APM project install | Teams and reproducible workspaces | Lockfile-controlled |
-| Global `npx skills` install | Individual use from any folder | Re-run installer |
-| Local clone | Development and contribution | `git pull` |
-| JFrog AI Catalog | Governed enterprise distribution | Repository policy and signed versions |
+```bash
+brew install python git jfrog-cli apm
+```
 
-## Prerequisites
+Verify the tools and configure at least one JFrog instance:
 
 ```bash
 python3 --version
+git --version
 jf --version
+apm --version
+jf config add
 jf config show
 ```
 
-Use Python 3.11 or newer. Configure at least one JFrog CLI server before a live run.
-The report scripts require no third-party Python packages.
+Python 3.11 or later is required. Install the official JFrog plugin for the agent that
+will run the report. For Codex:
 
-## APM
+```bash
+codex plugin marketplace add jfrog/codex-plugin
+codex plugin add jfrog@codex-plugin
+```
 
-Install APM using an official method from <https://microsoft.github.io/apm/>. Then:
+For Claude Code, start `claude`, open the plugin manager, and install
+`jfrog@claude-plugins-official`. Follow the official host-specific JFrog plugin
+instructions for other agents. The report requires the base JFrog Platform Skill.
+
+## 2. Install prerequisites in Windows WSL2
+
+Run these commands inside the WSL terminal:
+
+```bash
+sudo apt update
+sudo apt install -y git python3 python3-venv curl
+curl -fL https://install-cli.jfrog.io | sh
+curl -sSL https://aka.ms/apm-unix | sh
+exec "$SHELL" -l
+```
+
+Verify and configure JFrog inside the same WSL environment:
+
+```bash
+python3 --version
+git --version
+jf --version
+apm --version
+jf config add
+jf config show
+```
+
+Install and run the selected agent inside WSL so it can see the same JFrog CLI
+configuration and report workspace.
+
+## 3. Install with APM
+
+These commands are the same on macOS and WSL:
 
 ```bash
 mkdir -p ~/jfrog-platform-reporting
@@ -33,22 +68,12 @@ cd ~/jfrog-platform-reporting
 apm init -y
 apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,cursor,codex,gemini
+apm deps list
+apm audit
 ```
 
-In a new directory, explicit `--target` avoids a “No harness detected” error. APM may
-converge supported skills under `.agents/skills/` even when a target also has a native
-configuration directory.
-
-If APM reports `Multiple harnesses detected`, pass every agent that should receive the
-skill as a comma-separated list. For example:
-
-```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
-  --target claude,codex,cursor,gemini
-```
-
-To make the selection persistent, add this top-level configuration to `apm.yml` and
-remove any agents that should not receive the skill:
+Use only targets available on the machine. If APM reports multiple harnesses, keep the
+explicit target list. To make it persistent, add a top-level setting to `apm.yml`:
 
 ```yaml
 targets:
@@ -58,105 +83,83 @@ targets:
   - gemini
 ```
 
-Verify:
+The `liquid-jedi/...` value is the public GitHub package coordinate. It is not a JFrog
+server ID or customer instance name.
+
+## 4. Start an agent and invoke the skill
+
+From the APM project directory, launch an installed CLI agent:
 
 ```bash
-test -f .agents/skills/jfrog-platform-report-skills/SKILL.md
-grep '^name: jfrog-platform-report$' \
-  .agents/skills/jfrog-platform-report-skills/SKILL.md
-find .agents/skills/jfrog-platform-report-skills -maxdepth 2 -type f | sort
+claude
 ```
 
-Commit `apm.yml` and the generated lockfile for a team workspace.
+or:
 
-## Global Agent Skills install
+```bash
+codex
+```
+
+For Cursor, open the folder in Cursor and start Agent chat. For Gemini CLI, run:
+
+```bash
+gemini
+```
+
+Then enter this prompt in the agent chat:
+
+```text
+Generate weekly platform report
+```
+
+## 5. First-run walkthrough
+
+The skill asks one decision at a time. Public examples use only generic instance names.
+
+1. **Choose an instance.** The skill lists every server from `jf config show`, for
+   example `1. production (default)` and `2. staging`. Reply with the intended
+   production instance number.
+2. **Choose a period.** Accept the last completed Monday-to-Sunday week, request another
+   completed week, or explicitly choose a partial current week. The recommended answer
+   is the last completed week.
+3. **Choose report scope.** `Full` is recommended. `Executive` is shorter. `Custom`
+   exposes individual sections and the optional Forrester benchmark.
+4. **Confirm timezone.** Accept the detected IANA timezone when it matches the team.
+5. **Choose output location.** Accept `~/jfrog-platform-reports` unless a shared path is
+   required.
+6. **Review the summary.** Confirm the instance, period, scope, timezone and destination
+   with `Y` before read-only collection begins.
+7. **Review missing-week coverage.** After a successful report, the skill may offer
+   eligible missing weekly archives. It never backfills without approval.
+
+## Alternative global Skills installation
+
+This is separate from APM and requires Node.js:
 
 ```bash
 npx skills add git@github.com:liquid-jedi/jfrog-platform-report-skills.git \
   -g --skill jfrog-platform-report
 ```
 
-Verify:
+After installation, start the agent separately and use the invocation prompt above.
+
+## Upgrade an APM project
+
+After saving the target list in `apm.yml`, run these commands from that directory:
 
 ```bash
-npx skills list -g | grep jfrog-platform-report
+apm update
+apm deps list
+apm audit
 ```
 
-Node.js is needed only for this installer. Report generation uses Python and JFrog CLI.
-
-## Local development clone
-
-```bash
-git clone https://github.com/liquid-jedi/jfrog-platform-report-skills.git
-cd jfrog-platform-report-skills
-python3 -m unittest discover -s tests -v
-python3 scripts/list_report_sections.py
-```
-
-## Prompt to invoke the skill
-
-```text
-Generate weekly platform report
-```
-
-The agent resolves the JFrog instance, local timezone, last completed ISO week and
-output root, then presents one compact confirmation. `Full` is recommended and a
-single `Proceed` accepts the defaults. Choose `Executive` for the concise profile or
-`Custom` to select individual sections. Hosts with native interactive controls display
-selectable choices and checkboxes; other hosts use a numbered plain-text fallback.
-The default output location offered on first use is `~/jfrog-platform-reports`.
+Commit `apm.yml` and `apm.lock.yaml` together in a shared workspace.
 
 ## Platform compatibility
 
 | Platform | Status | Notes |
 |---|---|---|
 | macOS | Supported | Primary development platform |
-| Linux | Supported | Python 3.11+ and JFrog CLI required |
-| Windows with WSL2 | Supported | Recommended Windows path; install tools inside WSL |
+| Linux | Supported | Python 3.11 or later and JFrog CLI required |
+| Windows with WSL2 | Supported | Install the CLI, APM and agent inside WSL |
 | Native Windows | Best effort | WSL avoids agent and shell differences |
-
-## Updating
-
-### Upgrade an APM project
-
-Run these commands from the directory containing the project's `apm.yml`.
-
-Preview a specific release without changing files:
-
-```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
-  --target claude,codex,cursor,gemini \
-  --dry-run
-```
-
-Install that release and update the lockfile:
-
-```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
-  --target claude,codex,cursor,gemini
-```
-
-Verify the result:
-
-```bash
-apm deps list
-apm audit
-```
-
-When `targets:` is already declared in `apm.yml`, refresh to the newest release allowed
-by the project's dependency reference with:
-
-```bash
-apm update liquid-jedi/jfrog-platform-report-skills
-```
-
-Review and commit both `apm.yml` and `apm.lock.yaml` in a shared workspace.
-
-### Other installation modes
-
-- Global Skills: rerun the `npx skills add` command.
-- Local clone: run `git pull`, then run the test suite.
-- JFrog AI Catalog: publish and install a new signed semantic version.
-
-Never replace a governed installation with an unverified public copy without the
-customer's approval and policy review.

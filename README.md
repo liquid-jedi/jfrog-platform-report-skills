@@ -42,40 +42,80 @@ This skill provides that operating rhythm:
 - **Explicit evidence quality** so observed results, projections, benchmarks and gaps cannot be confused.
 - **A monthly executive roll-up** built from the validated weekly record rather than reconstructed later.
 
-## Quick start
+## Install and run
 
-### APM: reproducible project installation
+### 1. Install prerequisites on macOS
 
-The following commands are for **macOS, Linux and Windows WSL**.
+Homebrew provides the simplest supported setup:
 
-Create a working directory:
+```bash
+brew install python git jfrog-cli apm
+```
+
+Verify the tools and configure at least one JFrog instance:
+
+```bash
+python3 --version
+git --version
+jf --version
+apm --version
+jf config add
+jf config show
+```
+
+Python 3.11 or later is required. Install the official JFrog plugin for your agent so
+the base JFrog Platform Skill is available. For Codex:
+
+```bash
+codex plugin marketplace add jfrog/codex-plugin
+codex plugin add jfrog@codex-plugin
+```
+
+For Claude Code, start `claude`, open the plugin manager, and install
+`jfrog@claude-plugins-official`. Follow the host-specific JFrog plugin instructions for
+other supported agents.
+
+### 2. Install prerequisites in Windows WSL2
+
+Run these commands inside the WSL terminal, not PowerShell:
+
+```bash
+sudo apt update
+sudo apt install -y git python3 python3-venv curl
+curl -fL https://install-cli.jfrog.io | sh
+curl -sSL https://aka.ms/apm-unix | sh
+exec "$SHELL" -l
+```
+
+Then verify and configure JFrog:
+
+```bash
+python3 --version
+git --version
+jf --version
+apm --version
+jf config add
+jf config show
+```
+
+Install the JFrog plugin for the agent that runs inside WSL. The report skill requires
+the base JFrog Platform Skill as well as the JFrog CLI.
+
+### 3. Install the report skill with APM
+
+The same commands work on macOS and WSL:
 
 ```bash
 mkdir -p ~/jfrog-platform-reporting
-```
-
-Enter the directory:
-
-```bash
 cd ~/jfrog-platform-reporting
-```
-
-Initialize APM:
-
-```bash
 apm init -y
-```
-
-Install the pinned release:
-
-```bash
 apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,cursor,codex,gemini
+apm deps list
+apm audit
 ```
 
-If APM detects more than one agent harness, it requires an explicit target list.
-Use only the agents where the skill should be deployed. To keep that choice for
-future installs and upgrades, add the following top-level setting to `apm.yml`:
+Use only the targets installed on the machine. Persist them in `apm.yml` for upgrades:
 
 ```yaml
 targets:
@@ -85,56 +125,74 @@ targets:
   - gemini
 ```
 
-### Upgrade an existing APM installation
+### 4. Start the agent and invoke the skill
 
-From the APM project directory, preview the pinned upgrade:
-
-```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
-  --target claude,codex,cursor,gemini \
-  --dry-run
-```
-
-Apply it:
+Launch one installed agent from the APM project directory:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
-  --target claude,codex,cursor,gemini
+claude
 ```
 
-Verify the resolved package and installation integrity:
+or:
 
 ```bash
-apm deps list
-apm audit
+codex
 ```
 
-After `targets:` is saved in `apm.yml`, later upgrades can use:
+For Cursor, open the folder in Cursor and start Agent chat. For Gemini CLI, run
+`gemini`. Then enter this prompt in the agent chat:
 
-```bash
-apm update liquid-jedi/jfrog-platform-report-skills
+```text
+Generate weekly platform report
 ```
 
-### Global Agent Skills installation
+### 5. First-run walkthrough
 
-For **macOS, Linux and Windows WSL** with Node.js available:
+The skill asks one decision at a time. Example instance names below are generic:
+
+1. **JFrog instance:** every server from `jf config show` is listed. Choose a number,
+   such as `1` for `production` or `2` for `staging`. Recommended answer: the number
+   for the production instance you intend to report on.
+2. **Reporting period:** accept the last completed Monday-to-Sunday week, or request a
+   different completed week. A current week is clearly marked partial. Recommended
+   answer: `Last completed week`.
+3. **Report scope:** choose `Full`, `Executive`, or `Custom`. Custom lets you select
+   individual product sections and the optional Forrester benchmark. Recommended
+   first-run answer: `Full`.
+4. **Timezone:** accept the detected IANA timezone or enter one such as
+   `America/New_York` or `Asia/Singapore`. Recommended answer: accept the detected
+   timezone when it matches the reporting team.
+5. **Output location:** accept `~/jfrog-platform-reports` or enter another folder.
+   Recommended answer: accept the default unless the organization has a shared path.
+6. **Confirmation:** review the instance, period, scope, timezone and destination, then
+   answer `Y` to begin read-only collection.
+7. **Missing weeks:** after success, the skill may offer eligible missing weekly
+   archives. It never backfills automatically.
+
+### Alternative global Skills installation
+
+For hosts that use the Skills CLI, install globally with Node.js available:
 
 ```bash
 npx skills add git@github.com:liquid-jedi/jfrog-platform-report-skills.git \
   -g --skill jfrog-platform-report
 ```
 
-### Prompt to invoke the skill
+This is an alternative installation method. Start the agent and use the same invocation
+prompt described above.
 
-Ask your agent:
+### Upgrade an existing APM installation
 
-```text
-Generate weekly platform report
+After saving the target list in `apm.yml`, run from that directory:
+
+```bash
+apm update
+apm deps list
+apm audit
 ```
 
-The skill discovers the default JFrog CLI instance, resolves the last completed ISO
-week, presents one compact confirmation, collects fresh evidence and saves the report
-under the configured per-instance archive.
+Public examples and upgrade guidance use only generic instance names. The GitHub owner
+shown in the initial installation command is a package coordinate, not a JFrog server.
 
 [Installation details](docs/INSTALL.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 
@@ -144,9 +202,11 @@ under the configured per-instance archive.
 |---|---|
 | macOS, Linux or Windows WSL | Supported execution environments; WSL is recommended over native Windows |
 | Python 3.11 or later | Runs deterministic collectors, normalization and rendering |
+| Git and APM | Resolves and pins the Skill package for reproducible installation |
 | JFrog CLI | Provides authenticated, read-only access to the selected JFrog instance |
-| Configured JFrog server | The skill discovers the default or sole configured server |
-| Base JFrog Agent Skill | Provides current CLI and API operating guidance |
+| One or more configured JFrog servers | First use lists every `jf config show` instance for explicit selection |
+| Official JFrog plugin and base Platform Skill | Provides supported CLI and API operating guidance for the selected agent |
+| Claude Code, Codex, Cursor or Gemini CLI | Agent host used to invoke and orchestrate the Skill |
 
 ## Inputs and decisions
 
