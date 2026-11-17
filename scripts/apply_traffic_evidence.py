@@ -28,7 +28,11 @@ def main():
         metric["value"] = values[metric["id"]]
         metric["classification"] = "derived" if metric["value"] is not None else "unavailable"
         metric["source"] = traffic.get("source")
-        metric["formula"] = "later cumulative counter − earlier cumulative counter"
+        metric["formula"] = (
+            "cache download delta / (cache download delta + cache not-found delta) x 100"
+            if metric["id"] == "binary-cache-hit-rate"
+            else "later cumulative counter - earlier cumulative counter"
+        )
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(args.output)
 

@@ -51,6 +51,36 @@
       "risk_state": "good"
     },
     {
+      "id": "curation-users",
+      "label": "Curation unique users",
+      "value": 38,
+      "unit": "identities",
+      "classification": "observed",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "neutral"
+    },
+    {
+      "id": "access-long-lived",
+      "label": "Tokens valid beyond 90 days",
+      "value": 22,
+      "unit": "tokens",
+      "classification": "derived",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "bad"
+    },
+    {
+      "id": "access-non-expiring",
+      "label": "Tokens without expiry",
+      "value": 9,
+      "unit": "tokens",
+      "classification": "derived",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "bad"
+    },
+    {
       "id": "exec-ai-risk",
       "label": "Risky AI assets",
       "value": 7,
@@ -1252,6 +1282,16 @@
         "risk_state": "warning"
       },
       {
+        "id": "access-long-lived",
+        "label": "Tokens valid beyond 90 days",
+        "value": 22,
+        "unit": "tokens",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "bad"
+      },
+      {
         "id": "access-non-expiring",
         "label": "Non-expiring tokens",
         "value": 9,
@@ -1275,6 +1315,7 @@
     "token_posture": {
       "expires_within_7_days": 4,
       "expires_within_30_days": 17,
+      "long_lived_over_90_days": 22,
       "non_expiring": 9,
       "never_used": 6
     },

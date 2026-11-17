@@ -96,6 +96,7 @@ def build():
         metric("access-active-tokens", "Active tokens", 164, "tokens"),
         metric("access-expiring-7d", "Tokens expiring within 7 days", 4, "tokens", risk_state="bad"),
         metric("access-expiring-30d", "Tokens expiring within 30 days", 17, "tokens", risk_state="warning"),
+        metric("access-long-lived", "Tokens valid beyond 90 days", 22, "tokens", "derived", risk_state="bad"),
         metric("access-non-expiring", "Non-expiring tokens", 9, "tokens", risk_state="bad"),
         metric("oidc-providers", "OIDC providers", 7, "providers"),
     ]
@@ -176,6 +177,9 @@ def build():
             metric("xray-critical-findings", "Critical findings", 126, "findings", risk_state="bad"),
             metric("curation-blocked", "Risky requests prevented", 187, "requests", risk_state="good"),
             metric("binary-cache-hit-rate", "Cache hit rate", 87.4, "%", "derived", risk_state="good"),
+            metric("curation-users", "Curation unique users", 38, "identities"),
+            metric("access-long-lived", "Tokens valid beyond 90 days", 22, "tokens", "derived", risk_state="bad"),
+            metric("access-non-expiring", "Tokens without expiry", 9, "tokens", "derived", risk_state="bad"),
             metric("exec-ai-risk", "Risky AI assets", 7, "assets", "derived", risk_state="bad", meaning="AI asset records that are malicious, suspicious, vulnerable, unscanned or not linked to a project.", why="These records need review before the assets can be treated as governed and production-ready."),
         ],
         "executive_summary": {
@@ -295,7 +299,7 @@ def build():
         },
         "access_governance": {
             "status": "available", "collected_at": "2026-11-01T08:00:00Z", "metrics": access_metrics,
-            "token_posture": {"expires_within_7_days": 4, "expires_within_30_days": 17, "non_expiring": 9, "never_used": 6},
+            "token_posture": {"expires_within_7_days": 4, "expires_within_30_days": 17, "long_lived_over_90_days": 22, "non_expiring": 9, "never_used": 6},
             "rotation_queue": [
                 {"reference": "token-ref-014", "owner": "platform-ci", "description": "Release automation", "expires_at": "2026-11-04", "days_remaining": 3, "last_used": "2026-10-31"},
                 {"reference": "token-ref-027", "owner": "data-build", "description": "Analytics builds", "expires_at": "2026-11-06", "days_remaining": 5, "last_used": "2026-10-30"},

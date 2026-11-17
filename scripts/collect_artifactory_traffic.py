@@ -66,6 +66,11 @@ def delta(current, prior):
     return result
 
 
+def snapshot_filename(collected: datetime) -> str:
+    """Return a collision-resistant UTC filename for a counter snapshot."""
+    return collected.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ.json")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--server-id", required=True)
@@ -78,7 +83,7 @@ def main():
                              "/api/v1/metrics/application"], check=True, capture_output=True, text=True)
     counters = aggregate(result.stdout)
     args.snapshot_root.mkdir(parents=True, exist_ok=True)
-    output = args.snapshot_root / f"{collected.date().isoformat()}.json"
+    output = args.snapshot_root / snapshot_filename(collected)
     prior_files = sorted(path for path in args.snapshot_root.glob("*.json") if path != output)
     prior = json.loads(prior_files[-1].read_text(encoding="utf-8")) if prior_files else None
     payload = {
@@ -89,6 +94,11 @@ def main():
         "classification": "observed",
         "counter_scope": "Successful Artifactory GET requests grouped as download and successful PUT/POST/PATCH requests grouped as upload",
         "counters": counters,
+        "cache_metric_status": ("available" if counters.get("cache_fs_download_total") is not None and
+                                counters.get("cache_fs_not_found_total") is not None else "unavailable"),
+        "cache_metric_note": (None if counters.get("cache_fs_download_total") is not None and
+                              counters.get("cache_fs_not_found_total") is not None else
+                              "The application metrics response did not expose both cache-fs download and not-found counters; no cache hit rate was calculated."),
         "previous_snapshot": str(prior_files[-1]) if prior_files else None,
         "period_delta": delta(counters, prior),
     }

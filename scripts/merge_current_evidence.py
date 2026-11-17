@@ -69,6 +69,16 @@ def main():
 
     if args.access_governance_evidence:
         report["access_governance"] = build_access_governance(load(args.access_governance_evidence))
+        executive = report.setdefault("executive_signals", [])
+        existing = {item.get("id") for item in executive}
+        curation_users = next((item for item in (report.get("curation") or {}).get("metrics", [])
+                               if item.get("id") == "curation-users"), None)
+        if curation_users and "curation-users" not in existing:
+            executive.append(curation_users)
+        access_metrics = {item.get("id"): item for item in report["access_governance"].get("metrics", [])}
+        for metric_id in ("access-long-lived", "access-non-expiring"):
+            if metric_id not in existing and access_metrics.get(metric_id):
+                executive.append(access_metrics[metric_id])
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

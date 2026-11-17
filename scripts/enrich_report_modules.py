@@ -45,6 +45,7 @@ def build_access_governance(access_evidence):
             metric("access-new-tokens-30d", "Tokens issued in last 30 days", tokens.get("issued_last_30_days"), "tokens", "derived", "Access token inventory", "issued_at within 30 days of collection"),
             metric("access-expiring-7d", "Tokens expiring within 7 days", tokens.get("expires_within_7_days"), "tokens", "derived", "Access token inventory", "0 < expiry - collected_at <= 7 days"),
             metric("access-expiring-30d", "Tokens expiring within 30 days", tokens.get("expires_within_30_days"), "tokens", "derived", "Access token inventory", "0 < expiry - collected_at <= 30 days"),
+            metric("access-long-lived", "Tokens valid beyond 90 days", tokens.get("long_lived_over_90_days"), "tokens", "derived", "Access token inventory", "expiry - collected_at > 90 days"),
             metric("access-non-expiring", "Tokens without expiry", tokens.get("non_expiring"), "tokens", "derived", "Access token inventory", "expiry is null"),
             metric("access-never-used", "Tokens never used", tokens.get("never_used"), "tokens", "derived", "Access token inventory", "last_used is empty"),
             metric("oidc-providers", "OIDC providers", oidc.get("providers_total"), "providers", "observed", "Access OIDC inventory"),

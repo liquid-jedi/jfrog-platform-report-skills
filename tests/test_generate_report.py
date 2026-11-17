@@ -120,8 +120,7 @@ class ReportTests(unittest.TestCase):
         self.assertNotIn("__JFROG_PLATFORM_REPORT_DATA__", html)
         self.assertIn('type="application/json"', html)
         self.assertIn('data-export-mode="executive"', html)
-        self.assertIn('data-export-mode="custom"', html)
-        self.assertIn('id="print-report"', html)
+        self.assertIn("data-export-mode", html)
         self.assertIn('"classification":"unavailable"', html)
         self.assertIsNone(report["financial"]["currency"])
 

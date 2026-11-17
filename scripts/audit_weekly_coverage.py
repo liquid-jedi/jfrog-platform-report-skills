@@ -26,6 +26,16 @@ def previous_month(now: datetime, timezone_name: str) -> str:
     return (first - timedelta(days=1)).strftime("%Y-%m")
 
 
+def current_month(now: datetime, timezone_name: str) -> str:
+    return now.astimezone(ZoneInfo(timezone_name)).strftime("%Y-%m")
+
+
+def last_completed_week_end(now: datetime, timezone_name: str) -> datetime:
+    local = now.astimezone(ZoneInfo(timezone_name))
+    monday = local.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=local.weekday())
+    return monday - timedelta(seconds=1)
+
+
 def expected_weeks(start: datetime, end: datetime) -> list[dict]:
     cursor = start.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=start.weekday())
     weeks = []
@@ -83,13 +93,18 @@ def validated_periods(weekly_root: Path) -> list[dict]:
 
 
 def audit(report_root: Path, server: str, month: str, timezone_name: str,
-          now: datetime, retention_days: int = 30) -> dict:
+          now: datetime, retention_days: int = 30, *, completed_only: bool = False,
+          exclude_period_key: str | None = None) -> dict:
     start, end = month_bounds(month, timezone_name)
+    if completed_only:
+        end = min(end, last_completed_week_end(now, timezone_name))
     periods = validated_periods(report_root / server / "weekly")
     cutoff = now.astimezone(timezone.utc) - timedelta(days=retention_days)
     missing = []
     covered = []
     for week in expected_weeks(start, end):
+        if week["period_key"] == exclude_period_key:
+            continue
         week_start = week["week_start"].astimezone(timezone.utc)
         week_end = week["week_end"].astimezone(timezone.utc)
         matches = [p for p in periods if p["start"] <= week_start and p["end"] >= week_end]
@@ -114,6 +129,10 @@ def audit(report_root: Path, server: str, month: str, timezone_name: str,
     return {
         "schema_version": "1.0", "server_id": server, "month": month,
         "timezone": timezone_name, "checked_at": utc(now),
+        "first_run": not periods,
+        "validated_week_count": len(periods),
+        "trend_ready": len(covered) >= 2,
+        "trend_ready_after_current_run": len(covered) >= 1,
         "complete": not missing, "covered_weeks": covered, "missing_weeks": missing,
         "suggest_backfill": bool(backfillable),
         "suggestion": None if not missing else (
@@ -135,11 +154,17 @@ def main() -> int:
     parser.add_argument("--timezone", default=os.environ.get("JFROG_REPORT_TIMEZONE", "UTC"))
     parser.add_argument("--now", help="Testing/replay clock with offset or Z")
     parser.add_argument("--curation-retention-days", type=int, default=30)
+    parser.add_argument("--completed-only", action="store_true",
+                        help="Audit only completed ISO weeks; use for first-run trend preflight")
+    parser.add_argument("--exclude-period-key",
+                        help="Ignore the week that the pending report run will create")
     args = parser.parse_args()
     now = parse_now(args.now)
-    month = args.month or previous_month(now, args.timezone)
+    month = args.month or (current_month(now, args.timezone) if args.completed_only
+                           else previous_month(now, args.timezone))
     print(json.dumps(audit(args.report_root, args.server, month, args.timezone, now,
-                           args.curation_retention_days), indent=2))
+                           args.curation_retention_days, completed_only=args.completed_only,
+                           exclude_period_key=args.exclude_period_key), indent=2))
     return 0
 
 

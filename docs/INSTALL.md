@@ -109,7 +109,7 @@ gemini
 Then enter this prompt in the agent chat:
 
 ```text
-Generate weekly platform report
+Generate weekly JFrog Platform report
 ```
 
 ## 5. First-run walkthrough
@@ -127,10 +127,13 @@ The skill asks one decision at a time. Public examples use only generic instance
 4. **Confirm timezone.** Accept the detected IANA timezone when it matches the team.
 5. **Choose output location.** Accept `~/jfrog-platform-reports` unless a shared path is
    required.
-6. **Review the summary.** Confirm the instance, period, scope, timezone and destination
-   with `Y` before read-only collection begins.
-7. **Review missing-week coverage.** After a successful report, the skill may offer
-   eligible missing weekly archives. It never backfills without approval.
+6. **Choose first-run trend history.** If no validated weekly archives exist for this
+   instance in the current calendar month, the skill lists earlier completed weeks that
+   can still be collected and asks whether to backfill them. Choose `Yes` when the first
+   report should already include week-over-week trends. Collection runs one week at a
+   time and excludes future, partial and retention-expired weeks.
+7. **Review the summary.** Confirm the instance, period, scope, timezone, destination
+   and any approved backfill with `Y` before read-only collection begins.
 
 ## Alternative global Skills installation
 

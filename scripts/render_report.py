@@ -13,7 +13,7 @@ METRIC_GLOSSARY = json.loads(GLOSSARY_PATH.read_text(encoding="utf-8"))
 
 ADVERSE_METRICS = {
     "xray-new-findings", "xray-critical-findings", "xray-high-findings", "xray-non-indexed",
-    "access-expiring-7d", "access-expiring-30d", "access-non-expiring",
+    "access-expiring-7d", "access-expiring-30d", "access-long-lived", "access-non-expiring",
     "ai-malicious-skills", "ai-suspicious-skills", "ai-vulnerable-skills",
     "ai-skills-without-project", "runtime-critical-high", "runtime-malicious-packages",
     "runtime-critical-applicable", "runtime-integrity-violations",
@@ -265,7 +265,17 @@ def static_report(data, enabled=None):
     nav_meta = (f'<div class="nav-meta"><span><b>Report type:</b> {esc(meta.get("report_type") or "Report")}</span>'
                 f'<span><b>Period:</b> {esc(meta.get("period_range") or meta.get("period_label") or "Unavailable")}</span>'
                 f'<span><b>Instance:</b> {esc(meta.get("server_id") or meta.get("server") or "Unavailable")}</span></div>')
-    nav = '<nav class="section-nav">' + nav_meta + '<div class="nav-links">' + ''.join(f'<a href="#{a}"><span></span>{esc(label)}</a>' for a,label in nav_items) + '</div>' + glance + '</nav>'
+    navigation = ('<div class="control-heading"><strong>Report sections</strong>'
+                  '<span>Select a tab to move through the report</span></div>'
+                  '<div class="nav-links">' + ''.join(f'<a href="#{a}"><span></span>{esc(label)}</a>' for a,label in nav_items) + '</div>')
+    export = ('<div class="export-tools"><div class="control-heading"><strong>Export report</strong>'
+              '<span>Choose the content level, then print or save as PDF</span></div><div class="export-card">'
+              '<button class="export-button" type="button" data-export-mode="executive">Executive</button>'
+              '<button class="export-button active" type="button" data-export-mode="full">Full</button>'
+              '<button class="export-button" type="button" data-export-mode="custom">Custom</button>'
+              '<button class="export-button primary" type="button" id="print-report">Print / Save PDF</button>'
+              '<div class="custom-sections" id="custom-sections"></div></div></div>')
+    nav = '<nav class="section-nav">' + nav_meta + navigation + export + glance + '</nav>'
     provenance = f'<strong>Actual-data status:</strong> {esc(evidence_message)}'
     out = [nav, disclosure("Data provenance and revalidation", provenance)]
     if "executive" in enabled:
@@ -341,8 +351,7 @@ def static_report(data, enabled=None):
     platform += '<div class="grid five" style="margin-top:14px">' + "".join(map(card, data["platform"]["metrics"])) + '</div>'
     art = data.get("artifactory_detail") or {}
     if art:
-        available_art_metrics = [item for item in art.get("metrics", []) if item.get("classification") != "unavailable"]
-        platform += '<h3 class="subhead">Storage and efficiency</h3><div class="grid">' + "".join(map(card, available_art_metrics)) + '</div>'
+        platform += '<h3 class="subhead">Storage and efficiency</h3><div class="grid">' + "".join(map(card, art.get("metrics", []))) + '</div>'
         traffic = art.get("traffic_evidence") or {}
         if traffic:
             delta = traffic.get("period_delta") or {}
@@ -357,6 +366,9 @@ def static_report(data, enabled=None):
             ]
             platform += '<h3 class="subhead">Artifact traffic counters</h3>' + data_table(
                 "Traffic evidence", ["Measure", "Value"], traffic_rows)
+            if traffic.get("cache_metric_note"):
+                platform += ('<div class="callout neutral" style="margin-top:14px"><strong>Cache efficiency status:</strong> '
+                             + esc(traffic["cache_metric_note"]) + '</div>')
             platform += '<p class="footnote">The cumulative baseline is current-state evidence. A monthly delta is shown only when both bounding snapshots exist; a missing boundary remains Unavailable rather than being reported as zero.</p>'
         platform += '<div class="split" style="margin-top:14px">' + bar_panel("Repository types", art.get("repository_types", [])) + bar_panel("Repository package types", art.get("package_types", [])) + '</div>'
         top_storage = [(x["repository"], x["used_space"], x["files"], x["package_type"], x["project"]) for x in art.get("top_storage", [])]

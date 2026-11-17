@@ -143,7 +143,7 @@ For Cursor, open the folder in Cursor and start Agent chat. For Gemini CLI, run
 `gemini`. Then enter this prompt in the agent chat:
 
 ```text
-Generate weekly platform report
+Generate weekly JFrog Platform report
 ```
 
 ### 5. First-run walkthrough
@@ -164,10 +164,13 @@ The skill asks one decision at a time. Example instance names below are generic:
    timezone when it matches the reporting team.
 5. **Output location:** accept `~/jfrog-platform-reports` or enter another folder.
    Recommended answer: accept the default unless the organization has a shared path.
-6. **Confirmation:** review the instance, period, scope, timezone and destination, then
-   answer `Y` to begin read-only collection.
-7. **Missing weeks:** after success, the skill may offer eligible missing weekly
-   archives. It never backfills automatically.
+6. **First-run trend history:** when the selected instance has no validated weekly
+   archives in the current calendar month, the skill lists earlier completed weeks
+   that are still eligible for collection and asks whether to backfill them. Recommended
+   answer: `Yes` when week-over-week trends are required. Backfill always runs one week
+   at a time and never includes a future, partial or retention-expired week.
+7. **Confirmation:** review the instance, period, scope, timezone, destination and any
+   approved backfill, then answer `Y` to begin read-only collection.
 
 ### Alternative global Skills installation
 

@@ -2,7 +2,7 @@
 name: jfrog-platform-report
 description: >-
   Generate modular, evidence-backed JFrog Platform Value & Risk reports. Use when a
-  user says "generate weekly platform report", asks for a JFrog platform report,
+  user says "generate weekly JFrog Platform report", asks for a JFrog platform report,
   executive value report, platform leadership report, adoption, efficiency, reliability, delivery,
   or platform-opportunity reporting. Supports Artifactory-only, Artifactory and Xray,
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
@@ -196,6 +196,16 @@ or partial and must never be replaced by AI repository counts.
    input. On first use, include `~/jfrog-platform-reports` in the single confirmation
    as the recommended default. A plain `Y`, `Proceed`, or equivalent accepts all shown
    defaults. Do not begin live collection until the user confirms or changes them.
+   Before presenting that confirmation, run `scripts/audit_weekly_coverage.py` for
+   the current calendar month with `--completed-only` and exclude the week the pending
+   run will create with `--exclude-period-key`. If `first_run` is true and earlier
+   completed weeks remain fully backfillable, explain that the first report has no
+   trend baseline and ask one explicit question: `This is the first archived report for
+   this instance. Backfill the available completed weeks so Trends is populated?
+   Recommended: Yes.` List the eligible week-ending dates. Never include future,
+   partial, expired, or only partially retained weeks. A Yes authorizes only the listed
+   read-only weekly collections, which must run one week at a time and validate before
+   promotion. A No continues with the requested week and establishes the first baseline.
 3. Before collection, check whether the same instance and period already has a
    validated `latest.json`. If so, offer `Open existing`, `Rebuild presentation from
    saved evidence`, or `Refresh evidence`. Open and rebuild avoid live pagination;
@@ -239,7 +249,8 @@ or partial and must never be replaced by AI repository counts.
 
 Map user language to deterministic modes:
 
-- "Generate weekly platform report", "Generate my weekly report", or no dates:
+- "Generate weekly JFrog Platform report", "Generate weekly platform report",
+  "Generate my weekly report", or no dates:
   `completed-week` with the full available capability profile.
 - "This week" or "week to date": `current-week`, visibly labelled partial.
 - "Week ending YYYY-MM-DD": `week-ending`, the seven inclusive local dates ending
@@ -266,7 +277,7 @@ preflight with the installed JFrog integration skill and `jf config show`:
 
 Therefore the preferred natural-language invocation is simply:
 
-`Generate weekly platform report`
+`Generate weekly JFrog Platform report`
 
 Timezone precedence is explicit user timezone, then `JFROG_REPORT_TIMEZONE`, then a
 saved setting, then the machine's recognized IANA timezone, and finally `UTC`. Use

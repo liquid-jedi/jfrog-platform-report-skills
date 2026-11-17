@@ -46,8 +46,8 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
     def test_skill_supports_short_natural_invocation(self):
         skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         interface = (ROOT / "agents" / "openai.yaml").read_text(encoding="utf-8")
-        self.assertIn("generate weekly platform report", skill.lower())
-        self.assertIn('default_prompt: "Generate weekly platform report"', interface)
+        self.assertIn("generate weekly jfrog platform report", skill.lower())
+        self.assertIn('default_prompt: "Generate weekly JFrog Platform report"', interface)
         self.assertIn("jf config show", skill)
 
     def test_plan_always_collects_and_merges_ai_security(self):
@@ -104,6 +104,27 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
             self.assertEqual(metrics["ai-malicious-mcp"], 1)
             self.assertEqual(metrics["ai-malicious-plugins"], 1)
             self.assertEqual(metrics["ai-malicious-models"], 2)
+
+    def test_merge_adds_curation_users_and_token_risks_to_executive(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); report = root / "report.json"; evidence = root / "access.json"; output = root / "out.json"
+            report.write_text(json.dumps({
+                "curation": {"metrics": [{"id": "curation-users", "label": "Curation unique users", "value": 12,
+                                             "unit": "identities", "classification": "observed", "source": "test", "formula": "count"}]},
+                "executive_signals": [],
+            }))
+            evidence.write_text(json.dumps({
+                "collected_at": "2026-11-17T00:00:00Z",
+                "tokens": {"listed_active": 10, "long_lived_over_90_days": 3, "non_expiring": 2},
+                "oidc": {},
+            }))
+            subprocess.run([sys.executable, str(ROOT / "scripts" / "merge_current_evidence.py"), "--report", str(report),
+                            "--access-governance-evidence", str(evidence), "--output", str(output)],
+                           check=True, capture_output=True, text=True)
+            executive = {row["id"]: row["value"] for row in json.loads(output.read_text())["executive_signals"]}
+            self.assertEqual(executive["curation-users"], 12)
+            self.assertEqual(executive["access-long-lived"], 3)
+            self.assertEqual(executive["access-non-expiring"], 2)
 
 
 if __name__ == "__main__":

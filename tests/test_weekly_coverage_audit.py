@@ -68,6 +68,19 @@ class WeeklyCoverageAuditTests(unittest.TestCase):
             result = AUDIT.audit(root, "s", "2026-10", "UTC", datetime(2026, 11, 2, tzinfo=timezone.utc))
             self.assertIn("2026-11-01", [row["period_key"] for row in result["missing_weeks"]])
 
+    def test_first_run_audits_only_completed_weeks_and_excludes_pending_target(self):
+        with tempfile.TemporaryDirectory() as temp:
+            result = AUDIT.audit(
+                Path(temp), "s", "2026-11", "Asia/Kolkata",
+                datetime(2026, 11, 17, tzinfo=timezone.utc),
+                completed_only=True, exclude_period_key="2026-11-15",
+            )
+            keys = [row["period_key"] for row in result["missing_weeks"]]
+            self.assertTrue(result["first_run"])
+            self.assertNotIn("2026-11-15", keys)
+            self.assertNotIn("2026-11-22", keys)
+            self.assertTrue(result["suggest_backfill"])
+
 
 if __name__ == "__main__":
     unittest.main()

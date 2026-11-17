@@ -1,5 +1,6 @@
 import importlib.util
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,12 @@ class TrafficTests(unittest.TestCase):
         self.assertEqual(result["download_requests_delta"], 5)
         self.assertEqual(result["upload_requests_delta"], 3)
         self.assertIsNone(result["cache_fs_hit_rate"])
+
+    def test_same_day_snapshots_have_unique_names(self):
+        first = TRAFFIC.snapshot_filename(datetime(2026, 11, 17, 10, 0, 0, 1, tzinfo=timezone.utc))
+        second = TRAFFIC.snapshot_filename(datetime(2026, 11, 17, 10, 0, 0, 2, tzinfo=timezone.utc))
+        self.assertNotEqual(first, second)
+        self.assertTrue(first.endswith("Z.json"))
 
 
 if __name__ == "__main__":

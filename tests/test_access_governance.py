@@ -14,12 +14,14 @@ class AccessGovernanceTests(unittest.TestCase):
         now = 1_000_000
         payload = {"tokens": [
             {"token_id": "secret-token-id", "subject": "ci-bot", "description": "release", "expiry": now + 2 * 86400, "issued_at": now - 10, "last_used": 0, "refreshable": False},
+            {"expiry": now + 120 * 86400, "issued_at": now - 10 * 86400, "last_used": now - 5, "refreshable": False},
             {"expiry": None, "issued_at": now - 40 * 86400, "last_used": now - 5, "refreshable": True},
         ]}
         result = MODULE.token_summary(payload, now)
-        self.assertEqual(result["listed_active"], 2)
+        self.assertEqual(result["listed_active"], 3)
         self.assertEqual(result["expires_within_7_days"], 1)
         self.assertEqual(result["non_expiring"], 1)
+        self.assertEqual(result["long_lived_over_90_days"], 1)
         self.assertEqual(result["issued_last_7_days"], 1)
         self.assertEqual(len(result["rotation_queue"]), 1)
         self.assertEqual(result["rotation_queue"][0]["owner"], "ci-bot")

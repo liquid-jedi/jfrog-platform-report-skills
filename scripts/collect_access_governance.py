@@ -50,6 +50,7 @@ def token_summary(payload, now: int):
         "expires_within_7_days": sum(now < r["expiry"] <= now + 7 * 86400 for r in expiring),
         "expires_within_30_days": sum(now < r["expiry"] <= now + 30 * 86400 for r in expiring),
         "expires_within_90_days": sum(now < r["expiry"] <= now + 90 * 86400 for r in expiring),
+        "long_lived_over_90_days": sum(r["expiry"] > now + 90 * 86400 for r in expiring),
         "refreshable": sum(r.get("refreshable") is True for r in rows),
         "never_used": sum(not r.get("last_used") for r in rows),
         "median_days_remaining": sorted(remaining)[len(remaining) // 2] if remaining else None,

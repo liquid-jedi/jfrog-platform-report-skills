@@ -38,6 +38,13 @@ class PublicSampleTests(unittest.TestCase):
         self.assertIn("synthetic demonstration", rendered)
         self.assertNotIn("<!--REPORT_FOOTER-->", rendered)
 
+    def test_sample_navigation_labels_tabs_and_export(self):
+        html = RENDER.static_report(SAMPLE.build(), RENDER.MODULES)
+        self.assertIn("Report sections", html)
+        self.assertIn("Select a tab to move through the report", html)
+        self.assertIn("Export report", html)
+        self.assertIn("Print / Save PDF", html)
+
 
 if __name__ == "__main__":
     unittest.main()
