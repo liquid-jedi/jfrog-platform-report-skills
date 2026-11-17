@@ -73,6 +73,48 @@ apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
   --target claude,cursor,codex,gemini
 ```
 
+If APM detects more than one agent harness, it requires an explicit target list.
+Use only the agents where the skill should be deployed. To keep that choice for
+future installs and upgrades, add the following top-level setting to `apm.yml`:
+
+```yaml
+targets:
+  - claude
+  - codex
+  - cursor
+  - gemini
+```
+
+### Upgrade an existing APM installation
+
+From the APM project directory, preview the pinned upgrade:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+  --target claude,codex,cursor,gemini \
+  --dry-run
+```
+
+Apply it:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+  --target claude,codex,cursor,gemini
+```
+
+Verify the resolved package and installation integrity:
+
+```bash
+apm deps list
+apm audit
+```
+
+After `targets:` is saved in `apm.yml`, later upgrades can use:
+
+```bash
+apm update liquid-jedi/jfrog-platform-report-skills
+```
+
 ### Global Agent Skills installation
 
 For **macOS, Linux and Windows WSL** with Node.js available:
@@ -82,7 +124,9 @@ npx skills add git@github.com:liquid-jedi/jfrog-platform-report-skills.git \
   -g --skill jfrog-platform-report
 ```
 
-Then ask your agent:
+### Prompt to invoke the skill
+
+Ask your agent:
 
 ```text
 Generate weekly platform report

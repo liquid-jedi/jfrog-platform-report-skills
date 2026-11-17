@@ -39,6 +39,25 @@ In a new directory, explicit `--target` avoids a “No harness detected” error
 converge supported skills under `.agents/skills/` even when a target also has a native
 configuration directory.
 
+If APM reports `Multiple harnesses detected`, pass every agent that should receive the
+skill as a comma-separated list. For example:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+  --target claude,codex,cursor,gemini
+```
+
+To make the selection persistent, add this top-level configuration to `apm.yml` and
+remove any agents that should not receive the skill:
+
+```yaml
+targets:
+  - claude
+  - codex
+  - cursor
+  - gemini
+```
+
 Verify:
 
 ```bash
@@ -74,7 +93,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/list_report_sections.py
 ```
 
-## First run
+## Prompt to invoke the skill
 
 ```text
 Generate weekly platform report
@@ -98,9 +117,45 @@ The default output location offered on first use is `~/jfrog-platform-reports`.
 
 ## Updating
 
-- APM: update the pinned release and review the lockfile change.
+### Upgrade an APM project
+
+Run these commands from the directory containing the project's `apm.yml`.
+
+Preview a specific release without changing files:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+  --target claude,codex,cursor,gemini \
+  --dry-run
+```
+
+Install that release and update the lockfile:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+  --target claude,codex,cursor,gemini
+```
+
+Verify the result:
+
+```bash
+apm deps list
+apm audit
+```
+
+When `targets:` is already declared in `apm.yml`, refresh to the newest release allowed
+by the project's dependency reference with:
+
+```bash
+apm update liquid-jedi/jfrog-platform-report-skills
+```
+
+Review and commit both `apm.yml` and `apm.lock.yaml` in a shared workspace.
+
+### Other installation modes
+
 - Global Skills: rerun the `npx skills add` command.
-- Local clone: `git pull`, then run the test suite.
+- Local clone: run `git pull`, then run the test suite.
 - JFrog AI Catalog: publish and install a new signed semantic version.
 
 Never replace a governed installation with an unverified public copy without the
