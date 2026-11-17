@@ -18,6 +18,8 @@ ADVERSE_METRICS = {
     "ai-skills-without-project", "runtime-critical-high", "runtime-malicious-packages",
     "runtime-critical-applicable", "runtime-integrity-violations",
     "curation-cache-gap-policies", "jas-applicable", "jas-rescan-required", "jas-not-scanned",
+    "apptrust-unowned", "apptrust-critical-unowned", "apptrust-failed-promotions",
+    "apptrust-unverified-evidence",
 }
 ADVERSE_TERMS = {
     "malicious", "suspicious", "vulnerable", "critical", "high",
@@ -232,7 +234,7 @@ def weekly_trend_panel(model):
     return '<div class="weekly-series">' + ''.join(cards) + '</div>'
 
 
-MODULES = {"executive", "trend", "curation", "xray", "artifactory", "ai-security", "access", "jas", "runtime", "economic", "recommendations", "evidence"}
+MODULES = {"executive", "trend", "curation", "xray", "apptrust", "artifactory", "ai-security", "access", "jas", "runtime", "economic", "recommendations", "evidence"}
 
 
 def static_report(data, enabled=None):
@@ -242,6 +244,8 @@ def static_report(data, enabled=None):
     validation = data.get("evidence_revalidation") or {}
     evidence_message = validation.get("message") or (f"Actual {meta['period_label']} evidence captured for the reporting period. Later current-state inventory is excluded." if xray_has_findings else f"Actual {meta['period_label']} evidence is shown where available; missing period evidence is not represented as zero.")
     nav_items = [("executive","Executive overview"),("curation","Curation"),("artifactory","Artifactory"),("xray","Xray")]
+    if (data.get("apptrust") or {}).get("status") not in {None, "unlicensed", "unsupported", "not_configured"}:
+        nav_items.append(("apptrust", "AppTrust"))
     if (data.get("ai_catalog") or {}).get("metrics"):
         nav_items.append(("ai-security","AI security"))
     if (data.get("access_governance") or {}).get("metrics"):
@@ -392,6 +396,61 @@ def static_report(data, enabled=None):
     xray_body += f'<div class="callout" style="margin-top:14px">{esc(xray["collection_note"])}</div>'
     if "xray" in enabled:
         out.append(section("Xray", f'Period activity is scoped to {esc(meta.get("period_label"))}; coverage appears only when a period-end snapshot exists.', xray_body, xray["status"], "xray"))
+
+    apptrust = data.get("apptrust") or {}
+    if "apptrust" in enabled and apptrust.get("status") not in {None, "unlicensed", "unsupported", "not_configured"}:
+        apptrust_body = leadership_lens(
+            "Applications, owners, business criticality, lifecycle stages, promotion outcomes and release evidence.",
+            "AppTrust connects technical supply-chain evidence to the applications and releases leadership is accountable for.",
+            "Assign ownership, stop risky promotions, improve trusted-release coverage and require verified evidence before production.",
+        )
+        if apptrust.get("metrics"):
+            apptrust_body += '<div class="grid" style="margin-top:14px">' + "".join(map(card, apptrust["metrics"])) + '</div>'
+        inventory = apptrust.get("inventory") or {}
+        governance = apptrust.get("release_governance") or {}
+        attestations = apptrust.get("evidence") or {}
+        if inventory.get("criticality") or inventory.get("maturity"):
+            apptrust_body += '<div class="split" style="margin-top:14px">' + bar_panel(
+                "Applications by criticality", list((inventory.get("criticality") or {}).items())) + bar_panel(
+                "Applications by maturity", list((inventory.get("maturity") or {}).items())) + '</div>'
+        if governance.get("versions_by_stage") or governance.get("promotion_status"):
+            apptrust_body += '<h3 class="subhead">Release governance</h3><div class="split">' + bar_panel(
+                "Enriched versions by stage", list((governance.get("versions_by_stage") or {}).items())) + bar_panel(
+                "Promotion outcomes", list((governance.get("promotion_status") or {}).items())) + '</div>'
+        if attestations.get("by_predicate"):
+            apptrust_body += '<div style="margin-top:14px">' + bar_panel(
+                "Application-version evidence", list(attestations["by_predicate"].items())) + '</div>'
+        application_rows = []
+        for application in apptrust.get("applications") or []:
+            versions = (application.get("versionsConnection") or {}).get("edges") or []
+            nodes = [edge.get("node") or {} for edge in versions]
+            failed = sum(
+                str((promotion.get("node") or {}).get("status")) in {"FAILED", "REJECTED"}
+                for version in nodes
+                for promotion in ((version.get("promotionsConnection") or {}).get("edges") or [])
+            )
+            evidence_count = sum(
+                int((((version.get("evidenceSubject") or {}).get("evidenceConnection") or {}).get("totalCount")) or 0)
+                for version in nodes
+            )
+            application_rows.append((
+                application.get("displayName") or application.get("key"), application.get("projectKey") or "Unassigned",
+                application.get("criticality") or "unspecified", application.get("maturityLevel") or "unspecified",
+                ", ".join(owner.get("name") for owner in (application.get("owners") or []) if owner.get("name")) or "Unowned",
+                len(nodes), ", ".join(sorted({str(node.get("currentStageName") or "Unpromoted") for node in nodes})),
+                failed, evidence_count,
+            ))
+        if application_rows:
+            apptrust_body += disclosure(
+                f"View high-value application details ({len(application_rows)})",
+                data_table("Application ownership and release posture", ["Application", "Project", "Criticality", "Maturity", "Owner", "Versions", "Stages", "Failed promotions", "Evidence"], application_rows),
+                True,
+            )
+        if apptrust.get("limitations"):
+            apptrust_body += '<div class="callout neutral" style="margin-top:14px">' + '<br>'.join(esc(item) for item in apptrust["limitations"]) + '</div>'
+        if apptrust.get("reason"):
+            apptrust_body += f'<div class="callout neutral" style="margin-top:14px">{esc(apptrust["reason"])}</div>'
+        out.append(section("AppTrust", "Application ownership, lifecycle and release-governance evidence, feature-detected from OneModel.", apptrust_body, apptrust.get("status", "unavailable"), "apptrust"))
 
     ai = data["ai_catalog"]
     current_ai = data.get("current_ai_security") or {}

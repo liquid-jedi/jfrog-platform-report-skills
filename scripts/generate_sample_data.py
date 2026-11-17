@@ -87,6 +87,16 @@ def build():
         metric("xray-indexed-repositories", "Indexed repositories", 224, "repositories"),
         metric("xray-non-indexed", "Repositories not indexed", 22, "repositories", "derived", risk_state="warning"),
     ]
+    apptrust_metrics = [
+        metric("apptrust-applications", "Applications", 18, "applications"),
+        metric("apptrust-production", "Production applications", 8, "applications", "derived", formula="count(maturity = production)"),
+        metric("apptrust-critical", "Critical applications", 4, "applications", "derived", formula="count(criticality = critical)", risk_state="warning"),
+        metric("apptrust-unowned", "Applications without an owner", 3, "applications", "derived", formula="count(owners is empty)", risk_state="bad"),
+        metric("apptrust-critical-unowned", "Critical applications without an owner", 1, "applications", "derived", formula="count(criticality = critical and owners is empty)", risk_state="bad"),
+        metric("apptrust-trusted-releases", "Trusted releases", 8, "versions", "derived", formula="count(releaseStatus = TRUSTED_RELEASE)", risk_state="good"),
+        metric("apptrust-failed-promotions", "Failed or rejected promotions", 2, "promotions", "derived", formula="count(status in FAILED, REJECTED)", risk_state="bad"),
+        metric("apptrust-unverified-evidence", "Unverified evidence records", 1, "records", "derived", formula="count(verified = false)", risk_state="bad"),
+    ]
     ai_repo_metrics = [
         metric("ai-repositories", "AI and agent repositories", 21, "repositories"),
         metric("ai-repository-storage", "AI repository storage", 2.8, "TiB", "derived"),
@@ -180,12 +190,14 @@ def build():
             metric("curation-users", "Curation unique users", 38, "identities"),
             metric("access-long-lived", "Tokens valid beyond 90 days", 22, "tokens", "derived", risk_state="bad"),
             metric("access-non-expiring", "Tokens without expiry", 9, "tokens", "derived", risk_state="bad"),
+            metric("apptrust-critical-unowned", "Critical applications without an owner", 1, "applications", "derived", risk_state="bad"),
             metric("exec-ai-risk", "Risky AI assets", 7, "assets", "derived", risk_state="bad", meaning="AI asset records that are malicious, suspicious, vulnerable, unscanned or not linked to a project.", why="These records need review before the assets can be treated as governed and production-ready."),
         ],
         "executive_summary": {
             "risks": [
                 {"title": "Critical vulnerability intake remains elevated", "detail": "126 critical findings entered the estate this week, with the highest concentration in two container repositories."},
                 {"title": "AI asset governance has visible gaps", "detail": "Seven MCP, skill, plugin or model records are suspicious, vulnerable, malicious, unscanned or not linked to a project."},
+                {"title": "A critical application has no accountable owner", "detail": "AppTrust shows one critical application without an assigned owner and two failed or rejected promotions."},
             ],
             "outcomes": [
                 {"title": "Curation stopped risky dependency demand", "detail": "187 requests were blocked before the packages entered development workflows."},
@@ -194,6 +206,7 @@ def build():
             "actions": [
                 {"title": "Assign owners to critical findings with fixes", "detail": "Start with the two repositories responsible for 61% of critical intake."},
                 {"title": "Quarantine and review risky AI assets", "detail": "Remove the malicious MCP server, review suspicious skills and link approved assets to accountable projects."},
+                {"title": "Assign application ownership before the next release", "detail": "Name an owner for the unowned critical application and resolve the two failed or rejected promotions."},
             ],
         },
         "platform": {"metrics": platform_metrics, "package_types": [["Docker", 68], ["Maven", 61], ["npm", 47], ["PyPI", 31], ["Other", 39]]},
@@ -243,6 +256,47 @@ def build():
             "top_cves": [["CVE-2026-41001", 84], ["CVE-2026-32914", 61], ["CVE-2026-20877", 49]],
             "top_affected_repositories": [["payments-containers-local", 392], ["shared-maven-release-local", 271], ["analytics-python-local", 184]],
             "collection_note": "Synthetic period findings are deduplicated by issue, infected component and impacted artifact.",
+        },
+        "apptrust": {
+            "status": "available",
+            "collected_at": "2026-11-01T08:00:00Z",
+            "metrics": apptrust_metrics,
+            "inventory": {
+                "applications_total": 18, "projects_total": 9, "unowned": 3, "critical_unowned": 1,
+                "criticality": {"critical": 4, "high": 7, "medium": 4, "low": 2, "unspecified": 1},
+                "maturity": {"production": 8, "experimental": 6, "end_of_life": 1, "unspecified": 3},
+            },
+            "release_governance": {
+                "applications_enriched": 12, "versions_total": 22, "trusted_releases": 8,
+                "versions_by_stage": {"PROD": 8, "QA": 7, "DEV": 5, "Unpromoted": 2},
+                "release_status": {"TRUSTED_RELEASE": 8, "CANDIDATE": 9, "Unknown": 5},
+                "promotion_status": {"COMPLETED": 14, "FAILED": 1, "REJECTED": 1},
+            },
+            "evidence": {
+                "records_total": 43, "verified": 42, "unverified": 1, "gate_certifications": 12,
+                "by_predicate": {"build-info": 18, "vulnerability-scan": 13, "release-gate": 12},
+            },
+            "applications": [
+                {
+                    "key": "checkout-service", "projectKey": "COMMERCE", "displayName": "Checkout Service",
+                    "criticality": "critical", "maturityLevel": "production", "owners": [],
+                    "versionsConnection": {"totalCount": 2, "edges": [
+                        {"node": {"version": "2026.10.4", "currentStageName": "PROD", "releaseStatus": "TRUSTED_RELEASE"}},
+                        {"node": {"version": "2026.11.1-rc1", "currentStageName": "QA", "releaseStatus": "CANDIDATE"}},
+                    ]},
+                },
+                {
+                    "key": "identity-api", "projectKey": "IDENTITY", "displayName": "Identity API",
+                    "criticality": "high", "maturityLevel": "production", "owners": [{"name": "Identity Platform", "type": "group"}],
+                    "versionsConnection": {"totalCount": 1, "edges": [
+                        {"node": {"version": "4.18.2", "currentStageName": "PROD", "releaseStatus": "TRUSTED_RELEASE"}},
+                    ]},
+                },
+            ],
+            "limitations": [
+                "Synthetic AppTrust inventory is fictional and demonstrates application ownership, lifecycle and release governance.",
+                "Application risk is not inferred without a deterministic Xray-to-build-to-application relationship.",
+            ],
         },
         "ai_catalog": {
             "status": "available", "metrics": ai_repo_metrics,

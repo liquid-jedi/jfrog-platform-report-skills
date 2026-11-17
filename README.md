@@ -5,7 +5,7 @@
 _A weekly operating record for JFrog Platform value, risk and action._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.5.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.5.0)
+[![Release](https://img.shields.io/badge/RELEASE-v1.6.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.0)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -109,7 +109,7 @@ The same commands work on macOS and WSL:
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.6.0 \
   --target claude,cursor,codex,gemini
 apm deps list
 apm audit
@@ -235,6 +235,7 @@ only when a choice is required.
 | **Curation** | What was evaluated, allowed or stopped before consumption? |
 | **Artifactory** | What is stored, how is the repository estate distributed and how is traffic changing? |
 | **Xray** | What security and license findings were created during the period? |
+| **AppTrust** | Which critical applications lack ownership, and what is the release-governance posture? |
 | **AI security** | Which models, MCP servers, skills and plugins are governed, scanned or risky? |
 | **Access & OIDC** | Which tokens need rotation and where is workload identity trusted? |
 | **JAS & Runtime** | Which findings are applicable, exploitable or present in production? |

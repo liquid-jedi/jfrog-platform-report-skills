@@ -67,9 +67,12 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
             self.assertIn("economic-profile.snapshot.json", " ".join(economic))
             self.assertNotIn("--profile", economic)
             self.assertIn("collect_skill_security.py", names)
+            self.assertIn("collect_apptrust.py", names)
             merge = commands[names.index("merge_current_evidence.py")]
             self.assertIn("--ai-catalog-evidence", merge)
             self.assertIn("ai-security.json", " ".join(merge))
+            self.assertIn("--apptrust-evidence", merge)
+            self.assertIn("apptrust.json", " ".join(merge))
 
     def test_period_completeness_is_persisted_for_trend_validation(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -125,6 +128,28 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
             self.assertEqual(executive["curation-users"], 12)
             self.assertEqual(executive["access-long-lived"], 3)
             self.assertEqual(executive["access-non-expiring"], 2)
+
+    def test_merge_adds_apptrust_governance_and_executive_risks(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); report = root / "report.json"; evidence = root / "apptrust.json"; output = root / "out.json"
+            report.write_text(json.dumps({"executive_signals": []}))
+            evidence.write_text(json.dumps({
+                "status": "available", "collected_at": "2026-11-17T00:00:00Z", "source": "test",
+                "inventory": {"applications_total": 4, "criticality": {"critical": 2}, "maturity": {"production": 3}, "unowned": 2, "critical_unowned": 1},
+                "release_governance": {"versions_total": 5, "trusted_releases": 2, "promotion_status": {"FAILED": 1, "REJECTED": 1}},
+                "evidence": {"verified": 9, "unverified": 2, "gate_certifications": 3},
+                "applications": [], "limitations": [],
+            }))
+            subprocess.run([sys.executable, str(ROOT / "scripts" / "merge_current_evidence.py"), "--report", str(report),
+                            "--apptrust-evidence", str(evidence), "--output", str(output)],
+                           check=True, capture_output=True, text=True)
+            value = json.loads(output.read_text())
+            metrics = {row["id"]: row["value"] for row in value["apptrust"]["metrics"]}
+            executive = {row["id"]: row["value"] for row in value["executive_signals"]}
+            self.assertEqual(metrics["apptrust-applications"], 4)
+            self.assertEqual(metrics["apptrust-failed-promotions"], 2)
+            self.assertEqual(executive["apptrust-critical-unowned"], 1)
+            self.assertEqual(executive["apptrust-unverified-evidence"], 2)
 
 
 if __name__ == "__main__":

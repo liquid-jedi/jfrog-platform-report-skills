@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "profiles": {
-    "full": ["executive", "trend", "curation", "artifactory", "xray", "ai-security", "access", "jas", "runtime", "recommendations", "evidence", "economic"],
+    "full": ["executive", "trend", "curation", "artifactory", "xray", "apptrust", "ai-security", "access", "jas", "runtime", "recommendations", "evidence", "economic"],
     "executive": ["executive", "trend", "recommendations", "evidence"]
   },
   "sections": [
@@ -10,6 +10,7 @@
     {"id": "curation", "label": "Curation", "capability": "curation"},
     {"id": "artifactory", "label": "Artifactory", "capability": "artifactory"},
     {"id": "xray", "label": "Xray", "capability": "xray"},
+    {"id": "apptrust", "label": "AppTrust", "capability": "apptrust"},
     {"id": "ai-security", "label": "AI security", "capability": "ai_catalog"},
     {"id": "access", "label": "Access, tokens & OIDC", "capability": "access"},
     {"id": "jas", "label": "JFrog Advanced Security", "capability": "jas"},

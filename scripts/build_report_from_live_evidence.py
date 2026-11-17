@@ -122,12 +122,22 @@ def main() -> int:
     severity = Counter(str(row.get("severity") or "Unknown").lower() for row in violations)
     vtypes = Counter(str(row.get("type") or "Unknown") for row in violations)
     cves = Counter()
+    applicability = Counter()
+    oldest_created = None
     impacted = set()
     for row in violations:
         for cve in row.get("cves") or ([row.get("cve")] if row.get("cve") else []):
             if cve:
                 cves[str(cve)] += 1
         impacted.update(str(path) for path in (row.get("impacted_artifacts") or []))
+        for detail in row.get("applicability_details") or []:
+            applicability[str(detail.get("result") or "unknown")] += 1
+        if row.get("created"):
+            try:
+                parsed = datetime.fromisoformat(str(row["created"]).replace("Z", "+00:00"))
+                oldest_created = parsed if oldest_created is None or parsed < oldest_created else oldest_created
+            except ValueError:
+                pass
     affected_repositories = Counter(path.split("/")[0] for path in impacted if "/" in path)
     active_watches = sum(bool((row.get("general_data") or {}).get("active", row.get("active"))) for row in watches)
     indexed_total = len(indexed) + len(non_indexed)
@@ -135,6 +145,10 @@ def main() -> int:
         metric("xray-new-findings", "New violation occurrences", len(violations), "findings", "observed", "Xray violations API", "count(period rows)", "period_activity"),
         metric("xray-critical-findings", "Critical violations", severity.get("critical", 0), "findings", "derived", "Xray violations API", "severity = critical", "period_activity"),
         metric("xray-high-findings", "High violations", severity.get("high", 0), "findings", "derived", "Xray violations API", "severity = high", "period_activity"),
+        metric("xray-applicable", "Applicable findings", applicability.get("applicable", 0), "findings", "derived", "Xray applicability details", "count(result = applicable)", "period_activity"),
+        metric("xray-rescan-required", "Findings requiring rescan", applicability.get("rescan_required", 0), "findings", "derived", "Xray applicability details", "count(result = rescan_required)", "period_activity"),
+        metric("xray-oldest-period-finding", "Oldest finding in report period", oldest_created.date().isoformat() if oldest_created else None, "date", "derived" if oldest_created else "unavailable", "Xray violations API", "minimum(created)", "period_activity"),
+        metric("xray-fix-available", "Findings with verified fix versions", None, "findings", "unavailable", "Xray resource summary enrichment", "count(fixed_versions is not empty)", "period_activity"),
         metric("xray-indexed", "Indexed repositories", len(indexed), "repositories", "observed", "Xray repository API", "count(indexed)", "point_in_time"),
         metric("xray-index-coverage", "Repository indexing coverage", pct(len(indexed), indexed_total), "%", "derived", "Xray repository API", "indexed / eligible × 100", "point_in_time"),
         metric("xray-watches", "Watches", len(watches), "watches", "observed", "Xray watches API", "count(watches)", "point_in_time"),

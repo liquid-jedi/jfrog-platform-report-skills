@@ -168,7 +168,8 @@ def main() -> int:
     violations = deduplicate_violations(raw_violations)
     violation_severity = Counter(str(row.get("severity") or "Unknown") for row in violations)
     violation_types = Counter(str(row.get("type") or "Unknown") for row in violations)
-    fixed_findings = sum(bool(row.get("fix_versions")) for row in violations)
+    fix_evidence_available = any("fix_versions" in row for row in violations)
+    fixed_findings = sum(bool(row.get("fix_versions")) for row in violations) if fix_evidence_available else None
     affected_artifacts = {path for row in violations for path in (row.get("impacted_artifacts") or [])}
     affected_components = {component for row in violations for component in (row.get("infected_components") or [])}
     affected_repositories = Counter()
@@ -178,7 +179,15 @@ def main() -> int:
             affected_repositories[parts[1] if parts[0] == "default" else parts[0]] += 1
     cves = Counter()
     applicability = Counter()
+    oldest_created = None
     for row in violations:
+        created = row.get("created")
+        if created:
+            try:
+                parsed = datetime.fromisoformat(str(created).replace("Z", "+00:00"))
+                oldest_created = parsed if oldest_created is None or parsed < oldest_created else oldest_created
+            except ValueError:
+                pass
         for detail in row.get("applicability_details") or []:
             result = str(detail.get("result") or "unknown")
             applicability[result] += 1
@@ -205,7 +214,10 @@ def main() -> int:
             metric("xray-critical-findings", "Critical violations", violation_severity.get("Critical", 0), "findings", "derived", "Xray period violations", "severity = Critical"),
             metric("xray-unique-cves", "Unique CVEs", len(cves), "CVEs", "derived", "Xray applicability details", "distinct(vulnerability_id)"),
             metric("xray-affected-artifacts", "Affected artifact paths", len(affected_artifacts), "artifacts", "derived", "Xray period violations", "distinct(impacted_artifacts)"),
-            metric("xray-fix-available", "Findings with fix versions", fixed_findings, "findings", "derived", "Xray period violations", "count(fix_versions is not empty)"),
+            metric("xray-applicable", "Applicable findings", applicability.get("applicable", 0), "findings", "derived", "Xray applicability details", "count(result = applicable)"),
+            metric("xray-rescan-required", "Findings requiring rescan", applicability.get("rescan_required", 0), "findings", "derived", "Xray applicability details", "count(result = rescan_required)"),
+            metric("xray-oldest-period-finding", "Oldest finding in report period", oldest_created.date().isoformat() if oldest_created else None, "date", "derived" if oldest_created else "unavailable", "Xray period violations", "minimum(created)"),
+            metric("xray-fix-available", "Findings with fix versions", fixed_findings, "findings", "derived" if fix_evidence_available else "unavailable", "Xray resource summary" if fix_evidence_available else "No supported fix-version enrichment supplied", "count(fix_versions is not empty) when the field is present"),
         ] if violations else prior_xray_period),
         "policy_types": dict(policy_types),
         "indexed_ecosystems": Counter(str(row.get("pkg_type") or "unknown") for row in indexed).most_common(15),

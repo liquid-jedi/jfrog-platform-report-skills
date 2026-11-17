@@ -15,7 +15,7 @@
   </style>
 </head>
 <body>
-  <header class="top"><div class="wrap"><div class="brand-lockup"><div class="brand">JFrog Platform Report Skill</div><a class="version" href="https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.5.0" aria-label="View JFrog Platform Report Skill release v1.5.0">v1.5.0</a></div><nav class="nav"><a href="#why">Why</a><a href="#coverage">Coverage</a><a href="#install">Install</a><a href="#upgrade">Upgrade</a><a href="#sample">Sample</a><a href="report-guide.html">Guide</a><a href="https://github.com/liquid-jedi/jfrog-platform-report-skills">GitHub</a></nav></div></header>
+  <header class="top"><div class="wrap"><div class="brand-lockup"><div class="brand">JFrog Platform Report Skill</div><a class="version" href="https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.0" aria-label="View JFrog Platform Report Skill release v1.6.0">v1.6.0</a></div><nav class="nav"><a href="#why">Why</a><a href="#coverage">Coverage</a><a href="#install">Install</a><a href="#upgrade">Upgrade</a><a href="#sample">Sample</a><a href="report-guide.html">Guide</a><a href="https://github.com/liquid-jedi/jfrog-platform-report-skills">GitHub</a></nav></div></header>
   <main>
     <div class="hero wrap">
       <div class="eyebrow">Portable Agent Skill</div>
@@ -32,6 +32,7 @@
     <section id="coverage"><div class="wrap"><div class="eyebrow">Coverage</div><h2>Modular across the JFrog Platform</h2><p>The report works for Artifactory-only environments and adds optional modules when supported evidence is available.</p><div class="grid">
       <article class="card"><h3>Platform activity</h3><div class="metric">Artifactory</div><p>Repositories, storage, uploads, downloads, traffic deltas and cache efficiency.</p></article>
       <article class="card"><h3>Software supply chain risk</h3><div class="metric risk">Xray and JAS</div><p>New findings, severity, coverage, exploitability and fix availability.</p></article>
+      <article class="card"><h3>Application and release governance</h3><div class="metric risk">AppTrust</div><p>Criticality, maturity, ownership, release stages, promotions and verified evidence.</p></article>
       <article class="card"><h3>Preventive controls</h3><div class="metric">Curation</div><p>Requests evaluated, blocks, unique users, packages, policies and waivers.</p></article>
       <article class="card"><h3>Agentic governance</h3><div class="metric risk">AI security</div><p>MCP servers, skills, plugins and models with scan state, risk and project attribution.</p></article>
       <article class="card"><h3>Identity posture</h3><div class="metric risk">Access and OIDC</div><p>Token rotation windows, non-expiring credentials and workload trust mappings.</p></article>
@@ -52,9 +53,9 @@ exec "$SHELL" -l</code></pre></div><div class="step"><b>Configure JFrog</b><pre>
 jf config show</code></pre></div></article>
       <article class="install-card wide"><h3>Install the official JFrog Platform Skill</h3><p>The report depends on the base JFrog Platform Skill. Install the official JFrog plugin for the agent that will generate reports.</p><div class="install-grid"><div><div class="step"><b>Codex plugin</b><pre><code>codex plugin marketplace add jfrog/codex-plugin
 codex plugin add jfrog@codex-plugin</code></pre></div></div><div><div class="step"><b>Claude Code plugin</b><p>Start <code>claude</code>, open the plugin manager, and install <code>jfrog@claude-plugins-official</code>. Follow the official host-specific JFrog plugin instructions for other agents.</p></div></div></div></article>
-      <article class="install-card wide"><h3>Install JFrog Platform Report Skill v1.5.0 with APM</h3><p>Use only the targets installed on your machine.</p><div class="step"><b>Create the APM project</b><pre><code>mkdir -p ~/jfrog-platform-reporting
+      <article class="install-card wide"><h3>Install JFrog Platform Report Skill v1.6.0 with APM</h3><p>Use only the targets installed on your machine.</p><div class="step"><b>Create the APM project</b><pre><code>mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
-apm init -y</code></pre></div><div class="step"><b>Install and verify</b><pre><code>apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
+apm init -y</code></pre></div><div class="step"><b>Install and verify</b><pre><code>apm install liquid-jedi/jfrog-platform-report-skills#v1.6.0 \
   --target claude,cursor,codex,gemini
 apm deps list
 apm audit</code></pre></div><p>The <code>liquid-jedi/...</code> value is the public GitHub package coordinate, not a JFrog server or customer instance.</p></article>

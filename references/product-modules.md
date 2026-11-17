@@ -56,6 +56,26 @@ point-in-time. Never compare a point-in-time inventory with a period event count
   known-exploitation/research context and customer blast radius, but never render an
   empty standalone Threat Hub section.
 
+## AppTrust
+
+AppTrust is the application and release-governance view. It does not replace Xray risk
+or infer that every finding in a repository affects every application using that
+repository.
+
+- Application and project inventory; criticality; maturity; assigned ownership; and
+  critical applications without an owner.
+- Version stage and release status; trusted releases; completed, failed and rejected
+  promotions; and release-gate evidence.
+- Verified and unverified evidence predicates associated with enriched high-value
+  application versions.
+- The standard collector fully paginates application inventory and enriches critical,
+  high, production and end-of-life applications. If any bounded nested connection is
+  truncated, the collector reports the module unavailable rather than publishing a
+  partial count.
+- Application vulnerability or fixability requires a deterministic relationship from
+  Xray evidence through the affected artifact or build to the AppTrust application.
+  Inventory similarity or repository naming is never sufficient attribution.
+
 ## Artifactory
 
 ### Estate and artifact flow
@@ -130,4 +150,5 @@ adding occurrence counts across modules.
 ## Renderer module names
 
 `scripts/render_report.py --modules` accepts `executive`, `curation`, `xray`,
-`artifactory`, `ai-security`, `jas`, `runtime`, `economic`, and `evidence`. `all` is the default.
+`apptrust`, `artifactory`, `ai-security`, `jas`, `runtime`, `economic`, and `evidence`.
+`all` is the default.

@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.5.0"
+  version: "1.6.0"
 ---
 
 # JFrog Platform Report Skill
@@ -65,10 +65,10 @@ selectable and never share ownership of the same metric:
 - `efficiency`: storage, transfer, automation, and operational-efficiency evidence.
 - `delivery`: build/release evidence and explicitly qualified DORA/SPACE mappings.
 - `security-value`: prevention and remediation value without duplicating the CISO report.
-- `full`: all available modules, including Runtime when feature-detected.
-- `curation`, `xray`, `artifactory`, `ai-security`, `access`, `jas`: focused product views.
+- `full`: all available modules, including AppTrust and Runtime when feature-detected.
+- `curation`, `xray`, `apptrust`, `artifactory`, `ai-security`, `access`, `jas`: focused product views.
 
-The full report order is Executive, Trends, Curation, Artifactory, Xray, AI security,
+The full report order is Executive, Trends, Curation, Artifactory, Xray, AppTrust, AI security,
 Access/OIDC, JAS, Runtime, Recommendations, Evidence ledger, and the optional external
 Forrester benchmark at the end. Read the complete
 [product module contract](references/product-modules.md) before adding or changing a
@@ -81,8 +81,8 @@ resume/import option and requires a new raw-evidence directory for each run.
 Its inventory, Curation and Xray period tracks run concurrently with bounded workers;
 do not split them into separate agent tool calls or increase their worker counts without
 rate-limit testing. The weekly runner also executes the independent traffic, AI skill
-security and access-governance collectors concurrently, then merges their results in a
-fixed order. Parallel completion order must never change raw filenames, manifests,
+security, access-governance and AppTrust collectors concurrently, then merges their
+results in a fixed order. Parallel completion order must never change raw filenames, manifests,
 diagnostics or normalized output.
 `scripts/collect_access_governance.py` for a redacted token/OIDC posture snapshot, and
 `scripts/collect_artifactory_traffic.py` on every live run to preserve cumulative

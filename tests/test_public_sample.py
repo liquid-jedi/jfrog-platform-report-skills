@@ -22,6 +22,7 @@ class PublicSampleTests(unittest.TestCase):
         self.assertEqual(set(data["current_ai_security"]["inventory"]), {"mcp_servers", "skills", "plugins", "models"})
         self.assertGreaterEqual(len(data["weekly_trend"]["series"]), 4)
         self.assertTrue(data["executive_summary"]["actions"])
+        self.assertEqual(data["apptrust"]["inventory"]["critical_unowned"], 1)
 
     def test_generator_writes_no_customer_identifiers(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -44,6 +45,8 @@ class PublicSampleTests(unittest.TestCase):
         self.assertIn("Select a tab to move through the report", html)
         self.assertIn("Export report", html)
         self.assertIn("Print / Save PDF", html)
+        self.assertIn('href="#apptrust"', html)
+        self.assertIn("Application ownership, lifecycle and release-governance evidence", html)
 
 
 if __name__ == "__main__":

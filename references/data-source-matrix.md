@@ -11,6 +11,8 @@
 | Build adoption | build-info inventory and recency | MCP or Build Info API | yes | needs live validation |
 | Release lifecycle | Release Bundles/promotions | MCP or Distribution APIs | optional | needs live validation |
 | Xray coverage | indexed resources and violations | JFrog MCP or official Security APIs | no | feasible, optional |
+| AppTrust | applications, projects, criticality, maturity and owners | OneModel GraphQL application inventory | no | supported when entitled; cursor-paginated and feature-detected |
+| AppTrust release governance | application versions, stages, release status, promotions and evidence predicates | OneModel GraphQL application detail | no | bounded to high-value applications; nested truncation is unavailable, never partial |
 | Curation value | audit outcomes, policies, waivers | JFrog MCP or official Curation APIs | no | feasible, optional |
 | Advanced Security | contextual, secrets, IaC, SAST | JFrog MCP/Security APIs | no | optional/entitled |
 | Runtime | critical/high, applicable, fix-available, runtime-validated, running images, malicious packages and integrity violations | supported timestamped Runtime collector envelope | no | UI metrics documented; validate a stable read source per platform version, never scrape/guess internal endpoints or backfill history from current posture |
@@ -36,6 +38,9 @@
 | Xray | indexed/non-indexed repositories, watches, policies | validated live |
 | Xray | period violations, severity, affected assets, top CVEs, fix-version presence | validated live; bounded per-active-watch pagination and cross-watch deduplication |
 | Xray | resolution, backlog age, SLA, fix availability, ignore rules | dedicated normalized collector required |
+| AppTrust | application inventory, project mapping, criticality, maturity and owners | validated live through OneModel GraphQL |
+| AppTrust | high-value application versions, stages, promotions and evidence predicates | supported live bounded enrichment; application inventory remains complete |
+| AppTrust | application-specific Xray risk, affected builds and fix availability | deterministic Xray-to-artifact/build-to-application join required |
 | Artifactory | repository estate and package types | validated live |
 | Artifactory | storage summary | feasible; live collector path exists |
 | Artifactory | uploads/downloads, failures and byte trends | supported through Open Metrics deltas or period logs; requires metrics/log access and a prior snapshot for counters |

@@ -97,6 +97,21 @@ complete bounded logs exist. A single cumulative value remains a baseline.
 | Indexed repositories | How much of the repository estate is covered? | Qualifies confidence in the security conclusion |
 | Top CVEs and repositories | Where is risk concentrated? | Connects findings to an actionable owner |
 
+### AppTrust
+
+| Tile or panel | What it answers | Why it matters |
+|---|---|---|
+| Application inventory | How many applications and projects are represented? | Establishes the governed application estate |
+| Criticality and maturity | Which applications are critical, high, production or end of life? | Prioritizes governance by business and lifecycle context |
+| Ownership gaps | Which applications, especially critical ones, have no owner? | Makes accountability gaps visible before release decisions |
+| Release stages and promotions | Which versions are trusted, promoted, failed or rejected? | Connects delivery flow to release-governance outcomes |
+| Evidence predicates | Which release records are verified or unverified? | Qualifies trust in release-gate decisions |
+
+The collector fully paginates application inventory and enriches high-value applications.
+A truncated nested version, promotion or evidence connection is unavailable, never a
+partial count. Application-specific vulnerability impact is not inferred without a
+deterministic Xray-to-artifact/build-to-application relationship.
+
 ### AI security
 
 AI assets are grouped into MCP servers, skills, plugins and models. Their behavioral

@@ -81,6 +81,16 @@
       "risk_state": "bad"
     },
     {
+      "id": "apptrust-critical-unowned",
+      "label": "Critical applications without an owner",
+      "value": 1,
+      "unit": "applications",
+      "classification": "derived",
+      "source": "Synthetic demonstration fixture",
+      "formula": "Direct synthetic fixture value",
+      "risk_state": "bad"
+    },
+    {
       "id": "exec-ai-risk",
       "label": "Risky AI assets",
       "value": 7,
@@ -102,6 +112,10 @@
       {
         "title": "AI asset governance has visible gaps",
         "detail": "Seven MCP, skill, plugin or model records are suspicious, vulnerable, malicious, unscanned or not linked to a project."
+      },
+      {
+        "title": "A critical application has no accountable owner",
+        "detail": "AppTrust shows one critical application without an assigned owner and two failed or rejected promotions."
       }
     ],
     "outcomes": [
@@ -122,6 +136,10 @@
       {
         "title": "Quarantine and review risky AI assets",
         "detail": "Remove the malicious MCP server, review suspicious skills and link approved assets to accountable projects."
+      },
+      {
+        "title": "Assign application ownership before the next release",
+        "detail": "Name an owner for the unowned critical application and resolve the two failed or rejected promotions."
       }
     ]
   },
@@ -654,6 +672,201 @@
       ]
     ],
     "collection_note": "Synthetic period findings are deduplicated by issue, infected component and impacted artifact."
+  },
+  "apptrust": {
+    "status": "available",
+    "collected_at": "2026-11-01T08:00:00Z",
+    "metrics": [
+      {
+        "id": "apptrust-applications",
+        "label": "Applications",
+        "value": 18,
+        "unit": "applications",
+        "classification": "observed",
+        "source": "Synthetic demonstration fixture",
+        "formula": "Direct synthetic fixture value",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "apptrust-production",
+        "label": "Production applications",
+        "value": 8,
+        "unit": "applications",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "count(maturity = production)",
+        "risk_state": "neutral"
+      },
+      {
+        "id": "apptrust-critical",
+        "label": "Critical applications",
+        "value": 4,
+        "unit": "applications",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "count(criticality = critical)",
+        "risk_state": "warning"
+      },
+      {
+        "id": "apptrust-unowned",
+        "label": "Applications without an owner",
+        "value": 3,
+        "unit": "applications",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "count(owners is empty)",
+        "risk_state": "bad"
+      },
+      {
+        "id": "apptrust-critical-unowned",
+        "label": "Critical applications without an owner",
+        "value": 1,
+        "unit": "applications",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "count(criticality = critical and owners is empty)",
+        "risk_state": "bad"
+      },
+      {
+        "id": "apptrust-trusted-releases",
+        "label": "Trusted releases",
+        "value": 8,
+        "unit": "versions",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "count(releaseStatus = TRUSTED_RELEASE)",
+        "risk_state": "good"
+      },
+      {
+        "id": "apptrust-failed-promotions",
+        "label": "Failed or rejected promotions",
+        "value": 2,
+        "unit": "promotions",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "count(status in FAILED, REJECTED)",
+        "risk_state": "bad"
+      },
+      {
+        "id": "apptrust-unverified-evidence",
+        "label": "Unverified evidence records",
+        "value": 1,
+        "unit": "records",
+        "classification": "derived",
+        "source": "Synthetic demonstration fixture",
+        "formula": "count(verified = false)",
+        "risk_state": "bad"
+      }
+    ],
+    "inventory": {
+      "applications_total": 18,
+      "projects_total": 9,
+      "unowned": 3,
+      "critical_unowned": 1,
+      "criticality": {
+        "critical": 4,
+        "high": 7,
+        "medium": 4,
+        "low": 2,
+        "unspecified": 1
+      },
+      "maturity": {
+        "production": 8,
+        "experimental": 6,
+        "end_of_life": 1,
+        "unspecified": 3
+      }
+    },
+    "release_governance": {
+      "applications_enriched": 12,
+      "versions_total": 22,
+      "trusted_releases": 8,
+      "versions_by_stage": {
+        "PROD": 8,
+        "QA": 7,
+        "DEV": 5,
+        "Unpromoted": 2
+      },
+      "release_status": {
+        "TRUSTED_RELEASE": 8,
+        "CANDIDATE": 9,
+        "Unknown": 5
+      },
+      "promotion_status": {
+        "COMPLETED": 14,
+        "FAILED": 1,
+        "REJECTED": 1
+      }
+    },
+    "evidence": {
+      "records_total": 43,
+      "verified": 42,
+      "unverified": 1,
+      "gate_certifications": 12,
+      "by_predicate": {
+        "build-info": 18,
+        "vulnerability-scan": 13,
+        "release-gate": 12
+      }
+    },
+    "applications": [
+      {
+        "key": "checkout-service",
+        "projectKey": "COMMERCE",
+        "displayName": "Checkout Service",
+        "criticality": "critical",
+        "maturityLevel": "production",
+        "owners": [],
+        "versionsConnection": {
+          "totalCount": 2,
+          "edges": [
+            {
+              "node": {
+                "version": "2026.10.4",
+                "currentStageName": "PROD",
+                "releaseStatus": "TRUSTED_RELEASE"
+              }
+            },
+            {
+              "node": {
+                "version": "2026.11.1-rc1",
+                "currentStageName": "QA",
+                "releaseStatus": "CANDIDATE"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "key": "identity-api",
+        "projectKey": "IDENTITY",
+        "displayName": "Identity API",
+        "criticality": "high",
+        "maturityLevel": "production",
+        "owners": [
+          {
+            "name": "Identity Platform",
+            "type": "group"
+          }
+        ],
+        "versionsConnection": {
+          "totalCount": 1,
+          "edges": [
+            {
+              "node": {
+                "version": "4.18.2",
+                "currentStageName": "PROD",
+                "releaseStatus": "TRUSTED_RELEASE"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "limitations": [
+      "Synthetic AppTrust inventory is fictional and demonstrates application ownership, lifecycle and release governance.",
+      "Application risk is not inferred without a deterministic Xray-to-build-to-application relationship."
+    ]
   },
   "ai_catalog": {
     "status": "available",

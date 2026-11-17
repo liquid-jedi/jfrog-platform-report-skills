@@ -10,9 +10,11 @@
 - Vulnerability occurrence counts do not establish business risk without asset context.
 - Xray impact-search coverage excludes assets outside SBOM-indexed/scanned scope;
   a report must disclose the exact CVE/XRAY ID or package used as the search input.
-- Frogbot, Runtime, AI Catalog active-consumption, AppTrust, and agentic-remediation
-  realized-value evidence still require dedicated live collectors. Supported AI Catalog
-  registries can provide governed model, MCP, skill, and plugin inventories, but registry
+- Frogbot, Runtime, AI Catalog active-consumption, and agentic-remediation realized-value
+  evidence still require dedicated live collectors. AppTrust inventory and bounded
+  release-governance evidence are collected through OneModel, but application-specific
+  vulnerability attribution still requires a deterministic Xray-to-build relationship.
+  Supported AI Catalog registries can provide governed model, MCP, skill, and plugin inventories, but registry
   presence alone does not prove use or realized value.
 - External benchmarks remain `benchmark` and never feed projections unless explicitly
   adopted by the customer as an assumption.

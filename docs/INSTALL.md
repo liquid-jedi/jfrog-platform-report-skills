@@ -66,7 +66,7 @@ These commands are the same on macOS and WSL:
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.6.0 \
   --target claude,cursor,codex,gemini
 apm deps list
 apm audit

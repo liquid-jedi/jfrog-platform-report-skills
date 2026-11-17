@@ -71,8 +71,11 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
          "--output", str(ai), "--all-skills"],
         [py, str(HERE / "collect_access_governance.py"), "--server-id", args.server,
          "--output", str(run_dir / "access-governance.json")],
+        [py, str(HERE / "collect_apptrust.py"), "--server-id", args.server,
+         "--raw-dir", str(raw / "apptrust"), "--output", str(run_dir / "apptrust.json")],
         [py, str(HERE / "merge_current_evidence.py"), "--report", str(economic_report),
          "--ai-catalog-evidence", str(ai), "--access-governance-evidence", str(run_dir / "access-governance.json"),
+         "--apptrust-evidence", str(run_dir / "apptrust.json"),
          "--output", str(run_dir / "data.current.json")],
         [py, str(HERE / "apply_weekly_trends.py"), "--report", str(run_dir / "data.current.json"),
          "--weekly-root", str(weekly_root), "--month", args.month, "--timezone", args.timezone,
@@ -172,9 +175,9 @@ def main() -> int:
         progress("Brewing your JFrog Platform report. This usually takes 1 to 3 minutes, so this is a good time to grab a coffee.")
         progress("[1/5] Collecting Artifactory, Curation and Xray evidence")
         run(commands[0], True, diagnostics); run(commands[1], True, diagnostics)
-        progress("[2/5] Collecting traffic, AI security and access posture in parallel")
-        traffic_ok, skill_ok, access_ok = run_parallel(
-            [(commands[2], False), (commands[5], False), (commands[6], False)], diagnostics
+        progress("[2/5] Collecting traffic, AI security, access and AppTrust posture in parallel")
+        traffic_ok, skill_ok, access_ok, apptrust_ok = run_parallel(
+            [(commands[2], False), (commands[5], False), (commands[6], False), (commands[7], False)], diagnostics
         )
         if traffic_ok:
             run(commands[3], True, diagnostics)
@@ -188,15 +191,17 @@ def main() -> int:
             value = json.loads(ai_path.read_text(encoding="utf-8")); value["status"] = "partial"
             value.setdefault("limitations", []).append("Skills security collection failed; see collection diagnostics.")
             ai_path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-        merge = commands[7]
+        merge = commands[8]
         if not access_ok:
             merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]
+        if not apptrust_ok:
+            merge = [part for part in merge if part not in ("--apptrust-evidence", str(run_dir / "apptrust.json"))]
         run(merge, True, diagnostics)
         mark_period_completeness(run_dir / "data.current.json", args.period_completeness)
         progress("[4/5] Validating comparable week-over-week trends")
-        run(commands[8], True, diagnostics)
-        progress("[5/5] Rendering and validating the fixed report template")
         run(commands[9], True, diagnostics)
+        progress("[5/5] Rendering and validating the fixed report template")
+        run(commands[10], True, diagnostics)
     finally:
         diagnostics_path.write_text(json.dumps(diagnostics, indent=2) + "\n", encoding="utf-8")
     report = json.loads((run_dir / "data.json").read_text(encoding="utf-8"))

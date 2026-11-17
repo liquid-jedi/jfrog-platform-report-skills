@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--report", required=True, type=Path)
     parser.add_argument("--ai-catalog-evidence", type=Path)
     parser.add_argument("--access-governance-evidence", type=Path)
+    parser.add_argument("--apptrust-evidence", type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     report = load(args.report)
@@ -79,6 +80,44 @@ def main():
         for metric_id in ("access-long-lived", "access-non-expiring"):
             if metric_id not in existing and access_metrics.get(metric_id):
                 executive.append(access_metrics[metric_id])
+
+    if args.apptrust_evidence:
+        evidence = load(args.apptrust_evidence)
+        inventory = evidence.get("inventory") or {}
+        governance = evidence.get("release_governance") or {}
+        attestations = evidence.get("evidence") or {}
+        status = evidence.get("status") or "unavailable"
+        metrics = []
+        for mid, label, value, unit, classification, formula, risk_state in [
+            ("apptrust-applications", "Applications", inventory.get("applications_total"), "applications", "observed", "count visible applications", "neutral"),
+            ("apptrust-production", "Production applications", (inventory.get("maturity") or {}).get("production"), "applications", "derived", "count(maturity = production)", "neutral"),
+            ("apptrust-critical", "Critical applications", (inventory.get("criticality") or {}).get("critical"), "applications", "derived", "count(criticality = critical)", "neutral"),
+            ("apptrust-unowned", "Applications without an owner", inventory.get("unowned"), "applications", "derived", "count(owners is empty)", "bad"),
+            ("apptrust-critical-unowned", "Critical applications without an owner", inventory.get("critical_unowned"), "applications", "derived", "count(criticality = critical and owners is empty)", "bad"),
+            ("apptrust-versions", "Enriched application versions", governance.get("versions_total"), "versions", "observed", "count versions on high-value applications", "neutral"),
+            ("apptrust-trusted-releases", "Trusted releases", governance.get("trusted_releases"), "versions", "derived", "count(releaseStatus = TRUSTED_RELEASE)", "good"),
+            ("apptrust-failed-promotions", "Failed or rejected promotions", sum((governance.get("promotion_status") or {}).get(key, 0) for key in ("FAILED", "REJECTED")), "promotions", "derived", "count(status in FAILED, REJECTED)", "bad"),
+            ("apptrust-verified-evidence", "Verified evidence records", attestations.get("verified"), "records", "derived", "count(verified = true)", "good"),
+            ("apptrust-unverified-evidence", "Unverified evidence records", attestations.get("unverified"), "records", "derived", "count(verified = false)", "bad"),
+            ("apptrust-gate-certifications", "Gate certification evidence", attestations.get("gate_certifications"), "records", "derived", "count(predicate slug contains gate)", "good"),
+        ]:
+            if value is not None:
+                item = metric(mid, label, value, unit, classification, evidence.get("source", "JFrog OneModel AppTrust GraphQL"), formula)
+                item["risk_state"] = risk_state
+                metrics.append(item)
+        report["apptrust"] = {
+            "status": status, "collected_at": evidence.get("collected_at"), "metrics": metrics,
+            "inventory": inventory, "release_governance": governance, "evidence": attestations,
+            "applications": evidence.get("applications") or [], "limitations": evidence.get("limitations") or [],
+            "reason": evidence.get("reason"), "collection": evidence.get("collection") or {},
+        }
+        if status == "available":
+            executive = report.setdefault("executive_signals", [])
+            existing = {item.get("id") for item in executive}
+            by_id = {item.get("id"): item for item in metrics}
+            for metric_id in ("apptrust-critical-unowned", "apptrust-failed-promotions", "apptrust-unverified-evidence"):
+                if metric_id not in existing and by_id.get(metric_id):
+                    executive.append(by_id[metric_id])
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
