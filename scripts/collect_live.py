@@ -167,7 +167,10 @@ def fetch_curation(collector: Collector, date_from: str, date_to: str,
 def fetch_violations(collector: Collector, date_from: str, date_to: str,
                      page_size: int = 500) -> tuple[list[dict], dict]:
     def fetch(page_number: int) -> tuple[int, dict]:
-        offset = (page_number - 1) * page_size
+        # Despite its name, Xray's violations API treats `offset` as a
+        # one-based page number. This is API pagination and is unrelated to
+        # the Cursor editor or to whichever agent host invokes the skill.
+        offset = page_number
         payload = collector.api(f"xray-violations-{page_number:06d}", "/xray/api/v1/violations", method="POST", body={
             "filters": {"created_from": date_from, "created_until": date_to},
             "pagination": {"limit": page_size, "offset": offset,
@@ -190,7 +193,8 @@ def fetch_violations(collector: Collector, date_from: str, date_to: str,
     if len(rows) != total:
         raise RuntimeError(f"Xray violation pagination incomplete: fetched {len(rows)} of {total}")
     return rows, {"rows_fetched": len(rows), "total_reported": total,
-                  "pages_fetched": len(pages), "complete": True}
+                  "pages_fetched": len(pages), "pagination_mode": "one_based_page_number",
+                  "complete": True}
 
 
 def main() -> int:

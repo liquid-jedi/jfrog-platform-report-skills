@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # JFrog Platform Report Skill
@@ -29,11 +29,11 @@ and render. Never calculate financial or platform KPIs in free-form reasoning.
 - Missing, unlicensed, forbidden, partial, and genuine-zero states are distinct.
 - Never represent a projection or benchmark as an observed customer result.
 - Never count the same benefit in more than one value category.
-- Use customer-configured currency for customer projections; never assume a customer
-  currency, cost, rate, baseline, adoption coverage, realization, or benefit.
-- Without an approved profile, render the bundled Forrester composite only as
-  `benchmark` context. Never label it customer ROI or use it to produce a customer
-  projection.
+- Do not ask the platform administrator for currency, platform cost, baselines,
+  adoption coverage, realization factors, or other finance-owned assumptions.
+- The only economic content in the normal workflow is the optional bundled Forrester
+  composite, classified as `benchmark`. State that it is external research, not this
+  customer's savings and not derived from collected JFrog evidence.
 - For weekly and monthly runs, lead with the selected period, prior-period movement,
   and trend. Show year-to-date and estate totals only as context.
 - Put report type, inclusive start date, inclusive end date, server, scope, and
@@ -47,6 +47,10 @@ and render. Never calculate financial or platform KPIs in free-form reasoning.
 - Persist every raw response in the run directory with endpoint, requested period,
   collection time, completeness and SHA-256 evidence. A collector must fail the run
   when pagination is incomplete; it must never publish the rows fetched so far.
+- Never edit, patch, or hot-fix an installed copy of this Skill during report
+  generation. Preserve a failed run and its diagnostics, then stop and instruct the
+  user to upgrade or report the collector defect. Fixes belong in a tested, versioned
+  source release.
 
 ## Modes and profiles
 
@@ -64,9 +68,9 @@ selectable and never share ownership of the same metric:
 - `full`: all available modules, including Runtime when feature-detected.
 - `curation`, `xray`, `artifactory`, `ai-security`, `access`, `jas`: focused product views.
 
-The full report order is Executive, Curation, Artifactory, Xray, AI security, Access/OIDC,
-JAS, Runtime,
-Economic context, and Evidence ledger. Read the complete
+The full report order is Executive, Trends, Curation, Artifactory, Xray, AI security,
+Access/OIDC, JAS, Runtime, Recommendations, Evidence ledger, and the optional external
+Forrester benchmark at the end. Read the complete
 [product module contract](references/product-modules.md) before adding or changing a
 product metric. AI inventory is an Artifactory subset; JAS exploitability is distinct
 from Xray composition analysis; related evidence may be linked but not summed.
@@ -143,8 +147,13 @@ same-run supported MCP/model/plugin registry evidence with `--ai-catalog-seed` w
 available. A missing or failed optional asset collector remains explicitly unavailable
 or partial and must never be replaced by AI repository counts.
 
-1. Resolve the instance, period, report profile, timezone and output root, then present
-   **one compact confirmation**. The normal profile is `Full (recommended)`; alternatives
+1. On first use, resolve the instance before any other choice. Run
+   `scripts/list_jfrog_instances.py`, which lists every server returned by
+   `jf config show`. Present all server IDs and URLs as a single-select list, mark the
+   CLI default as `(default)`, and ask the user to choose. Do not silently accept the
+   default when several instances exist. Then resolve the period, report profile,
+   timezone and output root step by step before presenting the final confirmation.
+   The normal profile is `Full (recommended)`; alternatives
    are `Executive` and `Custom`. Do not print the individual section list unless the user
    chooses Custom. Do not ask separate questions for profile and output location.
    Use this host-neutral shape so it works in Claude, Claude Code, Cursor, ChatGPT,
@@ -177,8 +186,9 @@ or partial and must never be replaced by AI repository counts.
    live request is the **last completed ISO week (Monday 00:00 through Sunday
    23:59:59) in the report timezone**, regardless of which day it is run. Use
    `scripts/plan_report_run.py`; do not calculate dates in free-form reasoning.
-   Request financial assumptions only when the user wants customer financial modeling.
-   Otherwise use benchmark-only economic context without blocking the report.
+   Do not request customer financial assumptions. Offer `External Forrester benchmark`
+   as an ordinary optional section. Selecting it adds external research context at the
+   end; deselecting it removes all economic content.
 
    Resolve output with `scripts/resolve_report_root.py` after resolving the instance.
    Precedence is an explicit user path, `JFROG_REPORT_ROOT`, a saved per-instance or
@@ -186,15 +196,11 @@ or partial and must never be replaced by AI repository counts.
    input. On first use, include `~/jfrog-platform-reports` in the single confirmation
    as the recommended default. A plain `Y`, `Proceed`, or equivalent accepts all shown
    defaults. Do not begin live collection until the user confirms or changes them.
-3. Resolve the per-instance economic profile. Precedence is `--economic-profile`,
-   `JFROG_REPORT_ECONOMIC_PROFILE`, then
-   `~/.config/jfrog-platform-value-report/instances/<server>/economic-profile.json`.
-   A missing or draft profile shows external benchmark context only. Only
-   `customer_approved` may produce deterministic customer projections. Never infer
-   annual avoided vulnerabilities from weekly findings or treat Curation blocks as
-   realized savings. Preserve the exact profile snapshot in the run directory. When
-   creating or replacing a profile, read [economic profiles](references/economic-profiles.md),
-   show the complete draft to the user, and obtain explicit approval before saving it.
+3. Before collection, check whether the same instance and period already has a
+   validated `latest.json`. If so, offer `Open existing`, `Rebuild presentation from
+   saved evidence`, or `Refresh evidence`. Open and rebuild avoid live pagination;
+   refresh performs a complete new collection. Never reuse saved evidence while
+   claiming it is fresh collection.
 4. Collect evidence into source envelopes; on live runs always preserve an Artifactory
    traffic-counter snapshot before rendering. Do not silently coerce failures to zero.
    Do not read a previous report during this step.
@@ -204,6 +210,11 @@ or partial and must never be replaced by AI repository counts.
    another guessed path. Do not manually retry the whole run after a transport reset;
    the collector performs one bounded retry for connection-reset errors and records a
    persistent failure.
+   Pass the planner's `period.completeness` to the runner as
+   `--period-completeness`. Never default a `current-week` run to complete.
+   Surface the canonical runner's stage progress. It explains that a normal run takes
+   approximately one to three minutes and is a good time to get a coffee. Do not expose
+   raw page-by-page chatter unless the run fails.
 5. Validate source evidence and assumptions against the schemas.
 6. Calculate metrics and scenarios with `scripts/generate_report.py`.
 7. Validate the result, inject it into the fixed, versioned `assets/dashboard.html`
@@ -243,13 +254,15 @@ Map user language to deterministic modes:
 The user does not need to include a server ID in the prompt. Resolve it during
 preflight with the installed JFrog integration skill and `jf config show`:
 
-1. Use a server explicitly named by the user.
-2. Otherwise use `JFROG_PLATFORM_REPORT_SERVER_ID` when configured. Continue to
-   accept `JFROG_CIO_SERVER_ID` as a deprecated compatibility alias.
-3. Otherwise use the JFrog CLI server marked as default.
-4. Otherwise use the sole configured server.
-5. If several servers remain and none is default, list their IDs and ask the user to
-   choose. Never guess or silently switch instances after an API error.
+1. Use a server explicitly named by the user after confirming it exists in
+   `jf config show`.
+2. Otherwise use `JFROG_PLATFORM_REPORT_SERVER_ID` when configured and valid. Continue
+   to accept `JFROG_CIO_SERVER_ID` as a deprecated compatibility alias.
+3. On first use, list every configured instance and ask the user to choose, even when
+   the CLI marks one as default. Mark the default as recommended, not selected.
+4. On later runs, show the saved or last-confirmed instance in the compact confirmation
+   and provide a `Change instance` choice that reopens the complete list.
+5. Never guess or silently switch instances after an API error.
 
 Therefore the preferred natural-language invocation is simply:
 

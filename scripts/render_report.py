@@ -250,7 +250,7 @@ def static_report(data, enabled=None):
     if data.get("weekly_trend") or (data.get("prior_period_comparison") or {}).get("metrics"):
         nav_items.append(("trend","Trends"))
     if model.get("status") in {"benchmark", "projected"}:
-        nav_items.append(("economic", "Economic context"))
+        nav_items.append(("economic", "Forrester benchmark"))
     nav_items.extend([("recommendations","Recommendations"),("evidence","Evidence notes")])
     access = data.get("access_governance") or {}
     glance_rows = [
@@ -467,6 +467,7 @@ def static_report(data, enabled=None):
         runtime_body += f'<div class="callout" style="margin-top:14px">{esc(runtime.get("note"))}</div>'
         out.append(section("Runtime security prioritization", "Production-only context: running images, applicable vulnerabilities, fixes and integrity signals.", runtime_body, runtime.get("status", "available")))
 
+    economic_section = ""
     if "economic" in enabled and model.get("status") == "benchmark":
         summary_econ = model.get("summary") or {}
         benchmark_cards = [
@@ -483,18 +484,8 @@ def static_report(data, enabled=None):
                                [(key.replace("_", " ").title(), value) for key, value in (model.get("composite") or {}).items()])
         methods = data_table("Reusable TEI methodology inputs", ["Model", "Value per unit", "Risk adjustment", "Source formula"],
                              [(key.replace("_", " ").title(), currency_value(row.get("value_per_unit_usd"), "USD"), row.get("risk_adjustment"), row.get("source_formula")) for key, row in (model.get("methodology_inputs") or {}).items()])
-        draft_note = " A draft customer profile exists but is not applied." if (model.get("profile") or {}).get("status") == "draft" else ""
-        economic_body = f'<div class="callout neutral"><strong>External benchmark only.</strong> {esc(model.get("disclaimer"))}{esc(draft_note)}</div>{cards_html}<div style="margin-top:14px">{categories}</div><div style="margin-top:14px">{composite}</div><div style="margin-top:14px">{methods}</div>'
-        out.append(section("Economic context", "External benchmark context, kept separate from customer-observed and projected evidence.", economic_body, "benchmark", "economic"))
-    elif "economic" in enabled and model.get("status") == "projected":
-        currency = model.get("currency")
-        scenarios = model.get("scenarios") or {}
-        scenario_html = '<div class="scenario-grid">' + ''.join(f'<div class="scenario {name}"><span class="tag projected">{esc(name)}</span><h3>Annual benefit scenario</h3><div class="value">{esc(currency_value(value, currency))}</div><div class="metric-note">Customer-approved projection · confidence: {esc(model.get("confidence"))}</div></div>' for name, value in scenarios.items()) + '</div>'
-        summary_rows = [(key.replace("_", " ").title(), (f'{value}%' if key == "roi_percent" and value is not None else currency_value(value, currency) if key not in {"payback_years", "discount_rate"} else value)) for key, value in (model.get("summary") or {}).items()]
-        benefits = data_table("Projected benefit categories", ["Category", "Expected annual benefit"], [(key.replace("_", " ").title(), currency_value(value, currency)) for key, value in (model.get("benefit_categories") or {}).items()])
-        details = data_table("Projection inputs", ["Model", "Baseline", "Value per unit", "Source", "Coverage", "Realization", "Expected"], [(row.get("label"), row.get("baseline_units"), currency_value(row.get("value_per_unit"), currency), row.get("value_source"), row.get("adoption_coverage"), row.get("realization_factor"), currency_value((row.get("scenarios") or {}).get("expected"), currency)) for row in model.get("projections", [])])
-        economic_body = f'<div class="callout neutral"><strong>Projected, not observed.</strong> {esc(model.get("disclaimer"))}</div>{scenario_html}<div style="margin-top:14px">{data_table("Customer economic summary", ["Measure", "Value"], summary_rows)}</div><div style="margin-top:14px">{benefits}</div><div style="margin-top:14px">{details}</div><div class="formula">{esc(model.get("formula"))}</div>'
-        out.append(section("Economic context", "Deterministic scenarios from an explicitly approved per-instance profile.", economic_body, "projected", "economic"))
+        economic_body = f'<div class="callout neutral"><strong>External research only. These figures are not this customer\'s savings and are not derived from this report.</strong> {esc(model.get("disclaimer"))}</div>{cards_html}<div style="margin-top:14px">{categories}</div><div style="margin-top:14px">{composite}</div><div style="margin-top:14px">{methods}</div>'
+        economic_section = section("Forrester TEI benchmark", "Optional external research context, kept separate from all customer-observed evidence.", economic_body, "benchmark", "economic")
 
     summary = data.get("executive_summary") or {}
     actions = []
@@ -521,6 +512,8 @@ def static_report(data, enabled=None):
     ledger = data_table("Evidence classification", ["Area","Classification","Interpretation"], ledger_rows)
     if "evidence" in enabled:
         out.append(section("Methodology & evidence notes", "Compact provenance notes for readers who need to validate interpretation.", ledger + availability + f'<div class="callout neutral" style="margin-top:14px">{limitations}</div>', anchor="evidence"))
+    if economic_section:
+        out.append(economic_section)
     return ''.join(out)
 
 

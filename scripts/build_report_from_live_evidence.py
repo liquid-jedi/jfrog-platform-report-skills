@@ -157,9 +157,9 @@ def main() -> int:
         curation_scope.get("reason") or "Curation period coverage is complete.",
     ]
     availability_notes = [
-        {"area": "Economic context", "status": "Pending economic profile resolution",
-         "current_state": "The economic-profile stage has not run yet.",
-         "next_step": "The canonical runner attaches benchmark context or an approved customer projection before rendering."},
+        {"area": "Economic context", "status": "Optional external benchmark",
+         "current_state": "The optional Forrester benchmark stage has not run yet.",
+         "next_step": "The canonical runner attaches external benchmark context only when the section is selected."},
         {"area": "Inventory trends", "status": "Baseline established",
          "current_state": "Artifactory, Xray configuration and AI inventory are point-in-time observations.",
          "next_step": "Subsequent archived weekly snapshots enable change and trend comparisons."},

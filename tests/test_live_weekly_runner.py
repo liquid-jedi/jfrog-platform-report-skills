@@ -65,10 +65,20 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
             self.assertIn("apply_economic_profile.py", names)
             economic = commands[names.index("apply_economic_profile.py")]
             self.assertIn("economic-profile.snapshot.json", " ".join(economic))
+            self.assertNotIn("--profile", economic)
             self.assertIn("collect_skill_security.py", names)
             merge = commands[names.index("merge_current_evidence.py")]
             self.assertIn("--ai-catalog-evidence", merge)
             self.assertIn("ai-security.json", " ".join(merge))
+
+    def test_period_completeness_is_persisted_for_trend_validation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "data.json"
+            path.write_text(json.dumps({"meta": {}}))
+            WEEKLY.mark_period_completeness(path, "week_to_date")
+            value = json.loads(path.read_text())
+            self.assertEqual(value["meta"]["period_completeness"], "week_to_date")
+            self.assertTrue(value["meta"]["is_partial_period"])
 
     def test_dry_run_does_not_create_output(self):
         with tempfile.TemporaryDirectory() as temp:

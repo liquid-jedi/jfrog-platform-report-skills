@@ -35,6 +35,11 @@ def period(report: dict) -> tuple[datetime, datetime] | None:
     return None
 
 
+def is_complete_week(report: dict) -> bool:
+    """Only complete periods may participate in week-over-week comparison."""
+    return (report.get("meta") or {}).get("period_completeness", "complete") == "complete"
+
+
 def metric_map(report: dict) -> dict[str, dict]:
     values: dict[str, dict] = {}
     for key in MODULE_KEYS:
@@ -86,6 +91,8 @@ def inject(report: dict, archives: list[tuple[Path, dict]], month: str, timezone
     as_of = current_bounds[1] if current_bounds else end
     candidates: dict[str, tuple[Path, dict, datetime, datetime]] = {}
     for run, item in archives:
+        if not is_complete_week(item):
+            continue
         bounds = period(item)
         if not bounds:
             continue
@@ -94,7 +101,8 @@ def inject(report: dict, archives: list[tuple[Path, dict]], month: str, timezone
             continue
         key = right.astimezone(ZoneInfo(timezone_name)).date().isoformat()
         candidates[key] = (run, item, left, right)
-    if current_bounds and not (current_bounds[1] < start or current_bounds[0] > end):
+    current_is_complete = is_complete_week(report)
+    if current_bounds and current_is_complete and not (current_bounds[1] < start or current_bounds[0] > end):
         key = current_bounds[1].astimezone(ZoneInfo(timezone_name)).date().isoformat()
         candidates[key] = (Path("current-run"), report, *current_bounds)
 
@@ -123,11 +131,17 @@ def inject(report: dict, archives: list[tuple[Path, dict]], month: str, timezone
         series.append({"id": metric_id, "label": exemplar.get("label"), "unit": exemplar.get("unit"),
                        "polarity": POLARITY[metric_id], "points": points,
                        "latest_change_percent": change})
+    excluded_note = ""
+    if current_bounds and not current_is_complete:
+        local_start = current_bounds[0].astimezone(ZoneInfo(timezone_name)).strftime("%b %d").replace(" 0", " ")
+        local_end = current_bounds[1].astimezone(ZoneInfo(timezone_name)).strftime("%b %d").replace(" 0", " ")
+        excluded_note = f" The current partial period ({local_start} to {local_end}) is excluded from WoW calculations."
     report["weekly_trend"] = {
         "status": "available" if len(weeks) >= 2 else "partial",
         "month": month, "month_label": datetime.strptime(month, "%Y-%m").strftime("%B %Y"),
         "timezone": timezone_name, "weeks": weeks, "series": series,
-        "interpretation": "Red indicates an adverse current state or adverse week-over-week direction. Contextual metrics are neutral because movement alone is not good or bad.",
+        "current_period_comparable": current_is_complete,
+        "interpretation": "Red indicates an adverse current state or adverse week-over-week direction. Contextual metrics are neutral because movement alone is not good or bad." + excluded_note,
     }
     return report
 

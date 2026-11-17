@@ -30,9 +30,10 @@ class ViolationCollector:
         offset = kwargs["body"]["pagination"]["offset"]
         self.offsets.append(offset)
         total = 1200
-        count = min(500, total - offset)
+        start = (offset - 1) * 500
+        count = min(500, total - start)
         return {"total_violations": total, "violations": [
-            {"id": value} for value in range(offset, offset + count)
+            {"id": value} for value in range(start, start + count)
         ]}
 
 
@@ -47,14 +48,15 @@ class CollectLiveTests(unittest.TestCase):
         self.assertEqual(payload, {"ok": True})
         self.assertEqual(mocked.call_count, 2)
 
-    def test_xray_pagination_uses_record_offsets(self):
+    def test_xray_pagination_uses_one_based_page_numbers(self):
         collector = ViolationCollector()
         rows, meta = LIVE.fetch_violations(
             collector, "2026-11-08T18:30:00Z", "2026-11-15T18:29:59Z"
         )
-        self.assertEqual(sorted(collector.offsets), [0, 500, 1000])
+        self.assertEqual(sorted(collector.offsets), [1, 2, 3])
         self.assertEqual(len(rows), 1200)
         self.assertTrue(meta["complete"])
+        self.assertEqual(meta["pagination_mode"], "one_based_page_number")
 
     def test_curation_preserves_rfc3339_timestamp_separators(self):
         collector = FakeCollector()

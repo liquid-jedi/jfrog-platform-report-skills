@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "profiles": {
-    "full": ["executive", "trend", "curation", "artifactory", "xray", "ai-security", "access", "jas", "runtime", "economic", "recommendations", "evidence"],
+    "full": ["executive", "trend", "curation", "artifactory", "xray", "ai-security", "access", "jas", "runtime", "recommendations", "evidence", "economic"],
     "executive": ["executive", "trend", "recommendations", "evidence"]
   },
   "sections": [
@@ -14,7 +14,7 @@
     {"id": "access", "label": "Access, tokens & OIDC", "capability": "access"},
     {"id": "jas", "label": "JFrog Advanced Security", "capability": "jas"},
     {"id": "runtime", "label": "Runtime security", "capability": "runtime"},
-    {"id": "economic", "label": "Economic context", "capability": "financial_assumptions"},
+    {"id": "economic", "label": "External Forrester benchmark", "always_available": true},
     {"id": "recommendations", "label": "Recommendations", "always_available": true},
     {"id": "evidence", "label": "Methodology & evidence", "always_available": true}
   ]

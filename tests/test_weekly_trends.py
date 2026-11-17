@@ -16,12 +16,12 @@ TRENDS = load("weekly_trends", ROOT / "scripts" / "apply_weekly_trends.py")
 RENDER = load("render_weekly", ROOT / "scripts" / "render_report.py")
 
 
-def report(start, end, critical, users):
+def report(start, end, critical, users, completeness="complete"):
     def metric(mid, label, value, unit):
         return {"id": mid, "label": label, "value": value, "unit": unit,
                 "classification": "observed", "source": "test", "formula": "count"}
     return {
-        "meta": {"period_start": start, "period_end": end},
+        "meta": {"period_start": start, "period_end": end, "period_completeness": completeness},
         "xray": {"metrics": [metric("xray-critical-findings", "Critical violations", critical, "findings")]},
         "curation": {"metrics": [metric("curation-users", "Curation unique users", users, "identities")]},
     }
@@ -48,6 +48,16 @@ class WeeklyTrendTests(unittest.TestCase):
         value = TRENDS.inject(current, [(Path("future"), future)], "2026-11", "UTC")
         self.assertEqual([week["period_key"] for week in value["weekly_trend"]["weeks"]], ["2026-11-08"])
         self.assertNotIn("access-expiring-7d", {item["id"] for item in value["weekly_trend"]["series"]})
+
+    def test_week_to_date_is_not_compared_with_complete_week(self):
+        complete = report("2026-11-09T00:00:00Z", "2026-11-15T23:59:59Z", 10, 20)
+        partial = report("2026-11-16T00:00:00Z", "2026-11-17T08:40:00Z", 4, 8, "week_to_date")
+        value = TRENDS.inject(partial, [(Path("complete"), complete)], "2026-11", "UTC")
+        trend = value["weekly_trend"]
+        self.assertFalse(trend["current_period_comparable"])
+        self.assertEqual([week["period_key"] for week in trend["weeks"]], ["2026-11-15"])
+        self.assertEqual(trend["series"], [])
+        self.assertIn("excluded from WoW", trend["interpretation"])
 
     def test_bad_metric_value_renders_red_semantics(self):
         html = RENDER.card({"id": "xray-critical-findings", "classification": "observed",

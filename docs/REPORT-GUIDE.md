@@ -36,7 +36,7 @@ an operating threshold.
 |---|---|
 | `observed` | Directly collected from a supported source for the stated period or snapshot time |
 | `derived` | Calculated in code from observed inputs using the displayed formula |
-| `projected` | Calculated from an approved customer economic profile and explicit assumptions |
+| `projected` | Reserved by the schema; the normal weekly workflow does not produce customer financial projections |
 | `benchmark` | External research context that is not a customer result |
 | `unavailable` | The source, permission, period boundary or required input was not available |
 
@@ -143,12 +143,12 @@ JAS context can refine prioritization, but it is not added to Xray occurrence to
 | Malicious packages and integrity violations | Is there an urgent runtime signal? | Supports immediate escalation |
 | Running-image trend | Is production exposure improving? | Tracks change without treating current state as historical evidence |
 
-### Economic context
+### External Forrester benchmark
 
-The default sample shows a Forrester TEI composite strictly as a benchmark. It is not
-customer ROI. Customer projections require an approved per-instance profile with
-currency, cost, baseline, adoption coverage, realization factor and value-per-unit
-inputs. The report calculates conservative, expected and optimistic scenarios in code.
+The optional final section shows the Forrester TEI composite strictly as external
+research. It is not customer ROI, is not derived from collected JFrog evidence and is
+not a claim about realized savings. Users can include or exclude it when selecting
+report sections. The weekly workflow does not request finance-owned assumptions.
 
 ### Recommendations
 

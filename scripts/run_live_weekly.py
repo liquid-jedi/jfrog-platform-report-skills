@@ -13,6 +13,7 @@ import json
 import shutil
 import subprocess
 import sys
+import time as monotonic_time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, time, timezone
 from pathlib import Path
@@ -65,7 +66,7 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
         [py, str(HERE / "apply_economic_profile.py"), "--report", str(traffic_report),
          "--server", args.server, "--benchmark", str(HERE.parent / "benchmarks" / "forrester-tei-2026.json"),
          "--profile-snapshot", str(run_dir / "economic-profile.snapshot.json"),
-         "--output", str(economic_report)] + (["--profile", str(args.economic_profile)] if args.economic_profile else []),
+         "--output", str(economic_report)],
         [py, str(HERE / "collect_skill_security.py"), "--server-id", args.server, "--evidence", str(seed),
          "--output", str(ai), "--all-skills"],
         [py, str(HERE / "collect_access_governance.py"), "--server-id", args.server,
@@ -104,11 +105,17 @@ def ai_seed(path: Path, supplied: Path | None) -> None:
 
 
 def execute(command: list[str], required: bool) -> tuple[bool, dict]:
+    started = monotonic_time.monotonic()
     result = subprocess.run(command, text=True, capture_output=True)
     diagnostic = {"command": Path(command[1]).name, "required": required, "returncode": result.returncode,
+                  "duration_seconds": round(monotonic_time.monotonic() - started, 3),
                   "stdout": result.stdout.strip(), "stderr": result.stderr.strip()}
     if result.returncode and required:
-        raise RuntimeError(f"{Path(command[1]).name} failed: {(result.stderr or result.stdout).strip()}")
+        raise RuntimeError(
+            f"{Path(command[1]).name} failed: {(result.stderr or result.stdout).strip()}\n"
+            "The installed skill must not be edited in place. Preserve this run's diagnostics, "
+            "then upgrade the package or report the collector defect."
+        )
     return result.returncode == 0, diagnostic
 
 
@@ -127,6 +134,17 @@ def run_parallel(tasks: list[tuple[list[str], bool]], diagnostics: list[dict]) -
     return [ok for ok, _ in results]
 
 
+def mark_period_completeness(path: Path, completeness: str) -> None:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    value.setdefault("meta", {})["period_completeness"] = completeness
+    value["meta"]["is_partial_period"] = completeness != "complete"
+    path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+
+
+def progress(message: str) -> None:
+    print(message, flush=True)
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Generate and promote one live weekly JFrog Platform report")
     p.add_argument("--server", required=True); p.add_argument("--date-from", required=True); p.add_argument("--date-to", required=True)
@@ -134,7 +152,7 @@ def main() -> int:
     p.add_argument("--timezone", default="UTC"); p.add_argument("--report-root", required=True, type=Path)
     p.add_argument("--modules", default="all", help="Comma-separated report section IDs; collection remains complete")
     p.add_argument("--ai-catalog-seed", type=Path, help="Optional same-run supported MCP/model/plugin registry evidence")
-    p.add_argument("--economic-profile", type=Path, help="Optional approved/draft per-instance economic profile")
+    p.add_argument("--period-completeness", choices=("complete", "week_to_date", "explicit"), default="complete")
     p.add_argument("--run-id"); p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
     args.date_from, args.date_to = normalize_period(args.date_from, args.date_to, args.timezone)
@@ -151,7 +169,10 @@ def main() -> int:
     diagnostics: list[dict] = []
     diagnostics_path = run_dir / "collection-diagnostics.json"
     try:
+        progress("Brewing your JFrog Platform report. This usually takes 1 to 3 minutes, so this is a good time to grab a coffee.")
+        progress("[1/5] Collecting Artifactory, Curation and Xray evidence")
         run(commands[0], True, diagnostics); run(commands[1], True, diagnostics)
+        progress("[2/5] Collecting traffic, AI security and access posture in parallel")
         traffic_ok, skill_ok, access_ok = run_parallel(
             [(commands[2], False), (commands[5], False), (commands[6], False)], diagnostics
         )
@@ -159,6 +180,7 @@ def main() -> int:
             run(commands[3], True, diagnostics)
         else:
             shutil.copyfile(run_dir / "data.base.json", run_dir / "data.traffic.json")
+        progress("[3/5] Applying the optional external benchmark context")
         run(commands[4], True, diagnostics)
         ai_path = run_dir / "ai-security.json"
         if not ai_path.exists(): shutil.copyfile(run_dir / "ai-security-seed.json", ai_path)
@@ -169,7 +191,12 @@ def main() -> int:
         merge = commands[7]
         if not access_ok:
             merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]
-        run(merge, True, diagnostics); run(commands[8], True, diagnostics); run(commands[9], True, diagnostics)
+        run(merge, True, diagnostics)
+        mark_period_completeness(run_dir / "data.current.json", args.period_completeness)
+        progress("[4/5] Validating comparable week-over-week trends")
+        run(commands[8], True, diagnostics)
+        progress("[5/5] Rendering and validating the fixed report template")
+        run(commands[9], True, diagnostics)
     finally:
         diagnostics_path.write_text(json.dumps(diagnostics, indent=2) + "\n", encoding="utf-8")
     report = json.loads((run_dir / "data.json").read_text(encoding="utf-8"))
@@ -180,6 +207,7 @@ def main() -> int:
                "promoted_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "validation_status": "passed"}
     (period_dir / "latest.json").write_text(json.dumps(pointer, indent=2) + "\n", encoding="utf-8")
     shutil.copyfile(run_dir / "data.json", period_dir / "data.json"); shutil.copyfile(run_dir / "report.html", period_dir / "report.html")
+    progress("Report validated and promoted successfully.")
     print(run_dir)
     return 0
 

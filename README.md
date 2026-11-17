@@ -155,12 +155,12 @@ only when a choice is required.
 
 | Input | Default behavior | When the user is asked |
 |---|---|---|
-| **JFrog instance** | Uses the JFrog CLI default, or the sole configured instance | When multiple instances exist and none is unambiguously selected |
+| **JFrog instance** | Lists every `jf config show` instance and marks the CLI default as recommended | On first use, before the period and report choices; later runs allow changing the saved choice |
 | **Report period** | Last completed ISO week in the report timezone | When the user requests another week, a partial current week or a monthly roll-up |
 | **Report sections** | Full report | The user may choose Executive or Custom; Custom exposes section selection |
 | **Timezone** | Local IANA timezone, otherwise UTC | When detection is unavailable or the user wants another reporting timezone |
 | **Output location** | Saved per-instance location; first-run recommendation is `~/jfrog-platform-reports` | On first use, or when no location has been configured |
-| **Economic context** | External Forrester TEI benchmark only | Customer projections require an approved profile with currency, costs, baselines, coverage and realization assumptions |
+| **External benchmark** | Optional Forrester TEI composite, clearly labelled as external research | The user can include or exclude this section; no customer finance questionnaire is required |
 | **Missed weekly coverage** | Audited after every successful report | Recoverable missing weeks from the previous calendar month are offered for explicit approval |
 
 ## One report, modular views
@@ -175,7 +175,7 @@ only when a choice is required.
 | **AI security** | Which models, MCP servers, skills and plugins are governed, scanned or risky? |
 | **Access & OIDC** | Which tokens need rotation and where is workload identity trusted? |
 | **JAS & Runtime** | Which findings are applicable, exploitable or present in production? |
-| **Economic context** | What external benchmark or approved customer scenario is defensible? |
+| **External Forrester benchmark** | What did the published composite study report, separate from this customer's evidence? |
 | **Recommendations** | Which actions need an owner in the next 7 or 30 days? |
 
 Each tile has a documented interpretation, source boundary, evidence classification
@@ -206,17 +206,12 @@ flowchart LR
 - Prior reports are used only after current collection, and only for labelled trends.
 - A failed rerun never replaces the last validated report.
 
-## Truthful economics
+## External benchmark, kept separate
 
-Without an approved per-instance economic profile, the bundled Forrester TEI composite
-is shown strictly as external **benchmark** context, not customer ROI. An explicitly
-approved profile can enable deterministic conservative, expected and optimistic
-customer projections with configurable currency, costs, coverage and realization.
-
-Each report preserves the exact profile snapshot used. Duplicate benefits, invalid
-assumptions and missing FX evidence are rejected rather than estimated by the agent.
-
-[Economic profile contract](references/economic-profiles.md)
+The optional final section presents the bundled Forrester TEI composite strictly as
+external **benchmark** context. It is not customer ROI, is not derived from the weekly
+report, and is never presented as realized savings. The normal workflow does not ask a
+platform administrator for finance-owned cost, baseline or realization assumptions.
 
 ## Evidence and safety
 
