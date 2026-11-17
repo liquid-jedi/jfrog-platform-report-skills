@@ -5,7 +5,7 @@
 _A weekly operating record for JFrog Platform value, risk and action._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.4.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.4.0)
+[![Release](https://img.shields.io/badge/RELEASE-v1.5.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.5.0)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -69,7 +69,7 @@ apm init -y
 Install the pinned release:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -90,7 +90,7 @@ targets:
 From the APM project directory, preview the pinned upgrade:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,codex,cursor,gemini \
   --dry-run
 ```
@@ -98,7 +98,7 @@ apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
 Apply it:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,codex,cursor,gemini
 ```
 

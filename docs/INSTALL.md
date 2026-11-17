@@ -31,7 +31,7 @@ Install APM using an official method from <https://microsoft.github.io/apm/>. Th
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,cursor,codex,gemini
 ```
 
@@ -43,7 +43,7 @@ If APM reports `Multiple harnesses detected`, pass every agent that should recei
 skill as a comma-separated list. For example:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,codex,cursor,gemini
 ```
 
@@ -124,7 +124,7 @@ Run these commands from the directory containing the project's `apm.yml`.
 Preview a specific release without changing files:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,codex,cursor,gemini \
   --dry-run
 ```
@@ -132,7 +132,7 @@ apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
 Install that release and update the lockfile:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.4.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.5.0 \
   --target claude,codex,cursor,gemini
 ```
 
