@@ -5,7 +5,7 @@
 _A weekly operating record for JFrog Platform value, risk and action._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.6.0-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.0)
+[![Release](https://img.shields.io/badge/RELEASE-v1.6.1-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.1)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -109,7 +109,7 @@ The same commands work on macOS and WSL:
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.6.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.6.1 \
   --target claude,cursor,codex,gemini
 apm deps list
 apm audit
@@ -186,13 +186,36 @@ prompt described above.
 
 ### Upgrade an existing APM installation
 
-After saving the target list in `apm.yml`, run from that directory:
+Run from the directory containing the existing `apm.yml`. First update the pinned
+dependency ref in `apm.yml`; a bare `apm update` does not move an exact version pin.
+
+```yaml
+dependencies:
+  apm:
+    - liquid-jedi/jfrog-platform-report-skills#v1.6.1
+```
+
+Preview the upgrade for the agent target you use:
 
 ```bash
-apm update
+apm update liquid-jedi/jfrog-platform-report-skills \
+  --target claude \
+  --dry-run
+```
+
+Apply and verify it:
+
+```bash
+apm update liquid-jedi/jfrog-platform-report-skills \
+  --target claude
 apm deps list
 apm audit
 ```
+
+Replace `claude` with another installed target, or use a comma-separated list such as
+`--target claude,codex,cursor,gemini`. If targets are already declared at the top level
+of `apm.yml`, the `--target` option can be omitted. Do not use `apm install` to change an
+existing pin; APM can correctly report that the package is already present in the manifest.
 
 Public examples and upgrade guidance use only generic instance names. The GitHub owner
 shown in the initial installation command is a package coordinate, not a JFrog server.

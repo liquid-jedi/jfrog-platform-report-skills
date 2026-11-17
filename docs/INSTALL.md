@@ -66,7 +66,7 @@ These commands are the same on macOS and WSL:
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.6.0 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.6.1 \
   --target claude,cursor,codex,gemini
 apm deps list
 apm audit
@@ -148,13 +148,36 @@ After installation, start the agent separately and use the invocation prompt abo
 
 ## Upgrade an APM project
 
-After saving the target list in `apm.yml`, run these commands from that directory:
+Run from the directory containing the existing `apm.yml`. Change its exact dependency
+pin to the release you want:
+
+```yaml
+dependencies:
+  apm:
+    - liquid-jedi/jfrog-platform-report-skills#v1.6.1
+```
+
+Preview the resolved revision without changing deployed files:
 
 ```bash
-apm update
+apm update liquid-jedi/jfrog-platform-report-skills \
+  --target claude \
+  --dry-run
+```
+
+Apply the upgrade and verify the result:
+
+```bash
+apm update liquid-jedi/jfrog-platform-report-skills \
+  --target claude
 apm deps list
 apm audit
 ```
+
+Replace `claude` with the installed target, or provide a comma-separated target list.
+When a top-level `targets` list is already saved in `apm.yml`, omit `--target`. A bare
+`apm update` refreshes only the ref allowed by the manifest; it cannot move an exact
+`#v1.4.0` pin to a different release until the pin itself is changed.
 
 Commit `apm.yml` and `apm.lock.yaml` together in a shared workspace.
 
