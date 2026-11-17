@@ -53,13 +53,31 @@ copy is disposable, or the local correction is already included in the target re
 repeat the versioned install with `--force` once:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.6.2 \
-  --target claude \
-  --force
+apm update liquid-jedi/jfrog-platform-report-skills --target claude --force
 ```
 
 Replace `claude` with the target in use. A successful transaction refreshes the lockfile
 and restores a trustworthy deployment baseline for later upgrades.
+
+## An existing installation is pinned to an older tag
+
+Older documentation installed the dependency with a `#v...` suffix. APM correctly
+keeps that constraint during `apm update`. Remove the suffix once in `apm.yml`:
+
+```yaml
+dependencies:
+  apm:
+    - liquid-jedi/jfrog-platform-report-skills
+```
+
+Then use the normal one-line upgrade command:
+
+```bash
+apm update liquid-jedi/jfrog-platform-report-skills --target claude
+```
+
+If the baseline warning also appears, review the local differences first and add
+`--force` only when those deployed files are safe to replace.
 
 ## The report looks different between runs
 

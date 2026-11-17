@@ -5,7 +5,7 @@
 _A weekly operating record for JFrog Platform value, risk and action._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20REPORT-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.6.2-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.2)
+[![Release](https://img.shields.io/badge/RELEASE-v1.6.3-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.3)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -109,7 +109,7 @@ The same commands work on macOS and WSL:
 mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y
-apm install liquid-jedi/jfrog-platform-report-skills#v1.6.2 \
+apm install liquid-jedi/jfrog-platform-report-skills \
   --target claude,cursor,codex,gemini
 apm deps list
 apm audit
@@ -186,24 +186,21 @@ prompt described above.
 
 ### Upgrade an existing APM installation
 
-Run one command from the directory containing `apm.yml`. Passing the new tagged version
-updates the existing manifest pin and deploys that release:
+Run one command from the directory containing `apm.yml`:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.6.2 \
+apm update liquid-jedi/jfrog-platform-report-skills \
   --target claude
-apm deps list
-apm audit
 ```
 
 Replace `claude` with another installed target, or use a comma-separated list such as
 `--target claude,codex,cursor,gemini`. If targets are already declared at the top level
 of `apm.yml`, the `--target` option can be omitted.
 
-If APM reports `no trustworthy local deployment baseline`, it is protecting files that
-may have been edited after installation. Do not use `--force` until those differences
-are reviewed. When the deployed copy is disposable or the change is already included
-in the target release, repeat the same command with `--force` once.
+The unpinned manifest entry follows the repository's default release line while
+`apm.lock.yaml` records the exact resolved commit. Existing installations that still
+contain a `#v...` ref need the one-time migration in
+[Troubleshooting](docs/TROUBLESHOOTING.md#an-existing-installation-is-pinned-to-an-older-tag).
 
 Public examples and upgrade guidance use only generic instance names. The GitHub owner
 shown in the initial installation command is a package coordinate, not a JFrog server.
