@@ -243,19 +243,24 @@ def static_report(data, enabled=None):
     xray_has_findings = any(item.get("id") == "xray-new-findings" for item in xray.get("metrics", []))
     validation = data.get("evidence_revalidation") or {}
     evidence_message = validation.get("message") or (f"Actual {meta['period_label']} evidence captured for the reporting period. Later current-state inventory is excluded." if xray_has_findings else f"Actual {meta['period_label']} evidence is shown where available; missing period evidence is not represented as zero.")
-    nav_items = [("executive","Executive overview"),("curation","Curation"),("artifactory","Artifactory"),("xray","Xray")]
-    if (data.get("apptrust") or {}).get("status") not in {None, "unlicensed", "unsupported", "not_configured"}:
+    nav_items = [(key, label) for key, label in
+                 [("executive","Executive overview"),("curation","Curation"),("artifactory","Artifactory"),("xray","Xray")]
+                 if key in enabled]
+    if "apptrust" in enabled and (data.get("apptrust") or {}).get("status") not in {None, "unlicensed", "unsupported", "not_configured"}:
         nav_items.append(("apptrust", "AppTrust"))
-    if (data.get("ai_catalog") or {}).get("metrics"):
+    if "ai-security" in enabled and (data.get("ai_catalog") or {}).get("metrics"):
         nav_items.append(("ai-security","AI security"))
-    if (data.get("access_governance") or {}).get("metrics"):
+    if "access" in enabled and (data.get("access_governance") or {}).get("metrics"):
         nav_items.append(("access","Access & OIDC"))
-    nav_items.extend([("jas","JAS")])
-    if data.get("weekly_trend") or (data.get("prior_period_comparison") or {}).get("metrics"):
+    if "jas" in enabled:
+        nav_items.append(("jas","JAS"))
+    if "trend" in enabled and (data.get("weekly_trend") or (data.get("prior_period_comparison") or {}).get("metrics")):
         nav_items.append(("trend","Trends"))
-    if model.get("status") in {"benchmark", "projected"}:
+    if "economic" in enabled and model.get("status") in {"benchmark", "projected"}:
         nav_items.append(("economic", "Forrester benchmark"))
-    nav_items.extend([("recommendations","Recommendations"),("evidence","Evidence notes")])
+    nav_items.extend((key, label) for key, label in
+                     [("recommendations","Recommendations"),("evidence","Evidence notes")]
+                     if key in enabled)
     access = data.get("access_governance") or {}
     glance_rows = [
         ("Repositories", metric_value(data.get("platform", {}).get("metrics"), "repositories")),
@@ -266,9 +271,12 @@ def static_report(data, enabled=None):
         ("OIDC providers", metric_value(access.get("metrics"), "oidc-providers")),
     ]
     glance = '<div class="glance"><div class="nav-title">At a glance</div>' + ''.join(f'<div class="glance-row"><span>{esc(label)}</span><b>{number(value)}</b></div>' for label,value in glance_rows) + '</div>'
+    scope_name = str(meta.get("scope") or "all").replace("_", " ").title()
+    profile_name = meta.get("profile") or "default"
     nav_meta = (f'<div class="nav-meta"><span><b>Report type:</b> {esc(meta.get("report_type") or "Report")}</span>'
                 f'<span><b>Period:</b> {esc(meta.get("period_range") or meta.get("period_label") or "Unavailable")}</span>'
-                f'<span><b>Instance:</b> {esc(meta.get("server_id") or meta.get("server") or "Unavailable")}</span></div>')
+                f'<span><b>Instance:</b> {esc(meta.get("server_id") or meta.get("server") or "Unavailable")}</span>'
+                f'<span><b>Scope:</b> {esc(scope_name)}</span><span><b>Profile:</b> {esc(profile_name)}</span></div>')
     navigation = ('<div class="control-heading"><strong>Report sections</strong>'
                   '<span>Select a tab to move through the report</span></div>'
                   '<div class="nav-links">' + ''.join(f'<a href="#{a}"><span></span>{esc(label)}</a>' for a,label in nav_items) + '</div>')
@@ -574,8 +582,23 @@ def static_report(data, enabled=None):
     ledger_rows=[("Curation activity","Observed / derived",f'Bounded {meta.get("period_label")} audit activity'),("Xray period findings",xray_ledger[0],xray_ledger[1]),("JAS applicability","Derived","Applicability details in period findings; not added to Xray occurrence totals")]
     if data.get("platform",{}).get("metrics"): ledger_rows.insert(0,("Artifactory estate","Observed / derived","Preserved period-end repository snapshot"))
     ledger = data_table("Evidence classification", ["Area","Classification","Interpretation"], ledger_rows)
+    scope = data.get("scope_ledger") or {}
+    scope_panel = ""
+    if scope.get("scope_type") not in {None, "all"}:
+        scope_rows = [
+            ("Requested scope", str(scope.get("scope_type") or "").replace("_", " ").title()),
+            ("Repositories selected", scope.get("selected_repositories")),
+            ("Repositories excluded", scope.get("excluded_repositories")),
+            ("Mapped source repositories", len(scope.get("mapped_sources") or [])),
+            ("Unmatched requests", len(scope.get("unmatched_requests") or [])),
+            ("Unresolved mapped repositories", len(scope.get("unresolved_mapped_repositories") or [])),
+            ("Mapping policy", scope.get("mapping_policy")),
+        ]
+        scope_panel = '<div style="margin-top:14px">' + data_table(
+            "Report scope ledger", ["Scope check", "Result"], scope_rows
+        ) + '</div>'
     if "evidence" in enabled:
-        out.append(section("Methodology & evidence notes", "Compact provenance notes for readers who need to validate interpretation.", ledger + availability + f'<div class="callout neutral" style="margin-top:14px">{limitations}</div>', anchor="evidence"))
+        out.append(section("Methodology & evidence notes", "Compact provenance notes for readers who need to validate interpretation.", ledger + scope_panel + availability + f'<div class="callout neutral" style="margin-top:14px">{limitations}</div>', anchor="evidence"))
     if economic_section:
         out.append(economic_section)
     return ''.join(out)

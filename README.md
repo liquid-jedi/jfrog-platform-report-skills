@@ -5,7 +5,7 @@
 _Generate a weekly JFrog Platform dashboard with your AI agent._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20DASHBOARD-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/RELEASE-v1.6.4-2ea043?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.6.4)
+[![Release](https://img.shields.io/badge/NIGHTLY-v1.7.0--nightly.20261118.1-f2cc60?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.7.0-nightly.20261118.1)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -43,6 +43,13 @@ a view that can be reviewed, compared and shared.
   risk, governance and follow-up actions.
 
 ## Install and run
+
+> [!IMPORTANT]
+> This branch contains the opt-in modular profile preview. It is published as an
+> immutable prerelease and is not selected by normal unpinned APM installs or upgrades.
+> Use the exact nightly tag in an isolated APM project. See
+> [Test the modular nightly](#test-the-modular-nightly) for installation, execution,
+> verification and removal instructions.
 
 ### 1. Install prerequisites on macOS
 
@@ -216,6 +223,66 @@ Public examples and upgrade guidance use only generic instance names. The GitHub
 shown in the initial installation command is a package coordinate, not a JFrog server.
 
 [Installation details](docs/INSTALL.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
+
+## Test the modular nightly
+
+Nightly `v1.7.0-nightly.20261118.1` previews declarative report profiles. A profile can
+select dashboard sections, set optional collectors to `auto`, `required` or `disabled`,
+and scope supported metrics to explicit Artifactory repositories, JFrog Projects or
+customer-maintained source repository mappings. The default run remains the existing
+full dashboard when no profile is supplied.
+
+Use a separate directory so the preview does not replace a production APM project:
+
+```bash
+mkdir -p ~/jfrog-platform-report-nightly
+cd ~/jfrog-platform-report-nightly
+apm init -y
+```
+
+Install the immutable nightly tag for the agent you want to test:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.7.0-nightly.20261118.1 \
+  --target claude
+apm deps list
+apm audit
+```
+
+Replace `claude` with an installed target such as `codex` or `cursor`. Start that agent
+from the same directory and enter:
+
+```text
+Generate weekly JFrog Platform dashboard using the github-engineering profile
+```
+
+The bundled synthetic profile is
+[`examples/profiles/github-engineering.toml`](examples/profiles/github-engineering.toml).
+Copy it outside the installed Skill, change only the documented repository or project
+selectors, then provide the copied profile path when the agent asks. Do not edit files
+inside the APM deployment directory.
+
+Validate a copied profile before live collection:
+
+```bash
+python3 .agents/skills/jfrog-platform-report/scripts/customization_profile.py \
+  --profile /absolute/path/to/profile.toml
+```
+
+To remove the nightly package from the isolated project:
+
+```bash
+apm uninstall liquid-jedi/jfrog-platform-report-skills
+apm deps list
+```
+
+The generated dashboards and raw evidence are stored separately under the report root.
+Removing the APM package does not delete those reports. Delete or archive the isolated
+APM project only after preserving any profile files you created outside the deployment.
+
+To test a later nightly, install its exact prerelease tag in a new isolated project.
+Immutable nightly tags are never retargeted. Stable users should continue to use the
+unpinned package coordinate documented in [Install and run](#install-and-run).
 
 ## Requirements
 

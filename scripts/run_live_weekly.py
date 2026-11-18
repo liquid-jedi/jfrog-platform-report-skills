@@ -19,6 +19,9 @@ from datetime import datetime, time, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from customization_profile import load_profile
+
 
 HERE = Path(__file__).resolve().parent
 
@@ -53,12 +56,15 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
     traffic_report = run_dir / "data.traffic.json"
     economic_report = run_dir / "data.economic.json"
     snapshot_root = args.report_root / args.server / "snapshots" / "artifactory-traffic"
+    build = [py, str(HERE / "build_report_from_live_evidence.py"), "--evidence", str(run_dir / "evidence.json"),
+             "--raw-dir", str(raw), "--output", str(run_dir / "data.base.json")]
+    if args.profile:
+        build.extend(["--profile", str(args.profile)])
     commands = [
         [py, str(HERE / "collect_live.py"), "--server", args.server, "--date-from", args.date_from,
          "--date-to", args.date_to, "--timezone", args.timezone, "--cadence", "weekly", "--output", str(run_dir / "evidence.json"),
          "--raw-dir", str(raw)],
-        [py, str(HERE / "build_report_from_live_evidence.py"), "--evidence", str(run_dir / "evidence.json"),
-         "--raw-dir", str(raw), "--output", str(run_dir / "data.base.json")],
+        build,
         [py, str(HERE / "collect_artifactory_traffic.py"), "--server-id", args.server,
          "--snapshot-root", str(snapshot_root), "--output", str(traffic)],
         [py, str(HERE / "apply_traffic_evidence.py"), "--report", str(run_dir / "data.base.json"),
@@ -82,7 +88,7 @@ def command_plan(args, run_dir: Path, weekly_root: Path) -> list[list[str]]:
          "--output", str(run_dir / "data.json")],
         [py, str(HERE / "render_report.py"), "--data", str(run_dir / "data.json"),
          "--template", str(HERE.parent / "assets" / "dashboard.html"), "--output", str(run_dir / "report.html"),
-         "--modules", args.modules],
+         "--modules", args.resolved_modules],
     ]
     return commands
 
@@ -148,16 +154,36 @@ def progress(message: str) -> None:
     print(message, flush=True)
 
 
+def without_argument(command: list[str], option: str) -> list[str]:
+    if option not in command:
+        return list(command)
+    index = command.index(option)
+    return command[:index] + command[index + 2:]
+
+
+def skipped_diagnostic(collector_id: str) -> dict:
+    return {"command": collector_id, "required": False, "returncode": None,
+            "duration_seconds": 0, "stdout": "", "stderr": "", "status": "not_selected"}
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Generate and promote one live weekly JFrog Platform report")
     p.add_argument("--server", required=True); p.add_argument("--date-from", required=True); p.add_argument("--date-to", required=True)
     p.add_argument("--period-key", required=True); p.add_argument("--month", required=True)
     p.add_argument("--timezone", default="UTC"); p.add_argument("--report-root", required=True, type=Path)
-    p.add_argument("--modules", default="all", help="Comma-separated report section IDs; collection remains complete")
+    p.add_argument("--modules", help="Comma-separated report section IDs; overrides profile sections")
+    p.add_argument("--profile", type=Path, help="Optional versioned TOML customization profile")
     p.add_argument("--ai-catalog-seed", type=Path, help="Optional same-run supported MCP/model/plugin registry evidence")
     p.add_argument("--period-completeness", choices=("complete", "week_to_date", "explicit"), default="complete")
     p.add_argument("--run-id"); p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
+    if args.profile:
+        args.profile = args.profile.resolve()
+    try:
+        customization = load_profile(args.profile)
+    except (OSError, ValueError) as exc:
+        p.error(str(exc))
+    args.resolved_modules = args.modules or ",".join(customization["sections"])
     args.date_from, args.date_to = normalize_period(args.date_from, args.date_to, args.timezone)
     run_id = args.run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     weekly_root = args.report_root / args.server / "weekly"
@@ -165,9 +191,11 @@ def main() -> int:
     run_dir = period_dir / "runs" / run_id
     commands = command_plan(args, run_dir, weekly_root)
     if args.dry_run:
-        print(json.dumps({"run_directory": str(run_dir), "commands": commands}, indent=2)); return 0
+        print(json.dumps({"run_directory": str(run_dir), "customization": customization,
+                          "commands": commands}, indent=2)); return 0
 
     (run_dir / "raw").mkdir(parents=True, exist_ok=False)
+    (run_dir / "customization-profile.json").write_text(json.dumps(customization, indent=2) + "\n", encoding="utf-8")
     ai_seed(run_dir / "ai-security-seed.json", args.ai_catalog_seed)
     diagnostics: list[dict] = []
     diagnostics_path = run_dir / "collection-diagnostics.json"
@@ -175,27 +203,52 @@ def main() -> int:
         progress("Brewing your JFrog Platform report. This usually takes 1 to 3 minutes, so this is a good time to grab a coffee.")
         progress("[1/5] Collecting Artifactory, Curation and Xray evidence")
         run(commands[0], True, diagnostics); run(commands[1], True, diagnostics)
-        progress("[2/5] Collecting traffic, AI security, access and AppTrust posture in parallel")
-        traffic_ok, skill_ok, access_ok, apptrust_ok = run_parallel(
-            [(commands[2], False), (commands[5], False), (commands[6], False), (commands[7], False)], diagnostics
-        )
+        progress("[2/5] Collecting selected traffic, AI security, access and AppTrust posture in parallel")
+        optional = [("traffic", commands[2]), ("ai-security", commands[5]),
+                    ("access", commands[6]), ("apptrust", commands[7])]
+        selected = [(collector_id, command) for collector_id, command in optional
+                    if customization["collectors"][collector_id] != "disabled"]
+        selected_diagnostics: list[dict] = []
+        results = run_parallel(
+            [(command, customization["collectors"][collector_id] == "required")
+             for collector_id, command in selected], selected_diagnostics
+        ) if selected else []
+        status = {collector_id: ok for (collector_id, _), ok in zip(selected, results)}
+        diagnostics_by_collector = {
+            collector_id: diagnostic for (collector_id, _), diagnostic in zip(selected, selected_diagnostics)
+        }
+        for collector_id, _ in optional:
+            diagnostics.append(diagnostics_by_collector.get(collector_id) or skipped_diagnostic(collector_id))
+        traffic_ok = status.get("traffic", False)
+        skill_ok = status.get("ai-security", False)
+        access_ok = status.get("access", False)
+        apptrust_ok = status.get("apptrust", False)
         if traffic_ok:
             run(commands[3], True, diagnostics)
         else:
             shutil.copyfile(run_dir / "data.base.json", run_dir / "data.traffic.json")
-        progress("[3/5] Applying the optional external benchmark context")
-        run(commands[4], True, diagnostics)
+        progress("[3/5] Applying selected external benchmark context")
+        if customization["collectors"]["economic"] == "disabled":
+            shutil.copyfile(run_dir / "data.traffic.json", run_dir / "data.economic.json")
+            diagnostics.append(skipped_diagnostic("economic"))
+        else:
+            economic_ok = run(commands[4], customization["collectors"]["economic"] == "required", diagnostics)
+            if not economic_ok:
+                shutil.copyfile(run_dir / "data.traffic.json", run_dir / "data.economic.json")
         ai_path = run_dir / "ai-security.json"
         if not ai_path.exists(): shutil.copyfile(run_dir / "ai-security-seed.json", ai_path)
-        if not skill_ok:
+        if customization["collectors"]["ai-security"] == "disabled":
+            merge = without_argument(commands[8], "--ai-catalog-evidence")
+        else:
+            merge = list(commands[8])
+        if not skill_ok and customization["collectors"]["ai-security"] != "disabled":
             value = json.loads(ai_path.read_text(encoding="utf-8")); value["status"] = "partial"
             value.setdefault("limitations", []).append("Skills security collection failed; see collection diagnostics.")
             ai_path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-        merge = commands[8]
         if not access_ok:
-            merge = [part for part in merge if part not in ("--access-governance-evidence", str(run_dir / "access-governance.json"))]
+            merge = without_argument(merge, "--access-governance-evidence")
         if not apptrust_ok:
-            merge = [part for part in merge if part not in ("--apptrust-evidence", str(run_dir / "apptrust.json"))]
+            merge = without_argument(merge, "--apptrust-evidence")
         run(merge, True, diagnostics)
         mark_period_completeness(run_dir / "data.current.json", args.period_completeness)
         progress("[4/5] Validating comparable week-over-week trends")

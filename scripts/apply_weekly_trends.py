@@ -38,6 +38,13 @@ def is_complete_week(report: dict) -> bool:
     return (report.get("meta") or {}).get("period_completeness", "complete") == "complete"
 
 
+def scope_signature(report: dict) -> tuple:
+    ledger = report.get("scope_ledger") or {}
+    scope_type = ledger.get("scope_type") or (report.get("meta") or {}).get("scope") or "all"
+    selected = tuple(sorted(ledger.get("selected_repository_keys") or []))
+    return scope_type, selected
+
+
 def metric_map(report: dict) -> dict[str, dict]:
     values: dict[str, dict] = {}
     for key in MODULE_KEYS:
@@ -93,8 +100,11 @@ def inject(report: dict, archives: list[tuple[Path, dict]], month: str, timezone
     current_bounds = period(report)
     as_of = current_bounds[1] if current_bounds else end
     candidates: dict[str, tuple[Path, dict, datetime, datetime]] = {}
+    current_scope = scope_signature(report)
     for run, item in archives:
         if not is_complete_week(item):
+            continue
+        if scope_signature(item) != current_scope:
             continue
         bounds = period(item)
         if not bounds:

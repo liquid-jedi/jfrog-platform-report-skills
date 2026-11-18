@@ -1,0 +1,27 @@
+profile_version = 1
+name = "github-engineering"
+
+[collectors]
+traffic = "auto"
+ai-security = "auto"
+access = "disabled"
+apptrust = "auto" # auto-disabled until AppTrust has a supported source-repository join
+economic = "disabled"
+
+[sections]
+include = ["executive", "trend", "artifactory", "xray", "apptrust", "recommendations", "evidence"]
+
+[scope]
+type = "source_repository"
+include = ["acme/payments-api", "acme/checkout-*"]
+exclude = ["acme/checkout-archive"]
+
+[[scope.source_mappings]]
+source = "acme/payments-api"
+repositories = ["payments-release-local", "payments-build-info"]
+projects = ["PAY"]
+
+[[scope.source_mappings]]
+source = "acme/checkout-web"
+repositories = ["checkout-release-local"]
+projects = ["CHK"]

@@ -59,6 +59,15 @@ class WeeklyTrendTests(unittest.TestCase):
         self.assertEqual(trend["series"], [])
         self.assertIn("excluded from WoW", trend["interpretation"])
 
+    def test_different_repository_scopes_are_not_compared(self):
+        previous = report("2026-11-02T00:00:00Z", "2026-11-08T23:59:59Z", 10, 20)
+        previous["scope_ledger"] = {"scope_type": "artifactory_repository", "selected_repository_keys": ["repo-a"]}
+        current = report("2026-11-09T00:00:00Z", "2026-11-15T23:59:59Z", 15, 22)
+        current["scope_ledger"] = {"scope_type": "artifactory_repository", "selected_repository_keys": ["repo-b"]}
+        value = TRENDS.inject(current, [(Path("previous"), previous)], "2026-11", "UTC")
+        self.assertEqual([week["period_key"] for week in value["weekly_trend"]["weeks"]], ["2026-11-15"])
+        self.assertEqual(value["weekly_trend"]["series"], [])
+
     def test_bad_metric_value_renders_red_semantics(self):
         html = RENDER.card({"id": "xray-critical-findings", "classification": "observed",
                             "label": "Critical findings", "value": 2, "unit": "findings",

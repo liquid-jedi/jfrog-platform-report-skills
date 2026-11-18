@@ -1,0 +1,37 @@
+name: Validate nightly
+
+on:
+  push:
+    branches:
+      - nightly/**
+  pull_request:
+    branches:
+      - nightly/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run test suite
+        run: python -m unittest discover -s tests -p 'test_*.py'
+
+      - name: Validate example customization profile
+        run: >-
+          python scripts/customization_profile.py
+          --profile examples/profiles/github-engineering.toml
+          --output /tmp/github-engineering-profile.json
+
+      - name: Verify generated profile JSON
+        run: python -m json.tool /tmp/github-engineering-profile.json >/dev/null

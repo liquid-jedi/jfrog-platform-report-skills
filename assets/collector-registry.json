@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "collectors": [
+    {"id": "base-platform", "label": "Artifactory, Xray and Curation", "default_mode": "required", "configurable": false, "scope_support": ["all", "artifactory_repository", "jfrog_project", "source_repository"]},
+    {"id": "traffic", "label": "Artifactory traffic counters", "default_mode": "auto", "configurable": true, "scope_support": ["all"]},
+    {"id": "ai-security", "label": "AI skill security", "default_mode": "auto", "configurable": true, "scope_support": ["all"]},
+    {"id": "access", "label": "Access, tokens and OIDC", "default_mode": "auto", "configurable": true, "scope_support": ["all"]},
+    {"id": "apptrust", "label": "AppTrust", "default_mode": "auto", "configurable": true, "scope_support": ["all"]},
+    {"id": "economic", "label": "External Forrester benchmark", "default_mode": "required", "configurable": true, "scope_support": ["all", "artifactory_repository", "jfrog_project", "source_repository"]}
+  ]
+}

@@ -179,6 +179,59 @@ in [Troubleshooting](TROUBLESHOOTING.md#an-existing-installation-is-pinned-to-an
 
 Commit `apm.yml` and `apm.lock.yaml` together in a shared workspace.
 
+## Test the modular nightly preview
+
+The nightly channel is for evaluation, not production reporting. Normal unpinned APM
+installs and upgrades continue to resolve the production-ready default branch. Nightly
+testers must opt in with the exact immutable prerelease tag.
+
+Create an isolated APM project:
+
+```bash
+mkdir -p ~/jfrog-platform-report-nightly
+cd ~/jfrog-platform-report-nightly
+apm init -y
+```
+
+Install nightly `v1.7.0-nightly.20261118.1` for one installed agent:
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.7.0-nightly.20261118.1 \
+  --target claude
+apm deps list
+apm audit
+```
+
+Start the selected agent from that directory and prompt:
+
+```text
+Generate weekly JFrog Platform dashboard using the github-engineering profile
+```
+
+The bundled example profile is located at
+`.agents/skills/jfrog-platform-report/examples/profiles/github-engineering.toml` after
+installation. Copy it to a customer-owned location before editing it. The agent can pass
+the copied path to the deterministic weekly runner. A run without a profile retains the
+stable full-dashboard behavior.
+
+Validate the copied profile before a live run:
+
+```bash
+python3 .agents/skills/jfrog-platform-report/scripts/customization_profile.py \
+  --profile /absolute/path/to/profile.toml
+```
+
+Remove the nightly package from the isolated project:
+
+```bash
+apm uninstall liquid-jedi/jfrog-platform-report-skills
+apm deps list
+```
+
+Uninstalling the Skill does not delete generated reports or customer-owned profile
+files. Keep or remove the isolated APM project separately. To evaluate another nightly,
+use its exact tag in a fresh isolated project. Do not replace the tag with a branch name.
+
 ## Platform compatibility
 
 | Platform | Status | Notes |

@@ -5,10 +5,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from customization_profile import load_profile, resolve_repository_scope
 
 
 def metric(mid, label, value, unit, classification, source, formula="API field", time_basis=None):
@@ -44,6 +48,7 @@ def main() -> int:
     parser.add_argument("--evidence", required=True, type=Path)
     parser.add_argument("--raw-dir", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--profile", type=Path)
     args = parser.parse_args()
     evidence = load(args.evidence)
     raw = args.raw_dir
@@ -54,6 +59,7 @@ def main() -> int:
     end = datetime.fromisoformat(period["end"].replace("Z", "+00:00")).astimezone(zone)
     period_label = start.strftime("%B %Y") if end.day >= 28 else f"{start.strftime('%B %d').replace(' 0', ' ')}–{end.strftime('%d, %Y').lstrip('0')}"
 
+    customization = load_profile(args.profile)
     repositories = load(raw / "artifactory-repositories.json")
     storage = load(raw / "artifactory-storage.json")
     watches_payload = load(raw / "xray-watches.json")
@@ -66,10 +72,32 @@ def main() -> int:
     curation_rows = raw_pages(raw, "curation-audit-w", "data")
     violations = raw_pages(raw, "xray-violations-", "violations")
 
+    selected_repositories, scope_ledger = resolve_repository_scope(customization, repositories)
+    scoped = customization["scope"]["type"] != "all"
+    if scoped:
+        repositories = [row for row in repositories
+                        if str(row.get("key") or row.get("repoKey") or "") in selected_repositories]
+        storage["repositoriesSummaryList"] = [
+            row for row in storage.get("repositoriesSummaryList", [])
+            if row.get("repoKey") == "TOTAL" or str(row.get("repoKey") or "") in selected_repositories
+        ]
+        curation_rows = [row for row in curation_rows
+                         if str(row.get("curated_repository_name") or "") in selected_repositories]
+        filtered_violations = []
+        for row in violations:
+            affected = {str(path).split("/", 1)[0] for path in row.get("impacted_artifacts") or []}
+            if affected.intersection(selected_repositories):
+                filtered_violations.append(row)
+        violations = filtered_violations
+        indexed = [row for row in indexed if str(row.get("name") or row.get("repo") or row.get("repo_name") or "") in selected_repositories]
+        non_indexed = [row for row in non_indexed if str(row.get("name") or row.get("repo") or row.get("repo_name") or "") in selected_repositories]
+
     repo_types = Counter(str(row.get("type") or "unknown").lower() for row in repositories)
     package_types = Counter(str(row.get("packageType") or "unknown") for row in repositories)
     storage_rows = [row for row in storage.get("repositoriesSummaryList", []) if row.get("repoKey") != "TOTAL"]
     binaries = storage.get("binariesSummary") or {}
+    scoped_storage_bytes = sum(int(row.get("usedSpaceInBytes") or 0) for row in storage_rows)
+    scoped_files = sum(int(row.get("filesCount") or 0) for row in storage_rows)
     top_storage = sorted(storage_rows, key=lambda row: int(row.get("usedSpaceInBytes") or 0), reverse=True)[:10]
 
     curation_scope = evidence["curation"]["period"]["collection"]
@@ -160,6 +188,11 @@ def main() -> int:
         ), "watches", "derived", "Xray watches API", "count(active=false and assigned_policies is empty)", "point_in_time"),
         metric("xray-policies", "Policies", len(policies), "policies", "observed", "Xray policies API", "count(policies)", "point_in_time"),
     ]
+    if scoped:
+        xray_metrics = [row for row in xray_metrics if row["id"] not in {
+            "xray-watches", "xray-active-watches", "xray-active-watches-without-policies",
+            "xray-inactive-watches-without-policies", "xray-policies",
+        }]
 
     ai_types = {"AIEditorExtensions", "AgentPackages", "AgentPlugins", "HuggingFaceML", "MachineLearning", "NimModel", "Skills"}
     ai_repos = [row for row in repositories if row.get("packageType") in ai_types]
@@ -175,6 +208,12 @@ def main() -> int:
         f"Artifactory, Xray configuration and AI repository inventory are current-state observations as of {evidence['artifactory']['as_of']}; they are not historical month-end snapshots.",
         curation_scope.get("reason") or "Curation period coverage is complete.",
     ]
+    if scoped:
+        limitations.append(
+            "Repository and project scope is applied before metric calculation. Platform-wide Xray watch, policy, "
+            "Access, AppTrust and other posture evidence is not attributed to the selected repositories unless a "
+            "collector supplies an explicit supported relationship."
+        )
     availability_notes = [
         {"area": "Economic context", "status": "Optional external benchmark",
          "current_state": "The optional Forrester benchmark stage has not run yet.",
@@ -189,7 +228,10 @@ def main() -> int:
     risks = [{"title": "Critical Xray intake", "detail": f"{severity.get('critical', 0):,} critical findings were created in the selected period."}]
     if curation_status != "available":
         risks.append({"title": "Curation history gap", "detail": curation_scope.get("reason")})
-    outcomes = [{"title": "Xray evidence complete", "detail": f"All {len(violations):,} reported period findings were collected and reconciled."}]
+    outcomes = [{"title": "Xray evidence complete", "detail": (
+        f"{len(violations):,} collected period findings matched the selected scope."
+        if scoped else f"All {len(violations):,} reported period findings were collected and reconciled."
+    )}]
     if complete_curation:
         outcomes.append({"title": "Preventive control activity", "detail": f"Curation evaluated {len(curation_rows):,} requests and blocked {len(blocked):,}."})
     actions = [{"title": "Prioritize critical findings", "detail": "Assign owners to the highest-impact critical findings and validate fix availability."}]
@@ -205,7 +247,10 @@ def main() -> int:
                  "timezone": report_timezone,
                  "generated": datetime.now(timezone.utc).date().isoformat(), "fallback_used": False,
                  "persona": "Platform, security and technology leadership",
-                 "report_purpose": "Periodic operating review of platform adoption, supply-chain risk, governance and prioritized action."},
+                 "report_purpose": "Periodic operating review of platform adoption, supply-chain risk, governance and prioritized action.",
+                 "scope": customization["scope"]["type"], "profile": customization["name"]},
+        "customization": customization,
+        "scope_ledger": scope_ledger,
         "evidence_revalidation": {"message": "Fresh API evidence only. Historical activity and current-state inventory are displayed with separate timestamps."},
         "executive_signals": [
             metric("xray-new-findings", "Period Xray findings", len(violations), "findings", "observed", "Xray violations API", "count(period rows)"),
@@ -222,9 +267,9 @@ def main() -> int:
             metric("federated-repositories", "Federated", repo_types.get("federated", 0), "count", "observed", "Artifactory repository API"),
         ], "package_types": package_types.most_common(15)},
         "artifactory_detail": {"status": "available", "collected_at": evidence["artifactory"]["as_of"], "metrics": [
-            metric("artifact-storage", "Artifact storage", binaries.get("artifactsSize"), "", "observed", "Artifactory storage API"),
-            metric("artifacts-count", "Artifacts", binaries.get("artifactsCount"), "count", "observed", "Artifactory storage API"),
-            metric("binary-dedup-optimization", "Binary deduplication", binaries.get("optimization"), "", "observed", "Artifactory storage API"),
+            metric("artifact-storage", "Artifact storage", scoped_storage_bytes if scoped else binaries.get("artifactsSize"), "bytes" if scoped else "", "derived" if scoped else "observed", "Artifactory storage API", "sum(selected repository usedSpaceInBytes)" if scoped else "API field"),
+            metric("artifacts-count", "Artifacts", scoped_files if scoped else binaries.get("artifactsCount"), "count", "derived" if scoped else "observed", "Artifactory storage API", "sum(selected repository filesCount)" if scoped else "API field"),
+            *([] if scoped else [metric("binary-dedup-optimization", "Binary deduplication", binaries.get("optimization"), "", "observed", "Artifactory storage API")]),
         ], "repository_types": repo_types.most_common(), "package_types": package_types.most_common(15),
             "top_storage": [{"repository": row.get("repoKey"), "used_space": row.get("usedSpace"), "files": row.get("filesCount"),
                              "package_type": row.get("packageType"), "project": row.get("projectKey") or "Unassigned"} for row in top_storage],
@@ -241,14 +286,19 @@ def main() -> int:
                  "violations_by_severity": [(key.title(), value) for key, value in severity.most_common()],
                  "violations_by_type": vtypes.most_common(), "top_cves": cves.most_common(10),
                  "top_affected_repositories": affected_repositories.most_common(10),
-                 "collection_note": f"Complete bounded collection: {len(violations):,} of {evidence['xray']['period']['collection']['total_reported']:,} API-reported findings."},
+                 "collection_note": (f"Complete bounded collection filtered to the selected scope: {len(violations):,} matching findings."
+                                     if scoped else f"Complete bounded collection: {len(violations):,} of {evidence['xray']['period']['collection']['total_reported']:,} API-reported findings.")},
         "ai_catalog": {"status": "available", "metrics": ai_metrics,
                        "repositories_by_type": Counter(str(row.get("packageType")) for row in ai_repos).most_common(),
                        "repositories_by_repository_type": Counter(str(row.get("type") or "unknown") for row in ai_repos).most_common(),
                        "note": f"Current AI repository footprint as of {evidence['ai_catalog']['as_of']}; asset scan status requires a separately timestamped supported collector."},
-        "jas": {"status": "available", "metrics": [metric("jas-policies", "Policies with JAS criteria", len(jas_policies), "policies", "observed", "Xray policy API")],
-                "capabilities": [], "applicability": [], "policy_names": [row.get("name") for row in jas_policies],
-                "note": "Current policy configuration only; period JAS findings are not inferred from policy definitions."},
+        "jas": ({"status": "unavailable", "metrics": [metric("jas-policies", "Policies with JAS criteria", None, "policies", "unavailable", "Xray policy API", "No supported scoped policy attribution")],
+                 "capabilities": [], "applicability": [], "policy_names": [],
+                 "note": "Platform-wide JAS policy configuration is not attributed to a repository-scoped report."}
+                if scoped else
+                {"status": "available", "metrics": [metric("jas-policies", "Policies with JAS criteria", len(jas_policies), "policies", "observed", "Xray policy API")],
+                 "capabilities": [], "applicability": [], "policy_names": [row.get("name") for row in jas_policies],
+                 "note": "Current policy configuration only; period JAS findings are not inferred from policy definitions."}),
         "economic_model": {"status": "unavailable", "scenarios": {}, "assumptions": [], "unavailable_models": []},
         "limitations": limitations,
         "availability_notes": availability_notes,

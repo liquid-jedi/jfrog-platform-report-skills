@@ -8,7 +8,7 @@ description: >-
   full-platform, and offline fixture modes. Do not use for a security-only CISO report.
 metadata:
   role: workflow
-  version: "1.6.4"
+  version: "1.7.0-nightly.20261118.1"
 ---
 
 # JFrog Platform Dashboard Skill
@@ -38,8 +38,11 @@ and render. Never calculate financial or platform KPIs in free-form reasoning.
   and trend. Show year-to-date and estate totals only as context.
 - Put report type, inclusive start date, inclusive end date, server, scope, and
   live/fixture provenance in the masthead. Never make the reader infer the period.
-- Build and validate the full capability evidence model before applying profile filters.
-  Profiles hide modules; they do not change collection semantics or calculations.
+- Build and validate the full capability evidence model before applying section filters.
+  Section profiles hide modules without changing calculations. An explicit customization
+  profile may additionally scope repository records before calculation, but it must keep
+  the immutable raw collection, expose a scope ledger and compare trends only with an
+  identical scope.
 - A live report run must collect its primary evidence from JFrog again. Never use an
   earlier report, rendered HTML, normalized `data.json`, or product snapshot to fill a
   metric in the new report. Prior validated reports may be read only after the current
@@ -100,6 +103,15 @@ envelopes without treating them as historical activity. Cross-watch violations a
 components, and impacted artifacts; period-created findings are never labeled open backlog.
 Use `scripts/render_report.py --modules all` for the complete report or pass a
 comma-separated subset such as `--modules curation,xray,evidence`.
+The source tree also contains an experimental, backward-compatible profile foundation.
+`scripts/customization_profile.py --profile <file>` validates a version 1 TOML profile,
+and `scripts/run_live_weekly.py --profile <file>` applies its optional collector modes,
+section selection and explicit repository/project scope. Absence of `--profile` retains
+the existing full-report behavior. Source-repository scope requires explicit mappings;
+never infer a JFrog relationship from a similar GitHub repository name. Collectors that
+cannot truthfully honor a selected scope are disabled in `auto` mode or rejected in
+`required` mode. Treat [the customization contract](docs/CUSTOMIZATION-DRAFT.md) as a
+local draft until it is promoted into the public documentation.
 Use `scripts/export_report_pdfs.py` after rendering to produce the dedicated light-paper
 Executive and Full PDF presentations. PDF export changes presentation only and consumes
 the same validated report HTML and embedded JSON.
