@@ -96,7 +96,10 @@ def main():
             ("apptrust-critical-unowned", "Critical applications without an owner", inventory.get("critical_unowned"), "applications", "derived", "count(criticality = critical and owners is empty)", "bad"),
             ("apptrust-versions", "Enriched application versions", governance.get("versions_total"), "versions", "observed", "count versions on high-value applications", "neutral"),
             ("apptrust-trusted-releases", "Trusted releases", governance.get("trusted_releases"), "versions", "derived", "count(releaseStatus = TRUSTED_RELEASE)", "good"),
-            ("apptrust-failed-promotions", "Failed or rejected promotions", sum((governance.get("promotion_status") or {}).get(key, 0) for key in ("FAILED", "REJECTED")), "promotions", "derived", "count(status in FAILED, REJECTED)", "bad"),
+            ("apptrust-failed-promotions", "Failed or rejected promotions", (
+                sum(governance["promotion_status"].get(key, 0) for key in ("FAILED", "REJECTED"))
+                if "promotion_status" in governance else None
+            ), "promotions", "derived", "count(status in FAILED, REJECTED)", "bad"),
             ("apptrust-verified-evidence", "Verified evidence records", attestations.get("verified"), "records", "derived", "count(verified = true)", "good"),
             ("apptrust-unverified-evidence", "Unverified evidence records", attestations.get("unverified"), "records", "derived", "count(verified = false)", "bad"),
             ("apptrust-gate-certifications", "Gate certification evidence", attestations.get("gate_certifications"), "records", "derived", "count(predicate slug contains gate)", "good"),

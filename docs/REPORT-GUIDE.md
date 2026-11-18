@@ -108,8 +108,9 @@ complete bounded logs exist. A single cumulative value remains a baseline.
 | Evidence predicates | Which release records are verified or unverified? | Qualifies trust in release-gate decisions |
 
 The collector fully paginates application inventory and enriches high-value applications.
-A truncated nested version, promotion or evidence connection is unavailable, never a
-partial count. Application-specific vulnerability impact is not inferred without a
+If detail enrichment is unsupported or truncated, complete application inventory remains
+visible while versions, promotions and evidence are marked unavailable. A partial detail
+count is never published. Application-specific vulnerability impact is not inferred without a
 deterministic Xray-to-artifact/build-to-application relationship.
 
 ### AI security

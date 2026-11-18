@@ -151,6 +151,26 @@ class LiveWeeklyRunnerTests(unittest.TestCase):
             self.assertEqual(executive["apptrust-critical-unowned"], 1)
             self.assertEqual(executive["apptrust-unverified-evidence"], 2)
 
+    def test_partial_apptrust_inventory_does_not_invent_release_zeroes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); report = root / "report.json"; evidence = root / "apptrust.json"; output = root / "out.json"
+            report.write_text(json.dumps({"executive_signals": []}))
+            evidence.write_text(json.dumps({
+                "status": "partial", "collected_at": "2026-11-17T00:00:00Z", "source": "test",
+                "inventory": {"applications_total": 46, "criticality": {"critical": 5}, "maturity": {"production": 12}, "unowned": 14, "critical_unowned": 2},
+                "release_governance": {}, "evidence": {}, "applications": [],
+                "collection": {"complete": False, "detail_complete": False},
+                "reason": "inventory succeeded; details unavailable", "limitations": [],
+            }))
+            subprocess.run([sys.executable, str(ROOT / "scripts" / "merge_current_evidence.py"), "--report", str(report),
+                            "--apptrust-evidence", str(evidence), "--output", str(output)],
+                           check=True, capture_output=True, text=True)
+            value = json.loads(output.read_text())
+            metrics = {row["id"]: row["value"] for row in value["apptrust"]["metrics"]}
+            self.assertEqual(metrics["apptrust-applications"], 46)
+            self.assertNotIn("apptrust-failed-promotions", metrics)
+            self.assertNotIn("apptrust-verified-evidence", metrics)
+
 
 if __name__ == "__main__":
     unittest.main()

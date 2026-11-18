@@ -63,8 +63,9 @@ jf config add
 jf config show
 ```
 
-Python 3.11 or later is required. Install the official JFrog plugin for your agent so
-the base JFrog Platform Skill is available. For Codex:
+Python 3.11 or later is required. For live reporting, the agent also needs the base
+JFrog integration guidance. The recommended installation is the official JFrog plugin,
+which includes the base JFrog Skill and supporting JFrog agent integrations. For Codex:
 
 ```bash
 codex plugin marketplace add jfrog/codex-plugin
@@ -98,8 +99,9 @@ jf config add
 jf config show
 ```
 
-Install the JFrog plugin for the agent that runs inside WSL. The Dashboard Skill requires
-the base JFrog Platform Skill as well as the JFrog CLI.
+Install the JFrog plugin for the agent that runs inside WSL. The Dashboard Skill uses
+the base JFrog Skill included in that plugin; the JFrog CLI remains the authenticated
+transport used by the deterministic collectors.
 
 ### 3. Install the Dashboard Skill with APM
 
@@ -224,8 +226,25 @@ shown in the initial installation command is a package coordinate, not a JFrog s
 | Git and APM | Resolves and pins the Skill package for reproducible installation |
 | JFrog CLI | Provides authenticated, read-only access to the selected JFrog instance |
 | One or more configured JFrog servers | First use lists every `jf config show` instance for explicit selection |
-| Official JFrog plugin and base Platform Skill | Provides supported CLI and API operating guidance for the selected agent |
+| Official JFrog plugin | Recommended installation of the required base JFrog Skill and supporting agent integrations |
 | Claude Code, Codex, Cursor, Gemini CLI or Google Antigravity | Agent host used to invoke and orchestrate the Skill |
+
+### Optional: JFrog Boost
+
+[JFrog Boost](https://github.com/jfrog/boost) is optional and is not required to collect
+or render a report. It can reduce repetitive terminal and tool output read by supported
+coding agents, which may lower context usage during large collections. It does not make
+JFrog APIs respond faster or replace pagination, validation, the JFrog plugin, or the
+JFrog CLI. Boost is currently preview software; review its preview terms and telemetry
+disclosure before installing it.
+
+On macOS, Linux or WSL:
+
+```bash
+curl -fsSL https://boost.jfrog.com/install.sh | bash
+boost init --dry-run
+boost init
+```
 
 ## Inputs and decisions
 

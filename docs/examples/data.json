@@ -41,16 +41,6 @@
       "risk_state": "good"
     },
     {
-      "id": "binary-cache-hit-rate",
-      "label": "Cache hit rate",
-      "value": 87.4,
-      "unit": "%",
-      "classification": "derived",
-      "source": "Synthetic demonstration fixture",
-      "formula": "Direct synthetic fixture value",
-      "risk_state": "good"
-    },
-    {
       "id": "curation-users",
       "label": "Curation unique users",
       "value": 38,
@@ -242,36 +232,6 @@
         "source": "Synthetic demonstration fixture",
         "formula": "Direct synthetic fixture value",
         "risk_state": "neutral"
-      },
-      {
-        "id": "period-downloads",
-        "label": "Downloads during report period",
-        "value": 1842900,
-        "unit": "requests",
-        "classification": "derived",
-        "source": "Synthetic demonstration fixture",
-        "formula": "period-end counter - period-start counter",
-        "risk_state": "neutral"
-      },
-      {
-        "id": "period-uploads",
-        "label": "Uploads during report period",
-        "value": 128400,
-        "unit": "requests",
-        "classification": "derived",
-        "source": "Synthetic demonstration fixture",
-        "formula": "period-end counter - period-start counter",
-        "risk_state": "neutral"
-      },
-      {
-        "id": "binary-cache-hit-rate",
-        "label": "Binary provider cache hit rate",
-        "value": 87.4,
-        "unit": "%",
-        "classification": "derived",
-        "source": "Synthetic demonstration fixture",
-        "formula": "cache hits / cache requests x 100",
-        "risk_state": "neutral"
       }
     ],
     "repository_types": [
@@ -338,15 +298,10 @@
       "counters": {
         "download_requests_total": 98432000,
         "upload_requests_total": 6214800
-      },
-      "period_delta": {
-        "download_requests_delta": 1842900,
-        "upload_requests_delta": 128400,
-        "cache_fs_hit_rate": "87.4%"
       }
     },
     "interpretation": [
-      "Artifact traffic increased 5.8% while cache efficiency remained above the 85% operating threshold.",
+      "Cumulative traffic counters establish a timestamped baseline for future boundary comparisons.",
       "The three largest repositories account for 35.8% of stored bytes and should have explicit retention ownership."
     ]
   },
@@ -1664,6 +1619,34 @@
         ]
       },
       {
+        "id": "curation-users",
+        "label": "Curation unique users",
+        "polarity": "higher_is_better",
+        "latest_change_percent": 5.6,
+        "points": [
+          {
+            "period_key": "2026-10-11",
+            "label": "Oct 5-11",
+            "value": 31
+          },
+          {
+            "period_key": "2026-10-18",
+            "label": "Oct 12-18",
+            "value": 33
+          },
+          {
+            "period_key": "2026-10-25",
+            "label": "Oct 19-25",
+            "value": 36
+          },
+          {
+            "period_key": "2026-11-01",
+            "label": "Oct 26-31",
+            "value": 38
+          }
+        ]
+      },
+      {
         "id": "xray-critical-findings",
         "label": "Critical findings",
         "polarity": "lower_is_better",
@@ -1688,34 +1671,6 @@
             "period_key": "2026-11-01",
             "label": "Oct 26-31",
             "value": 126
-          }
-        ]
-      },
-      {
-        "id": "traffic-downloads",
-        "label": "Artifact downloads",
-        "polarity": "contextual",
-        "latest_change_percent": 5.9,
-        "points": [
-          {
-            "period_key": "2026-10-11",
-            "label": "Oct 5-11",
-            "value": 1612000
-          },
-          {
-            "period_key": "2026-10-18",
-            "label": "Oct 12-18",
-            "value": 1698000
-          },
-          {
-            "period_key": "2026-10-25",
-            "label": "Oct 19-25",
-            "value": 1741000
-          },
-          {
-            "period_key": "2026-11-01",
-            "label": "Oct 26-31",
-            "value": 1842900
           }
         ]
       }

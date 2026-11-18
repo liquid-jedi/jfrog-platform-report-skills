@@ -123,21 +123,20 @@ def main() -> int:
     vtypes = Counter(str(row.get("type") or "Unknown") for row in violations)
     cves = Counter()
     applicability = Counter()
-    oldest_created = None
     impacted = set()
     for row in violations:
-        for cve in row.get("cves") or ([row.get("cve")] if row.get("cve") else []):
+        row_cves = set(row.get("cves") or ([row.get("cve")] if row.get("cve") else []))
+        row_cves.update(detail.get("cve_id") for detail in row.get("applicability") or [] if detail.get("cve_id"))
+        row_cves.update(
+            detail.get("vulnerability_id") for detail in row.get("applicability_details") or []
+            if str(detail.get("vulnerability_id") or "").upper().startswith("CVE-")
+        )
+        for cve in row_cves:
             if cve:
                 cves[str(cve)] += 1
         impacted.update(str(path) for path in (row.get("impacted_artifacts") or []))
         for detail in row.get("applicability_details") or []:
             applicability[str(detail.get("result") or "unknown")] += 1
-        if row.get("created"):
-            try:
-                parsed = datetime.fromisoformat(str(row["created"]).replace("Z", "+00:00"))
-                oldest_created = parsed if oldest_created is None or parsed < oldest_created else oldest_created
-            except ValueError:
-                pass
     affected_repositories = Counter(path.split("/")[0] for path in impacted if "/" in path)
     active_watches = sum(bool((row.get("general_data") or {}).get("active", row.get("active"))) for row in watches)
     indexed_total = len(indexed) + len(non_indexed)
@@ -147,12 +146,18 @@ def main() -> int:
         metric("xray-high-findings", "High violations", severity.get("high", 0), "findings", "derived", "Xray violations API", "severity = high", "period_activity"),
         metric("xray-applicable", "Applicable findings", applicability.get("applicable", 0), "findings", "derived", "Xray applicability details", "count(result = applicable)", "period_activity"),
         metric("xray-rescan-required", "Findings requiring rescan", applicability.get("rescan_required", 0), "findings", "derived", "Xray applicability details", "count(result = rescan_required)", "period_activity"),
-        metric("xray-oldest-period-finding", "Oldest finding in report period", oldest_created.date().isoformat() if oldest_created else None, "date", "derived" if oldest_created else "unavailable", "Xray violations API", "minimum(created)", "period_activity"),
-        metric("xray-fix-available", "Findings with verified fix versions", None, "findings", "unavailable", "Xray resource summary enrichment", "count(fixed_versions is not empty)", "period_activity"),
         metric("xray-indexed", "Indexed repositories", len(indexed), "repositories", "observed", "Xray repository API", "count(indexed)", "point_in_time"),
         metric("xray-index-coverage", "Repository indexing coverage", pct(len(indexed), indexed_total), "%", "derived", "Xray repository API", "indexed / eligible × 100", "point_in_time"),
         metric("xray-watches", "Watches", len(watches), "watches", "observed", "Xray watches API", "count(watches)", "point_in_time"),
         metric("xray-active-watches", "Active watches", active_watches, "watches", "derived", "Xray watches API", "count(active=true)", "point_in_time"),
+        metric("xray-active-watches-without-policies", "Active watches without policies", sum(
+            bool((row.get("general_data") or {}).get("active", row.get("active"))) and not (row.get("assigned_policies") or [])
+            for row in watches
+        ), "watches", "derived", "Xray watches API", "count(active=true and assigned_policies is empty)", "point_in_time"),
+        metric("xray-inactive-watches-without-policies", "Inactive watches without policies", sum(
+            not bool((row.get("general_data") or {}).get("active", row.get("active"))) and not (row.get("assigned_policies") or [])
+            for row in watches
+        ), "watches", "derived", "Xray watches API", "count(active=false and assigned_policies is empty)", "point_in_time"),
         metric("xray-policies", "Policies", len(policies), "policies", "observed", "Xray policies API", "count(policies)", "point_in_time"),
     ]
 
@@ -177,9 +182,9 @@ def main() -> int:
         {"area": "Inventory trends", "status": "Baseline established",
          "current_state": "Artifactory, Xray configuration and AI inventory are point-in-time observations.",
          "next_step": "Subsequent archived weekly snapshots enable change and trend comparisons."},
-        {"area": "Artifact traffic", "status": "Boundary snapshots required",
-         "current_state": "Download, upload and cache counters need two matching snapshots; historical activity is not inferred from one cumulative counter.",
-         "next_step": "The live runner now captures a counter snapshot each run; the next comparable snapshot enables a defensible delta."},
+        {"area": "Artifact traffic", "status": "Current-state counters retained",
+         "current_state": "Cumulative counters are timestamped snapshots and are not attributed to a backdated report period.",
+         "next_step": "Compare snapshots only when they genuinely bound the reporting period."},
     ]
     risks = [{"title": "Critical Xray intake", "detail": f"{severity.get('critical', 0):,} critical findings were created in the selected period."}]
     if curation_status != "available":

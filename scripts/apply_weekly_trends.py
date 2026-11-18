@@ -16,8 +16,6 @@ POLARITY = {
     "unique-blocked-packages": "contextual",
     "xray-new-findings": "lower_is_better", "xray-critical-findings": "lower_is_better",
     "xray-high-findings": "lower_is_better",
-    "period-downloads": "contextual", "period-uploads": "contextual",
-    "binary-cache-hit-rate": "higher_is_better",
 }
 
 MODULE_KEYS = ("curation", "xray", "artifactory_detail", "ai_catalog", "access_governance", "jas", "runtime", "platform")
@@ -43,6 +41,11 @@ def is_complete_week(report: dict) -> bool:
 def metric_map(report: dict) -> dict[str, dict]:
     values: dict[str, dict] = {}
     for key in MODULE_KEYS:
+        if key == "access_governance":
+            collected_at = (report.get(key) or {}).get("collected_at")
+            bounds = period(report)
+            if not collected_at or not bounds or not (bounds[0] <= parse(collected_at) <= bounds[1]):
+                continue
         for item in (report.get(key) or {}).get("metrics") or []:
             if item.get("id") and isinstance(item.get("value"), (int, float)):
                 values[item["id"]] = item

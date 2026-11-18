@@ -41,8 +41,8 @@ def build_access_governance(access_evidence):
         "collected_at": access_evidence.get("collected_at"),
         "metrics": [
             metric("access-active-tokens", "Active access tokens", tokens.get("listed_active"), "tokens", "observed", "Access token inventory"),
-            metric("access-new-tokens-7d", "Tokens issued in last 7 days", tokens.get("issued_last_7_days"), "tokens", "derived", "Access token inventory", "issued_at within 7 days of collection"),
-            metric("access-new-tokens-30d", "Tokens issued in last 30 days", tokens.get("issued_last_30_days"), "tokens", "derived", "Access token inventory", "issued_at within 30 days of collection"),
+            metric("access-new-tokens-7d", "Active tokens issued in 7 days before collection", tokens.get("issued_last_7_days"), "tokens", "derived", "Access token inventory", "active token issued_at within 7 days before collected_at"),
+            metric("access-new-tokens-30d", "Active tokens issued in 30 days before collection", tokens.get("issued_last_30_days"), "tokens", "derived", "Access token inventory", "active token issued_at within 30 days before collected_at"),
             metric("access-expiring-7d", "Tokens expiring within 7 days", tokens.get("expires_within_7_days"), "tokens", "derived", "Access token inventory", "0 < expiry - collected_at <= 7 days"),
             metric("access-expiring-30d", "Tokens expiring within 30 days", tokens.get("expires_within_30_days"), "tokens", "derived", "Access token inventory", "0 < expiry - collected_at <= 30 days"),
             metric("access-long-lived", "Tokens valid beyond 90 days", tokens.get("long_lived_over_90_days"), "tokens", "derived", "Access token inventory", "expiry - collected_at > 90 days"),
@@ -56,7 +56,7 @@ def build_access_governance(access_evidence):
         "rotation_queue": tokens.get("rotation_queue") or [],
         "providers_by_family": oidc.get("providers_by_family") or [],
         "repository_claim_patterns": oidc.get("repository_claim_patterns") or [],
-        "note": tokens.get("expired_note"),
+        "note": "Token metrics are current-state posture as of collection time, not historical activity for a backdated report period. " + str(tokens.get("expired_note") or ""),
         "privacy_note": tokens.get("privacy_note"),
     }
 
@@ -128,9 +128,6 @@ def main() -> int:
             metric("binary-dedup-optimization", "Binary deduplication", binaries.get("optimization"), "", "observed", "Artifactory storage summary"),
             metric("empty-repositories", "Storage-bearing repositories with no files", empty_repositories, "repositories", "derived", "Artifactory storage summary", "count(filesCount = 0 and repoType != virtual)"),
             metric("projects-with-storage", "Projects represented", len(project_keys), "projects", "derived", "Artifactory storage summary", "distinct(projectKey)"),
-            metric("period-downloads", "Downloads during report period", None, "downloads", "unavailable", "Open Metrics or period logs", "counter delta or bounded event count"),
-            metric("period-uploads", "Uploads during report period", None, "uploads", "unavailable", "Open Metrics or period logs", "counter delta or bounded event count"),
-            metric("binary-cache-hit-rate", "Binary provider cache hit rate", None, "%", "unavailable", "Artifactory Open Metrics", "download delta / (download delta + not-found delta) × 100"),
         ],
         "repository_types": sorted(repo_types.items(), key=lambda x: x[1], reverse=True),
         "package_types": package_types.most_common(15),
@@ -140,7 +137,7 @@ def main() -> int:
         "interpretation": [
             f"{empty_repositories:,} non-virtual repositories currently report no stored files; validate whether they are intentional scaffolding, unused caches or retirement candidates.",
             f"The current storage estate spans {len(project_keys):,} JFrog Projects.",
-            "Period downloads, uploads, cache-hit rate and reliability require an event or observability source and are not inferred from storage inventory."
+            "Cumulative traffic counters are retained as timestamped snapshots for future boundary comparisons and are not attributed to a backdated period."
         ]
     }
 
@@ -168,8 +165,6 @@ def main() -> int:
     violations = deduplicate_violations(raw_violations)
     violation_severity = Counter(str(row.get("severity") or "Unknown") for row in violations)
     violation_types = Counter(str(row.get("type") or "Unknown") for row in violations)
-    fix_evidence_available = any("fix_versions" in row for row in violations)
-    fixed_findings = sum(bool(row.get("fix_versions")) for row in violations) if fix_evidence_available else None
     affected_artifacts = {path for row in violations for path in (row.get("impacted_artifacts") or [])}
     affected_components = {component for row in violations for component in (row.get("infected_components") or [])}
     affected_repositories = Counter()
@@ -179,21 +174,19 @@ def main() -> int:
             affected_repositories[parts[1] if parts[0] == "default" else parts[0]] += 1
     cves = Counter()
     applicability = Counter()
-    oldest_created = None
     for row in violations:
-        created = row.get("created")
-        if created:
-            try:
-                parsed = datetime.fromisoformat(str(created).replace("Z", "+00:00"))
-                oldest_created = parsed if oldest_created is None or parsed < oldest_created else oldest_created
-            except ValueError:
-                pass
+        row_cves = {
+            str(detail.get("cve_id")) for detail in row.get("applicability") or []
+            if detail.get("cve_id")
+        }
         for detail in row.get("applicability_details") or []:
             result = str(detail.get("result") or "unknown")
             applicability[result] += 1
             vulnerability_id = str(detail.get("vulnerability_id") or "")
             if vulnerability_id.startswith("CVE-"):
-                cves[vulnerability_id] += 1
+                row_cves.add(vulnerability_id)
+        for cve in row_cves:
+            cves[cve] += 1
     for item in report.get("executive_signals", []):
         if item.get("id") == "xray-index-coverage":
             item["value"] = pct(len(indexed), indexed_total)
@@ -206,6 +199,13 @@ def main() -> int:
             metric("xray-index-coverage", "Repository indexing coverage", pct(len(indexed), indexed_total), "%", "derived", "Xray binary manager", "indexed / eligible × 100"),
             metric("xray-watches", "Watches", len(watches), "count", "observed", "Xray watches"),
             metric("xray-active-watches", "Active watches", len(active_watches), "count", "observed", "Xray watches"),
+            metric("xray-active-watches-without-policies", "Active watches without policies", sum(
+                not (row.get("assigned_policies") or []) for row in active_watches
+            ), "watches", "derived", "Xray watches", "count(active=true and assigned_policies is empty)"),
+            metric("xray-inactive-watches-without-policies", "Inactive watches without policies", sum(
+                not bool((row.get("general_data") or {}).get("active", row.get("active")))
+                and not (row.get("assigned_policies") or []) for row in watches
+            ), "watches", "derived", "Xray watches", "count(active=false and assigned_policies is empty)"),
             metric("xray-covered-resources", "Resources named by active watches", len(set(covered_resources)), "resources", "derived", "Xray watches", "distinct(type, name) in active watches"),
             metric("xray-policies", "Policies", len(policies), "count", "observed", "Xray policies"),
             metric("xray-unassigned-policies", "Policies not assigned to an active watch", len(uncovered_policies), "policies", "derived", "Xray watches + policies", "policy names − active-watch assignments"),
@@ -216,8 +216,6 @@ def main() -> int:
             metric("xray-affected-artifacts", "Affected artifact paths", len(affected_artifacts), "artifacts", "derived", "Xray period violations", "distinct(impacted_artifacts)"),
             metric("xray-applicable", "Applicable findings", applicability.get("applicable", 0), "findings", "derived", "Xray applicability details", "count(result = applicable)"),
             metric("xray-rescan-required", "Findings requiring rescan", applicability.get("rescan_required", 0), "findings", "derived", "Xray applicability details", "count(result = rescan_required)"),
-            metric("xray-oldest-period-finding", "Oldest finding in report period", oldest_created.date().isoformat() if oldest_created else None, "date", "derived" if oldest_created else "unavailable", "Xray period violations", "minimum(created)"),
-            metric("xray-fix-available", "Findings with fix versions", fixed_findings, "findings", "derived" if fix_evidence_available else "unavailable", "Xray resource summary" if fix_evidence_available else "No supported fix-version enrichment supplied", "count(fix_versions is not empty) when the field is present"),
         ] if violations else prior_xray_period),
         "policy_types": dict(policy_types),
         "indexed_ecosystems": Counter(str(row.get("pkg_type") or "unknown") for row in indexed).most_common(15),

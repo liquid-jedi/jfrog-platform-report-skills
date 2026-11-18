@@ -66,9 +66,6 @@ def build():
     art_metrics = [
         metric("artifact-storage", "Artifact storage", 18.7, "TiB", "derived", formula="total bytes / 2^40"),
         metric("artifacts-count", "Artifacts stored", 9240000, "artifacts"),
-        metric("period-downloads", "Downloads during report period", 1842900, "requests", "derived", formula="period-end counter - period-start counter"),
-        metric("period-uploads", "Uploads during report period", 128400, "requests", "derived", formula="period-end counter - period-start counter"),
-        metric("binary-cache-hit-rate", "Binary provider cache hit rate", 87.4, "%", "derived", formula="cache hits / cache requests x 100"),
     ]
     curation_metrics = [
         metric("curation-decisions", "Requests evaluated", 68420, "requests"),
@@ -186,7 +183,6 @@ def build():
         "executive_signals": [
             metric("xray-critical-findings", "Critical findings", 126, "findings", risk_state="bad"),
             metric("curation-blocked", "Risky requests prevented", 187, "requests", risk_state="good"),
-            metric("binary-cache-hit-rate", "Cache hit rate", 87.4, "%", "derived", risk_state="good"),
             metric("curation-users", "Curation unique users", 38, "identities"),
             metric("access-long-lived", "Tokens valid beyond 90 days", 22, "tokens", "derived", risk_state="bad"),
             metric("access-non-expiring", "Tokens without expiry", 9, "tokens", "derived", risk_state="bad"),
@@ -224,9 +220,8 @@ def build():
             "traffic_evidence": {
                 "collected_at": "2026-11-01T08:00:00Z",
                 "counters": {"download_requests_total": 98432000, "upload_requests_total": 6214800},
-                "period_delta": {"download_requests_delta": 1842900, "upload_requests_delta": 128400, "cache_fs_hit_rate": "87.4%"},
             },
-            "interpretation": ["Artifact traffic increased 5.8% while cache efficiency remained above the 85% operating threshold.", "The three largest repositories account for 35.8% of stored bytes and should have explicit retention ownership."],
+            "interpretation": ["Cumulative traffic counters establish a timestamped baseline for future boundary comparisons.", "The three largest repositories account for 35.8% of stored bytes and should have explicit retention ownership."],
         },
         "curation": {
             "status": "available", "coverage_label": "Complete period collection",
@@ -371,8 +366,8 @@ def build():
             "series": [
                 series("curation-decisions", "Curation decisions", [58200, 61140, 64790, 68420], "higher_is_better"),
                 series("curation-blocked", "Blocked requests", [251, 224, 205, 187], "lower_is_better"),
+                series("curation-users", "Curation unique users", [31, 33, 36, 38], "higher_is_better"),
                 series("xray-critical-findings", "Critical findings", [184, 167, 149, 126], "lower_is_better"),
-                series("traffic-downloads", "Artifact downloads", [1612000, 1698000, 1741000, 1842900], "contextual"),
             ],
             "interpretation": "Synthetic weekly values demonstrate direction, polarity and comparable calendar-month trend analysis.",
         },

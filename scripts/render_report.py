@@ -19,7 +19,7 @@ ADVERSE_METRICS = {
     "runtime-critical-applicable", "runtime-integrity-violations",
     "curation-cache-gap-policies", "jas-applicable", "jas-rescan-required", "jas-not-scanned",
     "apptrust-unowned", "apptrust-critical-unowned", "apptrust-failed-promotions",
-    "apptrust-unverified-evidence",
+    "apptrust-unverified-evidence", "xray-active-watches-without-policies",
 }
 ADVERSE_TERMS = {
     "malicious", "suspicious", "vulnerable", "critical", "high",
@@ -358,22 +358,15 @@ def static_report(data, enabled=None):
         platform += '<h3 class="subhead">Storage and efficiency</h3><div class="grid">' + "".join(map(card, art.get("metrics", []))) + '</div>'
         traffic = art.get("traffic_evidence") or {}
         if traffic:
-            delta = traffic.get("period_delta") or {}
             counters = traffic.get("counters") or {}
             traffic_rows = [
-                ("Baseline collected", traffic.get("collected_at")),
+                ("Snapshot collected", traffic.get("collected_at")),
                 ("Cumulative successful download requests", number(counters.get("download_requests_total"))),
                 ("Cumulative successful upload requests", number(counters.get("upload_requests_total"))),
-                ("Download delta for report period", number(delta.get("download_requests_delta"))),
-                ("Upload delta for report period", number(delta.get("upload_requests_delta"))),
-                ("Cache hit rate", number(delta.get("cache_fs_hit_rate"))),
             ]
             platform += '<h3 class="subhead">Artifact traffic counters</h3>' + data_table(
                 "Traffic evidence", ["Measure", "Value"], traffic_rows)
-            if traffic.get("cache_metric_note"):
-                platform += ('<div class="callout neutral" style="margin-top:14px"><strong>Cache efficiency status:</strong> '
-                             + esc(traffic["cache_metric_note"]) + '</div>')
-            platform += '<p class="footnote">The cumulative baseline is current-state evidence. A monthly delta is shown only when both bounding snapshots exist; a missing boundary remains Unavailable rather than being reported as zero.</p>'
+            platform += '<p class="footnote">These are cumulative current-state counters captured for future boundary comparisons. They are not attributed to a backdated report period.</p>'
         platform += '<div class="split" style="margin-top:14px">' + bar_panel("Repository types", art.get("repository_types", [])) + bar_panel("Repository package types", art.get("package_types", [])) + '</div>'
         top_storage = [(x["repository"], x["used_space"], x["files"], x["package_type"], x["project"]) for x in art.get("top_storage", [])]
         platform += '<div style="margin-top:14px">' + data_table("Largest repositories by stored bytes", ["Repository", "Storage", "Files", "Package type", "Project"], top_storage) + '</div>'
@@ -421,6 +414,7 @@ def static_report(data, enabled=None):
             apptrust_body += '<div style="margin-top:14px">' + bar_panel(
                 "Application-version evidence", list(attestations["by_predicate"].items())) + '</div>'
         application_rows = []
+        detail_complete = (apptrust.get("collection") or {}).get("detail_complete", apptrust.get("status") == "available")
         for application in apptrust.get("applications") or []:
             versions = (application.get("versionsConnection") or {}).get("edges") or []
             nodes = [edge.get("node") or {} for edge in versions]
@@ -433,17 +427,16 @@ def static_report(data, enabled=None):
                 int((((version.get("evidenceSubject") or {}).get("evidenceConnection") or {}).get("totalCount")) or 0)
                 for version in nodes
             )
-            application_rows.append((
+            common = (
                 application.get("displayName") or application.get("key"), application.get("projectKey") or "Unassigned",
                 application.get("criticality") or "unspecified", application.get("maturityLevel") or "unspecified",
                 ", ".join(owner.get("name") for owner in (application.get("owners") or []) if owner.get("name")) or "Unowned",
-                len(nodes), ", ".join(sorted({str(node.get("currentStageName") or "Unpromoted") for node in nodes})),
-                failed, evidence_count,
-            ))
+            )
+            application_rows.append(common + ((len(nodes), ", ".join(sorted({str(node.get("currentStageName") or "Unpromoted") for node in nodes})), failed, evidence_count) if detail_complete else ()))
         if application_rows:
             apptrust_body += disclosure(
-                f"View high-value application details ({len(application_rows)})",
-                data_table("Application ownership and release posture", ["Application", "Project", "Criticality", "Maturity", "Owner", "Versions", "Stages", "Failed promotions", "Evidence"], application_rows),
+                f"View application details ({len(application_rows)})",
+                data_table("Application ownership and release posture", ["Application", "Project", "Criticality", "Maturity", "Owner"] + (["Versions", "Stages", "Failed promotions", "Evidence"] if detail_complete else []), application_rows),
                 True,
             )
         if apptrust.get("limitations"):

@@ -212,7 +212,7 @@ def summarize(applications: list[dict], detailed: list[dict], pages: int) -> dic
             "applications_total_reported": len(applications), "applications_fetched": len(applications),
             "application_pages": pages, "details_selected": len(detailed),
             "detail_policy": "criticality in critical/high OR maturity in production/end_of_life",
-            "complete": True,
+            "complete": True, "detail_complete": True,
         },
         "inventory": {
             "applications_total": len(applications),
@@ -251,11 +251,10 @@ def main() -> int:
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     client = OneModel(args.server_id, args.raw_dir)
+    applications: list[dict] = []
+    pages = 0
     try:
         applications, pages = collect_inventory(client)
-        details, _ = collect_details(client, applications)
-        result = summarize(applications, details, pages)
-        result["raw_manifest"] = client.sources
     except RuntimeError as exc:
         text = str(exc)
         lowered = text.lower()
@@ -269,6 +268,26 @@ def main() -> int:
             "evidence": {}, "applications": [], "limitations": ["Unavailable values are not converted to zero."],
             "raw_manifest": client.sources,
         }
+    else:
+        try:
+            details, _ = collect_details(client, applications)
+        except RuntimeError as exc:
+            result = summarize(applications, [], pages)
+            result.update({
+                "status": "partial",
+                "reason": f"Application inventory succeeded; release detail enrichment is unavailable: {exc}",
+                "release_governance": {},
+                "evidence": {},
+                "applications": applications,
+                "limitations": [
+                    "Application inventory, ownership, criticality and maturity are complete for the visible estate.",
+                    "Release versions, promotions and evidence are unavailable and are not converted to zero.",
+                ],
+            })
+            result["collection"].update({"complete": False, "detail_complete": False})
+        else:
+            result = summarize(applications, details, pages)
+        result["raw_manifest"] = client.sources
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(args.output)

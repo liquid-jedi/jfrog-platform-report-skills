@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 build/
+# macOS Finder metadata
+.DS_Store

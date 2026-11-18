@@ -86,7 +86,7 @@ results in a fixed order. Parallel completion order must never change raw filena
 diagnostics or normalized output.
 `scripts/collect_access_governance.py` for a redacted token/OIDC posture snapshot, and
 `scripts/collect_artifactory_traffic.py` on every live run to preserve cumulative
-application counters and calculate deltas from the preceding successful snapshot, and
+application counters for future genuine boundary comparisons, and
 `scripts/build_ai_security_evidence.py` to normalize MCP, skill, plugin and model
 security states without collapsing `N/A`, `Not scanned`, `Suspicious` or `Malicious`.
 For skills, use `scripts/collect_skill_security.py` to keep behavioral scan state,
@@ -109,7 +109,8 @@ Read [architecture](references/architecture.md) before extending collectors,
 
 For Artifactory traffic, prefer same-period Open Metrics counter deltas or bounded
 request/access/data-transfer logs. Never present cumulative AQL download statistics as
-weekly or monthly activity. Label the documented binary-provider cache-fs hit rate
+weekly or monthly activity. Do not attribute a delta between collection-time snapshots
+to a backdated report period merely because the report labels that period. Label the documented binary-provider cache-fs hit rate
 separately from remote-repository cache reuse.
 
 For AI Catalog reporting, keep four inventories distinct: governed models (including
@@ -124,7 +125,10 @@ collection date is visible; never represent it as month-end inventory.
 
 For Access governance, report the active-token inventory, issuance recency, configured
 expiry windows, non-expiring and never-used counts, OIDC providers, identity mappings,
-and repository claim patterns. The token list is not an expired-token history: classify
+and repository claim patterns. Issuance recency is relative to collection time and is
+current posture, not historical activity for a backdated report. Exclude it from a
+historical week-over-week trend unless the snapshot was collected inside that week.
+The token list is not an expired-token history: classify
 expired/revoked trend as unavailable until prior snapshots exist. Never emit token IDs,
 scopes, or secrets. When the user explicitly requests an operational rotation queue,
 put it in a collapsed appendix and expose only a deterministic safe reference, owner,

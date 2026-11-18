@@ -30,8 +30,8 @@
       <article class="card"><h3>See what needs attention</h3><p>Available platform signals are grouped into activity, risk, governance and follow-up actions.</p></article>
     </div></div></section>
     <section id="coverage"><div class="wrap"><div class="eyebrow">Coverage</div><h2>One dashboard across your JFrog Platform</h2><p>Start with Artifactory and automatically include additional capabilities when the required product access and data are available.</p><div class="grid">
-      <article class="card"><h3>Platform activity</h3><div class="metric">Artifactory</div><p>Repositories, storage, uploads, downloads, traffic deltas and cache efficiency.</p></article>
-      <article class="card"><h3>Software supply chain risk</h3><div class="metric">Xray and JAS</div><p>New findings, severity, coverage, exploitability and fix availability.</p></article>
+      <article class="card"><h3>Platform activity</h3><div class="metric">Artifactory</div><p>Repositories, storage, package types, ownership and timestamped cumulative traffic counters.</p></article>
+      <article class="card"><h3>Software supply chain risk</h3><div class="metric">Xray and JAS</div><p>New findings, severity, CVE frequency, indexing coverage, exploitability and policy attachment.</p></article>
       <article class="card"><h3>Application and release governance</h3><div class="metric">AppTrust</div><p>Criticality, maturity, ownership, release stages, promotions and verified attestations.</p></article>
       <article class="card"><h3>Preventive controls</h3><div class="metric">Curation</div><p>Requests evaluated, blocks, unique users, packages, policies and waivers.</p></article>
       <article class="card"><h3>Agentic governance</h3><div class="metric">AI security</div><p>MCP servers, skills, plugins and models with scan state, risk and project attribution.</p></article>
@@ -51,8 +51,11 @@ curl -fL https://install-cli.jfrog.io | sh
 curl -sSL https://aka.ms/apm-unix | sh
 exec "$SHELL" -l</code></pre></div><div class="step"><b>Configure JFrog</b><pre><code>jf config add
 jf config show</code></pre></div></article>
-      <article class="install-card wide"><h3>Install the official JFrog Platform Skill</h3><p>The Dashboard Skill depends on the base JFrog Platform Skill. Install the official JFrog plugin for the agent that will generate the dashboard.</p><div class="install-grid"><div><div class="step"><b>Codex plugin</b><pre><code>codex plugin marketplace add jfrog/codex-plugin
+      <article class="install-card wide"><h3>Install the official JFrog plugin</h3><p>Live reporting requires the base JFrog Skill. The official plugin is the recommended installation because it supplies that Skill together with supporting JFrog agent integrations. The deterministic collectors continue to authenticate through the JFrog CLI.</p><div class="install-grid"><div><div class="step"><b>Codex plugin</b><pre><code>codex plugin marketplace add jfrog/codex-plugin
 codex plugin add jfrog@codex-plugin</code></pre></div></div><div><div class="step"><b>Claude Code plugin</b><p>Start <code>claude</code>, open the plugin manager, and install <code>jfrog@claude-plugins-official</code>. Follow the official host-specific JFrog plugin instructions for other agents.</p></div></div></div></article>
+      <article class="install-card wide"><h3>Optional: reduce noisy agent output with JFrog Boost</h3><p>Boost is not required for report collection or rendering. It can compact repetitive terminal and tool output read by supported agents, but it does not accelerate JFrog APIs or replace pagination, validation, the JFrog plugin or the CLI. Boost is preview software; review its terms and telemetry disclosure before installing.</p><div class="step"><b>macOS, Linux or WSL</b><pre><code>curl -fsSL https://boost.jfrog.com/install.sh | bash
+boost init --dry-run
+boost init</code></pre></div><p><a href="https://github.com/jfrog/boost">Review the official Boost project</a></p></article>
       <article class="install-card wide"><h3>Install JFrog Platform Dashboard Skill with APM</h3><p>Choose the agent where APM should deploy the Skill. This example uses Claude Code.</p><div class="step"><b>Create the APM project</b><pre><code>mkdir -p ~/jfrog-platform-reporting
 cd ~/jfrog-platform-reporting
 apm init -y</code></pre></div><div class="step"><b>Install and verify</b><pre><code>apm install liquid-jedi/jfrog-platform-report-skills \

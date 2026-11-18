@@ -45,7 +45,7 @@ point-in-time. Never compare a point-in-time inventory with a period event count
   bundles when available; scan freshness and stale assets.
 - New and open violations; severity and security/license split; unique CVEs versus
   repeated occurrences; affected repositories, artifacts, builds, releases, and projects.
-- Most widespread CVEs, fix availability, and findings without a fix.
+- Most widespread CVEs. Show fix availability only when a supported enrichment returns structured fix versions; do not parse advisory prose or substitute zero.
 
 ### Remediation and governance
 
@@ -69,9 +69,10 @@ repository.
 - Verified and unverified evidence predicates associated with enriched high-value
   application versions.
 - The standard collector fully paginates application inventory and enriches critical,
-  high, production and end-of-life applications. If any bounded nested connection is
-  truncated, the collector reports the module unavailable rather than publishing a
-  partial count.
+  high, production and end-of-life applications. If detail enrichment is unsupported
+  or a bounded nested connection is truncated, preserve the complete inventory as a
+  partial module and mark release versions, promotions and evidence unavailable. Never
+  publish a partial detail count or convert it to zero.
 - Application vulnerability or fixability requires a deterministic relationship from
   Xray evidence through the affected artifact or build to the AppTrust application.
   Inventory similarity or repository naming is never sufficient attribution.

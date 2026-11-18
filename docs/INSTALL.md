@@ -20,8 +20,9 @@ jf config add
 jf config show
 ```
 
-Python 3.11 or later is required. Install the official JFrog plugin for the agent that
-will run the report. For Codex:
+Python 3.11 or later is required. For live reporting, install the official JFrog plugin
+for the agent that will run the report. The plugin is the recommended distribution of
+the required base JFrog Skill and includes supporting JFrog agent integrations. For Codex:
 
 ```bash
 codex plugin marketplace add jfrog/codex-plugin
@@ -30,7 +31,21 @@ codex plugin add jfrog@codex-plugin
 
 For Claude Code, start `claude`, open the plugin manager, and install
 `jfrog@claude-plugins-official`. Follow the official host-specific JFrog plugin
-instructions for other agents. The report requires the base JFrog Platform Skill.
+instructions for other agents. The deterministic collectors use the JFrog CLI; the
+agent uses the base JFrog Skill supplied by the plugin for supported operating guidance.
+
+### Optional: JFrog Boost
+
+Boost is not a reporting prerequisite. It can compact repetitive terminal and tool
+output read by supported coding agents, but it does not accelerate JFrog API responses
+or replace report pagination and validation. Boost is preview software, so review the
+[official project and disclosure](https://github.com/jfrog/boost) before installation.
+
+```bash
+curl -fsSL https://boost.jfrog.com/install.sh | bash
+boost init --dry-run
+boost init
+```
 
 ## 2. Install prerequisites in Windows WSL2
 
