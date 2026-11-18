@@ -217,6 +217,52 @@ shown in the initial installation command is a package coordinate, not a JFrog s
 
 [Installation details](docs/INSTALL.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 
+## Nightly tester preview
+
+An opt-in nightly is available for teams evaluating declarative report profiles. The
+preview can select dashboard sections, control optional collectors, and scope supported
+metrics to explicit Artifactory repositories, JFrog Projects or customer-maintained
+source repository mappings.
+
+Nightly code is isolated from `main`. Normal unpinned APM installs and upgrades continue
+to receive the production-ready build. Test the preview in a separate APM project and
+use the exact immutable tag:
+
+```bash
+mkdir -p ~/jfrog-platform-report-nightly
+cd ~/jfrog-platform-report-nightly
+apm init -y
+```
+
+```bash
+apm install liquid-jedi/jfrog-platform-report-skills#v1.7.0-nightly.20261118.2 \
+  --target claude
+apm deps list
+apm audit
+```
+
+Replace `claude` with the installed agent target. Start the selected agent in the same
+directory and enter:
+
+```text
+Generate weekly JFrog Platform dashboard using the github-engineering profile
+```
+
+The example profile and its limitations are documented on the
+[`nightly/customization-profiles`](https://github.com/liquid-jedi/jfrog-platform-report-skills/tree/nightly/customization-profiles)
+branch. Copy the example profile to a customer-owned path before editing it.
+
+Remove the preview from the isolated project with:
+
+```bash
+apm uninstall liquid-jedi/jfrog-platform-report-skills
+apm deps list
+```
+
+Uninstalling the Skill does not delete generated dashboards or customer-owned profiles.
+See the [nightly prerelease](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.7.0-nightly.20261118.2)
+for the exact build and release status.
+
 ## Requirements
 
 | Requirement | Purpose |
