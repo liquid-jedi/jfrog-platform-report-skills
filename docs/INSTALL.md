@@ -193,10 +193,10 @@ cd ~/jfrog-platform-report-nightly
 apm init -y
 ```
 
-Install nightly `v1.7.0-nightly.20261118.1` for one installed agent:
+Install nightly `v1.7.0-nightly.20261118.2` for one installed agent:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.7.0-nightly.20261118.1 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.7.0-nightly.20261118.2 \
   --target claude
 apm deps list
 apm audit
@@ -209,7 +209,7 @@ Generate weekly JFrog Platform dashboard using the github-engineering profile
 ```
 
 The bundled example profile is located at
-`.agents/skills/jfrog-platform-report/examples/profiles/github-engineering.toml` after
+`.agents/skills/jfrog-platform-report-skills/examples/profiles/github-engineering.toml` after
 installation. Copy it to a customer-owned location before editing it. The agent can pass
 the copied path to the deterministic weekly runner. A run without a profile retains the
 stable full-dashboard behavior.
@@ -217,7 +217,7 @@ stable full-dashboard behavior.
 Validate the copied profile before a live run:
 
 ```bash
-python3 .agents/skills/jfrog-platform-report/scripts/customization_profile.py \
+python3 .agents/skills/jfrog-platform-report-skills/scripts/customization_profile.py \
   --profile /absolute/path/to/profile.toml
 ```
 

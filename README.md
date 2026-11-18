@@ -5,7 +5,7 @@
 _Generate a weekly JFrog Platform dashboard with your AI agent._
 
 [![Agent Skill](https://img.shields.io/badge/AGENT%20SKILL-JFROG%20PLATFORM%20DASHBOARD-2ea043?style=for-the-badge&labelColor=555555)](SKILL.md)
-[![Release](https://img.shields.io/badge/NIGHTLY-v1.7.0--nightly.20261118.1-f2cc60?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.7.0-nightly.20261118.1)
+[![Release](https://img.shields.io/badge/NIGHTLY-v1.7.0--nightly.20261118.2-f2cc60?style=for-the-badge&labelColor=555555)](https://github.com/liquid-jedi/jfrog-platform-report-skills/releases/tag/v1.7.0-nightly.20261118.2)
 [![Supported OS](https://img.shields.io/badge/OS-MACOS%20%7C%20LINUX%20%7C%20WSL-2ea043?style=for-the-badge&labelColor=555555)](#requirements)
 [![License](https://img.shields.io/badge/LICENSE-APACHE--2.0-2ea043?style=for-the-badge&labelColor=555555)](LICENSE)
 
@@ -226,7 +226,7 @@ shown in the initial installation command is a package coordinate, not a JFrog s
 
 ## Test the modular nightly
 
-Nightly `v1.7.0-nightly.20261118.1` previews declarative report profiles. A profile can
+Nightly `v1.7.0-nightly.20261118.2` previews declarative report profiles. A profile can
 select dashboard sections, set optional collectors to `auto`, `required` or `disabled`,
 and scope supported metrics to explicit Artifactory repositories, JFrog Projects or
 customer-maintained source repository mappings. The default run remains the existing
@@ -243,7 +243,7 @@ apm init -y
 Install the immutable nightly tag for the agent you want to test:
 
 ```bash
-apm install liquid-jedi/jfrog-platform-report-skills#v1.7.0-nightly.20261118.1 \
+apm install liquid-jedi/jfrog-platform-report-skills#v1.7.0-nightly.20261118.2 \
   --target claude
 apm deps list
 apm audit
@@ -265,7 +265,7 @@ inside the APM deployment directory.
 Validate a copied profile before live collection:
 
 ```bash
-python3 .agents/skills/jfrog-platform-report/scripts/customization_profile.py \
+python3 .agents/skills/jfrog-platform-report-skills/scripts/customization_profile.py \
   --profile /absolute/path/to/profile.toml
 ```
 
